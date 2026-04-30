@@ -104,11 +104,6 @@ No account required. Your data, your machine.
 | **Pricing** | Free / Pro $7 / Teams $15 / Business $30 | Very limited free tier (no sync) | Free | Free | Free | Free |
 | **License** | **AGPLv3 (Core)** | Commercial / Paid | MIT | Apache License Version 2.0 | MIT | MIT |
 | **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
 
 
 TODO add features I dont have (objective comparison) and make 🚧 if they are planned

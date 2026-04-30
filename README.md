@@ -75,34 +75,40 @@ No account required. Your data, your machine.
 
 ## ⚖️ Comparison
 
-| Feature                        | Voltius                                | Termius                          | [Reach](https://github.com/alexandrosnt/Reach) | [Termix](https://github.com/Termix-SSH/Termix) | Tabby               | PuTTY    |
-|:-------------------------------|:-----------------------------------------|:---------------------------------|:-----------------------------------------------|:-----------------------------------------------|:--------------------|:---------|
-| **Engine**                     | **Rust + Tauri** 🦀                      | Electron                | **Rust + Tauri** 🦀                            |                                                | Electron / Node.js           | C        |
-| **RAM Usage**                  | ~300MB                                | ~500MB+                          | ~300MB                                      | NOT TESTED                                     | NOT TESTED             | **~5MB** |
-| **Installed Size**             | ~60MB                                | ~1GB                           | ~60MB                                      | NOT TESTED                                     | NOT TESTED              | **~3MB** |
-| **Cloud Sync**                 | Gist (Free) / Real-Time (Paid)           | Proprietary (Paid)               | ❌                                              | ❌                                              | Community Plugins   | ❌        |
-| **Import/Export**              | ✅                                        |                                  |                                                |                                                |                     |          |
-| **Port Forwarding**            | ✅                                        | ✅                                |                                                |                                                |                     |          |
-| **Snippets**                   | ✅                                        | ✅                                |                                                |                                                |                     |          |
-| **Multi-Exec snippets**        |                                          |                                  |                                                |                                                |                     |          |
-| **Command Palette**            | ✅                                        | ✅                                |                                                |                                                |                     |          |
-| **Multi-tab**                  | ✅                                        | ✅                                |                                                |                                                |                     |          |
-| **Team vaults**                | ✅                                        | ✅                                |                                                |                                                |                     |          |
-| **Custom Themes**              | ✅                                        |                                  |                                                |                                                |                     |          |
-| **Folders &amp; Tags**         | ✅                                        | ✅                                | ✅                                              |                                                |                     |          |
-| **Auto-Updates**               | ✅                                        | ✅                                | ✅                                              |                                                |                     |          |
-| **Modern UI/UX**               | ✅                                        | ✅                                | 🟡                                             | ✅                                              | 🟡                  | ❌        |
-| **AI assistant**               | ❌                                        | ✅                                | ✅                                              |                                                |                     |          |
-| **Permissions**                | ✅ (Granular permissions w/ Custom Roles) | 🟡 (Basic)                       |                                                |                                                |                     |          |
-| **Terminal sharing**           | ✅ Pro (1 guest) / Teams (unlimited)      | ✅                                |                                                |                                                |                     |          |
-| **Security**                   | **End-to-End Encrypted**                 | Cloud Sync (Proprietary)         |                                                |                                                | Local Only / Manual |          |
-| **SFTP host&lt;-&gt;host**     | ✅                                        | ✅                                | ❌                                              |                                                | ❌                   | ❌        |
-| **Serial Console**             | ✅                                        | ✅                                |                                                |                                                |                     |          |
-| **Local-first**                | ✅ 100% (No account needed)               | ❌ (Requires account)             | ✅                                              | ✅                                              | ✅                   | ✅        |
-| **Plugins**                    | ✅                                        | ❌                                | ❌                                              | ❌                                              | ✅                   | ❌        |
-| **Platoforms**                 |                                          |                                  |                                                |                                                |                     |          |
-| **Pricing**                    | Free / Pro $7 / Teams $15 / Business $30 | Very limited free tier (no sync) | Free                                           | Free                                           | Free                | Free     |
-| **License**                    | **AGPLv3 (Core)**                        | Commercial / Paid                |                                                |                                                |                     |          |
+| Feature | Voltius | Termius | [Reach](https://github.com/alexandrosnt/Reach) | [Termix](https://github.com/Termix-SSH/Termix) | Tabby | PuTTY |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Engine** | **Rust + Tauri** 🦀 | Electron | **Rust + Tauri** 🦀 |  | Electron / Node.js | C |
+| **RAM Usage** | ~300MB | ~500MB+ | ~300MB | NOT TESTED | NOT TESTED | **~5MB** |
+| **Installed Size** | ~60MB | ~1GB | ~60MB | NOT TESTED | NOT TESTED | **~3MB** |
+| **Cloud Sync** | Gist (Free) / Real-Time (Paid) | 🟡 Only Pro | 🟡 Complex setup | ❌ | Community Plugins | ❌ |
+| **Import/Export** | ✅ |  | ✅ |  |  |  |
+| **Port Forwarding** | ✅ | ✅ | ✅ |  |  |  |
+| **Snippets** | ✅ | 🟡 Only Pro |  |  |  |  |
+| **Multi-Exec snippets** |  |  | ✅ |  |  |  |
+| **Command Palette** | ✅ | ✅ |  |  |  |  |
+| **Multi-tab** | ✅ | ✅ |  |  |  |  |
+| **Team vaults** | ✅ Teams or self-hosted | ✅ Teams plan | ✅ Free but complex |  |  |  |
+| **Custom Themes** | ✅ |  |  |  |  |  |
+| **Folders &amp; Tags** | ✅ | ✅ | ✅ |  |  |  |
+| **Auto-Updates** | ✅ | ✅ | ✅ |  |  |  |
+| **Modern UI/UX** | ✅ | ✅ | 🟡 | ✅ | 🟡 | ❌ |
+| **AI assistant** | ❌ | ✅ | ✅ |  |  |  |
+| **Permissions** | ✅ (Granular permissions w/ Custom Roles) | ✅ Granular perms |  |  |  |  |
+| **Terminal sharing** | ✅ Pro (1 guest) / Teams (unlimited) | ✅ needs Teams plan |  |  |  |  |
+| **Security** | **End-to-End Encrypted** | Proprietary E2EE | **End-to-End Encrypted** |  | Local Only / Manual |  |
+| **SFTP host&lt;-&gt;host** | ✅ | ✅ | ❌ |  | ❌ | ❌ |
+| **Serial Console** | ✅ | ✅ | ✅ |  |  |  |
+| **Local-first** | ✅ 100% (No account needed) | ❌ (Requires account) | ✅ | ✅ | ✅ | ✅ |
+| **Plugins** | ✅ | ❌ | ✅ | ❌ | ✅ | ❌ |
+| **Platforms** | Windows, Linux, MacOS (Mobile coming soon) | Windows, Linux, MacOS, Android, IOS | Windows, Linux, MacOS, Android | All (web-based) | Windows, Linux, MacOS, we | Windows, ReactOS, macOS, Linux |
+| **Pricing** | Free / Pro $7 / Teams $15 / Business $30 | Very limited free tier (no sync) | Free | Free | Free | Free |
+| **License** | **AGPLv3 (Core)** | Commercial / Paid | MIT | Apache License Version 2.0 | MIT | MIT |
+| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **OS Detection** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
 
 
 TODO add features I dont have (objective comparison) and make 🚧 if they are planned

@@ -121,7 +121,7 @@ export function HomeToolbar({
             onChange={setPreferredShell}
           />
 
-          <div className="w-px h-5 self-center bg-[var(--t-border-hover)] mx-1" />
+          <div className="w-px h-5 self-center bg-[var(--t-border)] mx-1" />
 
           <ToolbarDropdown
             icon="lucide:arrow-right-left"

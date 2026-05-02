@@ -34,7 +34,7 @@ export default function NavBar() {
       style={{
         height: "2.75rem",
         background: "var(--t-bg-sidebar)",
-        borderColor: "var(--t-bg-card-hover)",
+        borderColor: "var(--t-border)",
       }}
     >
       {NAV_ITEMS.map((item) => {

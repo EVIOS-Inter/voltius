@@ -233,11 +233,11 @@ export default function VaultHeader() {
 
   return (
     <div
-      className="flex items-center shrink-0 px-4 gap-4 border-b"
+      className="flex items-center shrink-0 px-4 gap-4 border-b rounded-tl-2xl"
       style={{
         height: "3.75rem",
         background: "var(--t-bg-sidebar)",
-        borderColor: "var(--t-bg-card-hover)",
+        borderColor: "var(--t-border)",
       }}
     >
       {/* Vault icon */}

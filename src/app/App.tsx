@@ -58,7 +58,7 @@ function App() {
       <TitleBar />
       <div className="flex flex-1 overflow-hidden">
         {!inTerminal && !sftpPanelOpen && <VaultSidebar />}
-        <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex flex-col flex-1 overflow-hidden bg-[var(--t-bg-terminal)]">
           {showVaultChrome && <VaultHeader />}
           {showVaultChrome && <NavBar />}
           <div className="flex flex-1 overflow-hidden">

@@ -72,7 +72,7 @@ export function KeychainToolbar({
           >
             {ripplesKey}
             <Icon icon="lucide:key-round" width={18} />
-            {!compact && "NEW KEY"}
+            {!compact && "New Key"}
           </button>
           <NewKeyChevron onImport={onImportKey} onGenerate={onGenerateKey} onNewIdentity={onNewIdentity} onNewFolder={onNewFolder} accent />
         </div>
@@ -114,15 +114,15 @@ function NewKeyChevron({ onGenerate, onNewIdentity, onNewFolder, accent }: { onI
         onClick={handleClick}
         onMouseDown={createRipple}
         className="flex items-center justify-center w-8 h-8 transition-colors relative overflow-hidden rounded-tr-[0.533rem] rounded-br-[0.533rem]"
-        style={{ background: accent ? "color-mix(in srgb, var(--t-accent) 80%, black)" : "var(--t-bg-input)" }}
+        style={{ background: accent ? "var(--t-accent)" : "var(--t-bg-input)" }}
         onMouseEnter={(e) => (e.currentTarget.style.background = accent ? "var(--t-accent-hover)" : "var(--t-bg-input-hover)")}
-        onMouseLeave={(e) => (e.currentTarget.style.background = accent ? "color-mix(in srgb, var(--t-accent) 80%, black)" : "var(--t-bg-input)")}
+        onMouseLeave={(e) => (e.currentTarget.style.background = accent ? "var(--t-accent)" : "var(--t-bg-input)")}
         type="button"
         aria-label="New key options"
       >
         {rippleEls}
         <span className="[&_path]:[stroke-width:3]">
-          <Icon icon="lucide:chevron-down" width={20} color="white" />
+          <Icon icon="lucide:chevron-down" width={20} color="var(--t-bg-terminal)" />
         </span>
       </button>
 

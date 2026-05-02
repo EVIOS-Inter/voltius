@@ -1077,7 +1077,7 @@ function EmptyState({ onAdd }: { onAdd?: () => void }) {
       <div
         className="w-16 h-16 rounded-2xl flex items-center justify-center bg-[var(--t-bg-sidebar)] border border-[var(--t-border)]"
       >
-        <Icon icon="lucide:monitor" width={28} className="text-[var(--t-border-hover)]" />
+        <Icon icon="lucide:monitor" width={28} className="text-[var(--t-text-dim)]" />
       </div>
       <div className="text-center">
         <p className="text-sm font-medium mb-1 text-[var(--t-text-primary)]">No hosts yet</p>

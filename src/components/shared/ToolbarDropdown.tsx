@@ -89,7 +89,7 @@ export function ToolbarDropdown<T extends string>({
     const actionBgHover = isAccent ? "var(--t-accent-hover)" : "var(--t-bg-input-hover)";
     const actionText = isAccent ? "var(--t-bg-terminal)" : "var(--t-text-primary)";
     const actionBorder = isAccent ? "var(--t-accent-hover)" : "var(--t-border-hover)";
-    const chevronBg = isAccent ? "color-mix(in srgb, var(--t-accent) 80%, black)" : "var(--t-bg-input)";
+    const chevronBg = isAccent ? "var(--t-accent)" : "var(--t-bg-input)";
     const chevronBgHover = isAccent ? "var(--t-accent-hover)" : "var(--t-bg-input-hover)";
 
     return (

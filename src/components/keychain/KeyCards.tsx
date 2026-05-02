@@ -63,7 +63,7 @@ export function EmptySection({
       <div
         className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--t-bg-sidebar)] border border-[var(--t-border)]"
       >
-        <Icon icon={icon} width={20} className="text-[var(--t-border-hover)]" />
+        <Icon icon={icon} width={20} className="text-[var(--t-text-dim)]" />
       </div>
       <div className="text-center">
         <p className="text-sm font-medium mb-1 text-[var(--t-text-primary)]">{title}</p>

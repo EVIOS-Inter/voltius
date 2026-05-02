@@ -98,9 +98,9 @@ export function SnippetsToolbar({
             type="button"
             aria-label="New snippet options"
             className="flex items-center justify-center w-8 h-8 transition-colors relative overflow-hidden rounded-tr-[0.533rem] rounded-br-[0.533rem]"
-            style={{ background: "color-mix(in srgb, var(--t-accent) 80%, black)" }}
+            style={{ background: "var(--t-accent)" }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "var(--t-accent-hover)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "color-mix(in srgb, var(--t-accent) 80%, black)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "var(--t-accent)")}
           >
             {ripplesChevron}
             <span className="[&_path]:[stroke-width:3]">

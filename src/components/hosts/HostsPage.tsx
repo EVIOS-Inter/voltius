@@ -1038,6 +1038,7 @@ export default function HostsPage() {
           onClose={closeBgMenu}
           items={[
             ...(canCreate ? [{ label: "New Host", icon: "lucide:server", onClick: () => { setEditingId(null); setShowForm(true); setShowSerialForm(false); setEditingFolderId(null); } } as const] : []),
+            ...(canCreate ? [{ label: "New Serial Host", icon: "lucide:ethernet-port", onClick: () => { setEditingId(null); setShowSerialForm(true); setShowForm(false); setEditingFolderId(null); } } as const] : []),
             ...(canCreateFolder ? [{ label: "New Folder", icon: "lucide:folder-plus", onClick: () => void saveFolder({ name: "New Folder", object_type: "connection", parent_folder_id: activeFolderId ?? undefined, vault_id: defaultVaultId }).then((f) => { setShowForm(false); setEditingId(null); setEditingFolderId(f.id); }) } as const] : []),
             ...bgContributions,
           ]}

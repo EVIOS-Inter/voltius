@@ -32,3 +32,5 @@ jobs:
 
       - name: Publish to npm
         run: cd crates/voltius-crypto-wasm/pkg && pnpm publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

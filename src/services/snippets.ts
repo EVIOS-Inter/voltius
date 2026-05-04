@@ -1,5 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Snippet, SnippetFormData, Folder, FolderFormData } from "@/types";
+import { getPaneSessionIds, useLayoutStore } from "@/stores/layoutStore";
+import { useSessionStore } from "@/stores/sessionStore";
+import { useTeamSessionStore } from "@/stores/teamSessionStore";
 
 // ─── Snippets ─────────────────────────────────────────────────────────────────
 
@@ -26,6 +29,33 @@ export async function snippetInject(
   execute: boolean,
 ): Promise<void> {
   return invoke("snippet_inject", { sessionId, sessionType, text, execute });
+}
+
+export async function broadcastSnippetInject(
+  activeSessionId: string,
+  activeSessionType: string,
+  text: string,
+  execute: boolean,
+): Promise<void> {
+  const layout = useLayoutStore.getState();
+  const paneSessionIds = getPaneSessionIds(layout.root);
+
+  if (layout.broadcastActive && layout.splitTabActive && paneSessionIds.includes(activeSessionId)) {
+    const sessions = useSessionStore.getState().sessions;
+    const mpConnections = useTeamSessionStore.getState().connections;
+    const injects: Promise<void>[] = [];
+    for (const targetId of paneSessionIds) {
+      const target = sessions.find((s) => s.id === targetId);
+      if (!target || target.status !== "connected" || target.type === "multiplayer") continue;
+      const mpState = mpConnections[target.id];
+      if (mpState && mpState.controlHolder !== "" && mpState.controlHolder !== mpState.myUserId) continue;
+      injects.push(snippetInject(target.id, target.type, text, execute));
+    }
+    await Promise.all(injects);
+    return;
+  }
+
+  return snippetInject(activeSessionId, activeSessionType, text, execute);
 }
 
 // ─── Snippet folders ──────────────────────────────────────────────────────────

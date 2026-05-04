@@ -280,9 +280,15 @@ export function useTerminal({ sessionId, sessionType, onClosed, inputGate, encod
       };
       window.addEventListener("resize", handleWindowResize);
 
-      // ResizeObserver for container size changes
+      // ResizeObserver for container size changes — debounced to avoid
+      // flickering when the user drags a split pane resize handle.
+      let fitTimer: ReturnType<typeof setTimeout> | null = null;
       const resizeObserver = new ResizeObserver(() => {
-        fitAddon.fit();
+        if (fitTimer !== null) clearTimeout(fitTimer);
+        fitTimer = setTimeout(() => {
+          fitTimer = null;
+          fitAddon.fit();
+        }, 50);
       });
       resizeObserver.observe(container);
 
@@ -300,6 +306,7 @@ export function useTerminal({ sessionId, sessionType, onClosed, inputGate, encod
         window.removeEventListener("resize", handleWindowResize);
         container.removeEventListener("contextmenu", handleContextMenu);
         resizeObserver.disconnect();
+        if (fitTimer !== null) clearTimeout(fitTimer);
         Promise.all(unlistenPromises).then((fns) => fns.forEach((fn) => fn()));
         term.dispose();
         termRef.current = null;

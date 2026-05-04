@@ -21,7 +21,7 @@ import { useImportExportContributions } from "@/hooks/useImportExportContributio
 import { useUIStore } from "@/stores/uiStore";
 import { useSnippetStore } from "@/stores/snippetStore";
 import { useSessionStore } from "@/stores/sessionStore";
-import { snippetInject } from "@/services/snippets";
+import { broadcastSnippetInject } from "@/services/snippets";
 import { initUpdaterListener } from "@/services/updater";
 import { NotificationToastContainer } from "@/components/notifications/NotificationToastContainer";
 import ThemeCreator from "@/components/theme-creator/ThemeCreator";
@@ -88,7 +88,7 @@ function App() {
               (s) => s.status === "connected" && s.type !== "multiplayer",
             );
             if (activeSession) {
-              snippetInject(activeSession.id, activeSession.type, resolvedText, execute).catch(console.error);
+              broadcastSnippetInject(activeSession.id, activeSession.type, resolvedText, execute).catch(console.error);
             }
             setGlobalPendingInject(null);
           }}

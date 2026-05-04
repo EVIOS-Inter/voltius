@@ -40,8 +40,12 @@ export function ResizeHandle({
   return (
     <div
       onMouseDown={onMouseDown}
-      className={direction === "h" ? "w-1 cursor-col-resize" : "h-1 cursor-row-resize"}
-      style={{ background: "var(--t-bg-terminal)", border: "1px solid color-mix(in srgb, var(--t-border) 55%, transparent)" }}
-    />
+      className={direction === "h" ? "w-1 cursor-col-resize flex items-center justify-center" : "h-1 cursor-row-resize flex items-center justify-center"}
+    >
+      <div
+        className={direction === "h" ? "w-1.5 h-10 rounded-full" : "h-1.5 w-10 rounded-full"}
+        style={{ background: "var(--t-accent)" }}
+      />
+    </div>
   );
 }

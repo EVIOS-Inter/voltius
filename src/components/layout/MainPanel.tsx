@@ -32,7 +32,8 @@ import { EmptySplitPane } from "@/components/panes/PaneTerminal";
 import { PaneView } from "@/components/panes/PaneView";
 import { usePaneDragController } from "@/components/panes/usePaneDragController";
 import { DropZones } from "@/components/panes/DropZones";
-import { useLayoutStore } from "@/stores/layoutStore";
+import { DragGhost } from "@/components/panes/DragGhost";
+import { getPaneSessionIds, useLayoutStore } from "@/stores/layoutStore";
 
 function NoVaultSelected() {
   return (
@@ -293,6 +294,7 @@ export default function MainPanel() {
   const accessibleVaultIds = useAccessibleVaultIds();
   const splitRoot = useLayoutStore((s) => s.root);
   const splitTabActive = useLayoutStore((s) => s.splitTabActive);
+  const splitSessionIds = splitRoot ? getPaneSessionIds(splitRoot) : [];
 
   usePaneDragController();
 
@@ -354,16 +356,23 @@ export default function MainPanel() {
         <>
           <div className="absolute inset-0 flex overflow-hidden">
             <div className="flex-1 relative">
-              {showSplitWorkspace ? (
-                <div className="absolute inset-0 flex overflow-hidden">
-                  {splitRoot ? <PaneView node={splitRoot} /> : <EmptySplitPane />}
+              {splitRoot && (
+                <div className={`absolute inset-0 flex overflow-hidden${showSplitWorkspace ? "" : " invisible pointer-events-none"}`}>
+                  <PaneView node={splitRoot} />
                 </div>
-              ) : (
-                sessions.map((session) => (
+              )}
+              {showSplitWorkspace && !splitRoot && (
+                <div className="absolute inset-0 flex overflow-hidden">
+                  <EmptySplitPane />
+                </div>
+              )}
+              {sessions
+                .filter((session) => !splitSessionIds.includes(session.id))
+                .map((session) => (
                   <div
                     key={session.id}
                     className={`absolute inset-0 ${
-                      session.id === activeSessionId ? "z-10" : "z-0 invisible"
+                      !showSplitWorkspace && session.id === activeSessionId ? "z-10" : "z-0 invisible"
                     }`}
                   >
                     {(session.status === "connecting" || session.status === "error" || session.status === "disconnected") && session.type !== "multiplayer" && (
@@ -398,8 +407,7 @@ export default function MainPanel() {
                       <DropZones target={{ type: "session", sessionId: session.id }} />
                     )}
                   </div>
-                ))
-              )}
+                ))}
             </div>
           </div>
           {overlayContent && (
@@ -415,6 +423,7 @@ export default function MainPanel() {
       >
         <SFTPPage />
       </div>
+      <DragGhost />
     </main>
   );
 }

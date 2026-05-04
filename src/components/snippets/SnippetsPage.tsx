@@ -17,7 +17,7 @@ import { useAllSnippets } from "@/hooks/useAllSnippets";
 import { useAllConnections } from "@/hooks/useAllConnections";
 import { DragSelectSurface } from "@/components/shared/DragSelectSurface";
 import { ContextMenu, useContextMenu, type ContextMenuItem } from "@/components/shared/ContextMenu";
-import { snippetInject } from "@/services/snippets";
+import { broadcastSnippetInject } from "@/services/snippets";
 import {
   parseVariables,
   needsUserInput,
@@ -431,7 +431,7 @@ export function SnippetsPage() {
     if (missing.length === 0) {
       const resolved = resolveTemplate(partialTemplate, initialValues);
       const payload = execute ? `${resolved}\n` : resolved;
-      await snippetInject(activeSession.id, activeSession.type, payload, execute).catch(console.error);
+      await broadcastSnippetInject(activeSession.id, activeSession.type, payload, execute).catch(console.error);
     } else {
       setPendingInject({ snippet, partialTemplate, userVars, initialValues, execute });
     }
@@ -837,7 +837,7 @@ export function SnippetsPage() {
         onInject={async (resolvedText, execute) => {
           if (!activeSession) return;
           const payload = execute ? `${resolvedText}\n` : resolvedText;
-          await snippetInject(activeSession.id, activeSession.type, payload, execute).catch(console.error);
+          await broadcastSnippetInject(activeSession.id, activeSession.type, payload, execute).catch(console.error);
           setPendingInject(null);
         }}
         onClose={() => setPendingInject(null)}

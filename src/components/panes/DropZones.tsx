@@ -12,10 +12,12 @@ type DropZoneTarget = { type: "pane"; paneId: string } | { type: "session"; sess
 
 export function DropZones({ target }: { target: DropZoneTarget }) {
   const isDragging = useDragStore((s) => s.isDragging);
+  const sourcePaneId = useDragStore((s) => s.sourcePaneId);
   const dropTarget = useDragStore((s) => s.dropTarget);
   const setDropTarget = useDragStore((s) => s.setDropTarget);
 
   if (!isDragging) return null;
+  if (target.type === "pane" && target.paneId === sourcePaneId) return null;
 
   const updateDropTarget = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();

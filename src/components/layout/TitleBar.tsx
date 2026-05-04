@@ -158,6 +158,7 @@ export default function TitleBar() {
           }}
           className="flex items-center gap-2.5 h-9 shrink-0 transition-all"
           style={{
+            marginLeft: "0.75rem",
             background: isVaultsActive ? "var(--t-vault-tab-active-bg)" : "var(--t-vault-tab-bg)",
             color: isVaultsActive ? "var(--t-text-primary)" : "var(--t-text-secondary)",
             borderRadius: "0.667rem",

@@ -12,7 +12,7 @@ import {
   parseVariables, needsUserInput, buildDynamicValues, buildDefaultValues,
   resolveTemplate, type DynamicContext,
 } from "@/services/snippetParser";
-import { snippetInject } from "@/services/snippets";
+import { broadcastSnippetInject } from "@/services/snippets";
 import type { Connection, TerminalSession, SshKey, Identity, Snippet } from "@/types";
 import { getDistroIcon, getDistroColor } from "@/utils/icons";
 import { SETTINGS_NAV } from "@/components/settings/settingsNav";
@@ -327,7 +327,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
           });
         } else {
           const resolved = resolveTemplate(partialTemplate, defaultValues);
-          snippetInject(activeSession.id, activeSession.type, resolved, true).catch(console.error);
+          broadcastSnippetInject(activeSession.id, activeSession.type, resolved, true).catch(console.error);
         }
       } else if ((item as any).kind === "ssh-quick") {
         const i = item as any;

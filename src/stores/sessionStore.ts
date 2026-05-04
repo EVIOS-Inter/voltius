@@ -8,6 +8,7 @@ import { useConnectionStore } from "./connectionStore";
 import { useUIStore } from "./uiStore";
 import { useIdentityStore } from "./identityStore";
 import { useTerminalSettingsStore } from "./terminalSettingsStore";
+import { useLayoutStore } from "./layoutStore";
 
 interface SessionStore {
   sessions: TerminalSession[];
@@ -69,6 +70,7 @@ async function startSession(
   };
 
   set((s) => ({ sessions: [...s.sessions, session], activeSessionId: sessionId }));
+  useLayoutStore.getState().setSplitTabActive(false);
 
   const jumpHosts = await resolveJumpHosts(connection);
 
@@ -172,6 +174,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       type: "local",
     };
     set((s) => ({ sessions: [...s.sessions, session], activeSessionId: sessionId }));
+    useLayoutStore.getState().setSplitTabActive(false);
     try {
       const preferredShell = useTerminalSettingsStore.getState().preferredShell;
       await localConnect(sessionId, 80, 24, preferredShell ?? undefined);
@@ -202,6 +205,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       type: "local",
     };
     set((s) => ({ sessions: [...s.sessions, session], activeSessionId: sessionId }));
+    useLayoutStore.getState().setSplitTabActive(false);
     try {
       const preferredShell = useTerminalSettingsStore.getState().preferredShell;
       await localConnect(sessionId, 80, 24, preferredShell ?? undefined, cwd);
@@ -262,6 +266,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     };
 
     set((s) => ({ sessions: [...s.sessions, session], activeSessionId: sessionId }));
+    useLayoutStore.getState().setSplitTabActive(false);
     useUIStore.getState().setActiveNav("terminal" as any);
     useUIStore.getState().setSidebarOpen(false);
 
@@ -293,6 +298,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       type: "serial",
     };
     set((s) => ({ sessions: [...s.sessions, session], activeSessionId: sessionId }));
+    useLayoutStore.getState().setSplitTabActive(false);
     useUIStore.getState().setActiveNav("terminal" as any);
     useUIStore.getState().setSidebarOpen(false);
   },
@@ -351,8 +357,9 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       activeSessionId:
         state.activeSessionId === sessionId
           ? (remaining[remaining.length - 1]?.id ?? null)
-          : state.activeSessionId,
+      : state.activeSessionId,
     } as any);
+    useLayoutStore.getState().removeSession(sessionId);
   },
 
   setActive: (sessionId) => set({ activeSessionId: sessionId } as any),
@@ -453,7 +460,8 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       activeSessionId:
         state.activeSessionId === sessionId
           ? (remaining[remaining.length - 1]?.id ?? null)
-          : state.activeSessionId,
+      : state.activeSessionId,
     } as any);
+    useLayoutStore.getState().removeSession(sessionId);
   },
 }));

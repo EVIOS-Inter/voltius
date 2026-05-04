@@ -28,6 +28,10 @@ import { PortForwardingPage } from "@/components/port_forwarding/PortForwardingP
 import MembersPage from "@/components/members/MembersPage";
 import { Icon } from "@iconify/react";
 import { useHostPingPolling } from "@/hooks/useHostPingPolling";
+import { EmptySplitPane } from "@/components/panes/PaneTerminal";
+import { PaneView } from "@/components/panes/PaneView";
+import { usePaneDragController } from "@/components/panes/usePaneDragController";
+import { useLayoutStore } from "@/stores/layoutStore";
 
 function NoVaultSelected() {
   return (
@@ -286,6 +290,10 @@ export default function MainPanel() {
   const activeNav = useUIStore((s) => s.activeNav);
   const sftpPanelOpen = useUIStore((s) => s.sftpPanelOpen);
   const accessibleVaultIds = useAccessibleVaultIds();
+  const splitRoot = useLayoutStore((s) => s.root);
+  const splitTabActive = useLayoutStore((s) => s.splitTabActive);
+
+  usePaneDragController();
 
   const noVaultSelected = accessibleVaultIds.length === 0;
   useHostPingPolling();
@@ -302,6 +310,7 @@ export default function MainPanel() {
     teamVaultStatus !== "not_found" &&
     teamVaultStatus !== "idle" &&
     !homeView;
+  const showSplitWorkspace = activeNav === ("terminal" as any) && splitTabActive && !sftpPanelOpen;
 
   // Determine vault/home overlay to show on top of terminals
   let overlayContent: React.ReactNode = null;
@@ -336,7 +345,7 @@ export default function MainPanel() {
         <div className="absolute inset-0 flex flex-col overflow-hidden">
           <TeamVaultState status={teamVaultStatus!} teamId={selectedTeamId!} />
         </div>
-      ) : sessions.length === 0 ? (
+      ) : sessions.length === 0 && !showSplitWorkspace ? (
         <div className="absolute inset-0 flex flex-col overflow-hidden">
           {overlayContent ?? <HostsPage />}
         </div>
@@ -344,43 +353,49 @@ export default function MainPanel() {
         <>
           <div className="absolute inset-0 flex overflow-hidden">
             <div className="flex-1 relative">
-              {sessions.map((session) => (
-                <div
-                  key={session.id}
-                  className={`absolute inset-0 ${
-                    session.id === activeSessionId ? "z-10" : "z-0 invisible"
-                  }`}
-                >
-                  {(session.status === "connecting" || session.status === "error" || session.status === "disconnected") && session.type !== "multiplayer" && (
-                    <SessionConnectionOverlay
-                      session={session}
-                      onDismiss={() => removeSession(session.id)}
-                      onRetry={(session.type === "ssh" || session.type === "serial") ? () => reconnect(session.id) : undefined}
-                    />
-                  )}
-                  {session.type === "multiplayer" ? (
-                    <div className="absolute inset-0 flex flex-col">
-                      <MultiplayerTerminalView
-                        localSessionId={session.id}
-                        active={session.id === activeSessionId && !overlayContent}
-                      />
-                      <MultiplayerBar localSessionId={session.id} />
-                    </div>
-                  ) : (
-                    <HostAwareTerminalView
-                      session={session}
-                      active={session.id === activeSessionId && session.status === "connected" && !overlayContent}
-                      onClosed={() => {
-                        if (session.type === "ssh" || session.type === "serial") {
-                          setTimeout(() => reconnect(session.id), 1500);
-                        } else {
-                          markDisconnected(session.id);
-                        }
-                      }}
-                    />
-                  )}
+              {showSplitWorkspace ? (
+                <div className="absolute inset-0 flex overflow-hidden">
+                  {splitRoot ? <PaneView node={splitRoot} /> : <EmptySplitPane />}
                 </div>
-              ))}
+              ) : (
+                sessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className={`absolute inset-0 ${
+                      session.id === activeSessionId ? "z-10" : "z-0 invisible"
+                    }`}
+                  >
+                    {(session.status === "connecting" || session.status === "error" || session.status === "disconnected") && session.type !== "multiplayer" && (
+                      <SessionConnectionOverlay
+                        session={session}
+                        onDismiss={() => removeSession(session.id)}
+                        onRetry={(session.type === "ssh" || session.type === "serial") ? () => reconnect(session.id) : undefined}
+                      />
+                    )}
+                    {session.type === "multiplayer" ? (
+                      <div className="absolute inset-0 flex flex-col">
+                        <MultiplayerTerminalView
+                          localSessionId={session.id}
+                          active={session.id === activeSessionId && !overlayContent}
+                        />
+                        <MultiplayerBar localSessionId={session.id} />
+                      </div>
+                    ) : (
+                      <HostAwareTerminalView
+                        session={session}
+                        active={session.id === activeSessionId && session.status === "connected" && !overlayContent}
+                        onClosed={() => {
+                          if (session.type === "ssh" || session.type === "serial") {
+                            setTimeout(() => reconnect(session.id), 1500);
+                          } else {
+                            markDisconnected(session.id);
+                          }
+                        }}
+                      />
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
           {overlayContent && (

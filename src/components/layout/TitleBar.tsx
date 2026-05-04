@@ -17,6 +17,9 @@ import { usePfToastBridge } from "@/hooks/usePfToastBridge";
 import { useSubscriptionStore } from "@/stores/subscriptionStore";
 import { usePluginRegistryStore } from "@/stores/pluginRegistryStore";
 import { SyncDropdown } from "@/components/layout/SyncDropdown";
+import { useDragStore } from "@/stores/dragStore";
+import { useLayoutStore } from "@/stores/layoutStore";
+import { shouldSuppressDragClick } from "@/components/panes/usePaneDragController";
 
 const appWindow = getCurrentWindow();
 
@@ -31,6 +34,10 @@ export default function TitleBar() {
   const activeThemeName = useThemeStore((s) => s.getActiveTheme().name);
   const { sessions, activeSessionId, setActive, disconnect, removeSession } = useSessionStore();
   const connections = useConnectionStore((s) => s.connections);
+  const splitRoot = useLayoutStore((s) => s.root);
+  const splitTabActive = useLayoutStore((s) => s.splitTabActive);
+  const openSplitTab = useLayoutStore((s) => s.openSplitTab);
+  const setSplitTabActive = useLayoutStore((s) => s.setSplitTabActive);
 
   usePfToastBridge();
 
@@ -73,7 +80,9 @@ export default function TitleBar() {
   const isSftpCompact = !sftpPanelOpen && sessions.length > 0;
 
   const handleTabClick = (sessionId: string) => {
+    if (shouldSuppressDragClick()) return;
     setSftpPanelOpen(false);
+    setSplitTabActive(false);
     setActive(sessionId);
     setActiveNav("terminal" as any);
   };
@@ -97,6 +106,7 @@ export default function TitleBar() {
     } else {
       removeSession(sessionId);
     }
+    useLayoutStore.getState().removeSession(sessionId);
     if (sessions.length <= 1) setActiveNav("hosts");
   };
 
@@ -181,8 +191,26 @@ export default function TitleBar() {
 
         {/* Scrollable session tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto flex-1 h-full min-w-0">
+        {(sessions.length > 0 || splitRoot) && (
+          <button
+            onClick={() => {
+              setSftpPanelOpen(false);
+              openSplitTab(splitRoot ? undefined : activeSessionId ?? sessions[0]?.id);
+              setActiveNav("terminal" as any);
+            }}
+            className="flex items-center justify-center size-9 rounded-xl shrink-0 transition-all"
+            title="Split panes"
+            style={{
+              background: splitTabActive && activeNav === ("terminal" as any) && !sftpPanelOpen ? "var(--t-tab-active-bg)" : "var(--t-tab-bg)",
+              color: splitTabActive && activeNav === ("terminal" as any) && !sftpPanelOpen ? "var(--t-tab-active-text)" : "var(--t-text-secondary)",
+              border: splitTabActive && activeNav === ("terminal" as any) && !sftpPanelOpen ? "1px solid var(--t-tab-active-border)" : "1px solid transparent",
+            }}
+          >
+            <Icon icon="lucide:panel-top-open" width={18} />
+          </button>
+        )}
         {sessions.map((session) => {
-          const isActive = session.id === activeSessionId && activeNav === ("terminal" as any) && !sftpPanelOpen;
+          const isActive = session.id === activeSessionId && activeNav === ("terminal" as any) && !sftpPanelOpen && !splitTabActive;
           const statusColor =
             session.status === "connected"  ? "var(--t-status-connected)" :
             session.status === "error"      ? "var(--t-status-error)" :
@@ -197,6 +225,9 @@ export default function TitleBar() {
             <button
               key={session.id}
               onClick={() => handleTabClick(session.id)}
+              onMouseDown={(e) => {
+                if (e.button === 0) useDragStore.getState().beginTabDrag(session.id, e.clientX, e.clientY);
+              }}
               onAuxClick={(e) => { if (e.button === 1) handleTabClose(e, session.id); }}
               className="group relative flex items-center gap-2 h-9 px-2 rounded-xl text-base font-medium-bold shrink-0 transition-all"
               style={{

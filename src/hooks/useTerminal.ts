@@ -9,6 +9,8 @@ import { serialWrite, onSerialOutput, onSerialClosed } from "@/services/serial";
 import { useThemeStore } from "@/stores/themeStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useSessionStore } from "@/stores/sessionStore";
+import { findLeaf, getPaneSessionIds, useLayoutStore } from "@/stores/layoutStore";
+import { useTeamSessionStore } from "@/stores/teamSessionStore";
 import type { UnlistenFn } from "@tauri-apps/api/event";
 
 interface UseTerminalOptions {
@@ -19,6 +21,48 @@ interface UseTerminalOptions {
   inputGate?: React.RefObject<() => boolean>;
   encoding?: string;
   onResize?: (cols: number, rows: number) => void;
+}
+
+function sendSessionInput(sessionId: string, sessionType: "ssh" | "local" | "serial", data: Uint8Array) {
+  if (sessionType === "local") {
+    localSendInput(sessionId, data);
+  } else if (sessionType === "serial") {
+    serialWrite(sessionId, data).catch(() => {});
+  } else {
+    sshSendInput(sessionId, data);
+  }
+}
+
+function focusPaneInDirection(direction: "left" | "right" | "up" | "down") {
+  const layout = useLayoutStore.getState();
+  if (!layout.activePaneId) return;
+  const activeEl = document.querySelector<HTMLElement>(`[data-pane-id="${layout.activePaneId}"]`);
+  if (!activeEl) return;
+  const activeRect = activeEl.getBoundingClientRect();
+  const activeCenter = { x: activeRect.left + activeRect.width / 2, y: activeRect.top + activeRect.height / 2 };
+  const candidates = Array.from(document.querySelectorAll<HTMLElement>("[data-pane-id]")).filter((el) => el.dataset.paneId !== layout.activePaneId);
+
+  let best: { paneId: string; distance: number } | null = null;
+  for (const el of candidates) {
+    const rect = el.getBoundingClientRect();
+    const center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    const dx = center.x - activeCenter.x;
+    const dy = center.y - activeCenter.y;
+    if (direction === "left" && dx >= 0) continue;
+    if (direction === "right" && dx <= 0) continue;
+    if (direction === "up" && dy >= 0) continue;
+    if (direction === "down" && dy <= 0) continue;
+    const primary = direction === "left" || direction === "right" ? Math.abs(dx) : Math.abs(dy);
+    const secondary = direction === "left" || direction === "right" ? Math.abs(dy) : Math.abs(dx);
+    const distance = primary * primary + secondary * secondary * 2;
+    if (!best || distance < best.distance) best = { paneId: el.dataset.paneId!, distance };
+  }
+
+  if (!best) return;
+  const leaf = findLeaf(layout.root, best.paneId);
+  if (!leaf) return;
+  layout.setActivePane(leaf.id);
+  useSessionStore.getState().setActive(leaf.sessionId);
 }
 
 export function useTerminal({ sessionId, sessionType, onClosed, inputGate, encoding, onResize }: UseTerminalOptions) {
@@ -78,6 +122,26 @@ export function useTerminal({ sessionId, sessionType, onClosed, inputGate, encod
 
       // Intercept app shortcuts before xterm processes them
       term.attachCustomKeyEventHandler((e: KeyboardEvent) => {
+        const layout = useLayoutStore.getState();
+        const isSplitPaneTerminal = layout.splitTabActive && getPaneSessionIds(layout.root).includes(sessionId);
+        if (isSplitPaneTerminal && e.ctrlKey && e.shiftKey && e.key === "Enter") {
+          if (e.type === "keydown") {
+            const activePaneId = layout.activePaneId;
+            if (activePaneId) layout.setMaximized(layout.maximizedPaneId === activePaneId ? null : activePaneId);
+          }
+          return false;
+        }
+        if (isSplitPaneTerminal && e.key === "Escape" && layout.maximizedPaneId) {
+          if (e.type === "keydown") useLayoutStore.getState().setMaximized(null);
+          return false;
+        }
+        if (isSplitPaneTerminal && e.ctrlKey && e.shiftKey && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+          if (e.type === "keydown") {
+            const direction = e.key === "ArrowLeft" ? "left" : e.key === "ArrowRight" ? "right" : e.key === "ArrowUp" ? "up" : "down";
+            focusPaneInDirection(direction);
+          }
+          return false;
+        }
         // Ctrl+Shift+P → always intercept (not used by shells)
         if (e.ctrlKey && e.shiftKey && e.key === "P") {
           if (e.type === "keydown") useUIStore.getState().setOmniOpen(true);
@@ -141,13 +205,22 @@ export function useTerminal({ sessionId, sessionType, onClosed, inputGate, encod
       const onDataDispose = term.onData((data) => {
         if (inputGate && !inputGate.current?.()) return;
         if (!connectedRef.current) return;
-        if (sessionType === "local") {
-          localSendInput(sessionId, encoder.encode(data));
-        } else if (sessionType === "serial") {
-          serialWrite(sessionId, encoder.encode(data)).catch(() => {});
-        } else {
-          sshSendInput(sessionId, encoder.encode(data));
+        const bytes = encoder.encode(data);
+        const layout = useLayoutStore.getState();
+        const paneSessionIds = getPaneSessionIds(layout.root);
+        if (layout.broadcastActive && layout.splitTabActive && paneSessionIds.includes(sessionId)) {
+          const sessions = useSessionStore.getState().sessions;
+          const mpConnections = useTeamSessionStore.getState().connections;
+          for (const targetId of paneSessionIds) {
+            const target = sessions.find((s) => s.id === targetId);
+            if (!target || target.status !== "connected" || target.type === "multiplayer") continue;
+            const mpState = mpConnections[target.id];
+            if (mpState && mpState.controlHolder !== "" && mpState.controlHolder !== mpState.myUserId) continue;
+            sendSessionInput(target.id, target.type === "serial" ? "serial" : target.type as "ssh" | "local", bytes);
+          }
+          return;
         }
+        sendSessionInput(sessionId, sessionType, bytes);
       });
 
       // Listen for output / closed events

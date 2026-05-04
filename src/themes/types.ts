@@ -12,6 +12,7 @@ export interface TerminalTheme {
 
 export interface UITheme {
   bgTerminal: string;    // titlebar + terminal bg
+  bgStatusBar: string;   // terminal status bar bg
   bgBase: string;        // homepage/main bg
   bgSidebar: string;     // sidebar
   bgCard: string;        // host cards

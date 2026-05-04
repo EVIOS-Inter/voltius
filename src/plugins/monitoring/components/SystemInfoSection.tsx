@@ -85,7 +85,7 @@ export function SystemInfoSection({ session }: { session: TerminalSession }) {
                 />
               )}
               {info.arch && (
-                <Row icon="lucide:chip" label="Arch" value={info.arch} />
+                <Row icon="lucide:cpu" label="Arch" value={info.arch} />
               )}
               {info.mem_total_kb > 0 && (
                 <Row icon="lucide:memory-stick" label="RAM" value={fmtMem(info.mem_total_kb)} />

@@ -13,6 +13,7 @@ export const BUILT_IN_THEMES: AppTheme[] = [
     terminalFontSize: 14,
     ui: {
       bgTerminal: "#0b1220",
+      bgStatusBar: "#171e2b",
       bgBase: "#111827",
       bgSidebar: "#010318",
       bgCard: "#1c2740",
@@ -76,6 +77,7 @@ export const BUILT_IN_THEMES: AppTheme[] = [
     terminalFontSize: 17,
     ui: {
       bgTerminal: "#282a36",
+      bgStatusBar: "#282a36",
       bgBase: "#21222C",
       bgSidebar: "#282a36",
       bgCard: "#2d2f3f",
@@ -128,6 +130,7 @@ export const BUILT_IN_THEMES: AppTheme[] = [
     terminalFontSize: 17,
     ui: {
       bgTerminal: "#2E3440",
+      bgStatusBar: "#2E3440",
       bgBase: "#242933",
       bgSidebar: "#2E3440",
       bgCard: "#353c4a",
@@ -180,6 +183,7 @@ export const BUILT_IN_THEMES: AppTheme[] = [
     terminalFontSize: 17,
     ui: {
       bgTerminal: "#1e1f1c",
+      bgStatusBar: "#1e1f1c",
       bgBase: "#18191A",
       bgSidebar: "#1e1f1c",
       bgCard: "#272822",
@@ -232,6 +236,7 @@ export const BUILT_IN_THEMES: AppTheme[] = [
     terminalFontSize: 17,
     ui: {
       bgTerminal: "#1a1b2e",
+      bgStatusBar: "#1a1b2e",
       bgBase: "#16161e",
       bgSidebar: "#1a1b2e",
       bgCard: "#1f2335",

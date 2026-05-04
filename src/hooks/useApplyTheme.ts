@@ -6,6 +6,7 @@ export function applyThemeToDom(theme: AppTheme) {
   const root = document.documentElement;
   const ui = theme.ui;
   root.style.setProperty("--t-bg-terminal", ui.bgTerminal);
+  root.style.setProperty("--t-bg-status-bar", ui.bgStatusBar);
   root.style.setProperty("--t-bg-base", ui.bgBase);
   root.style.setProperty("--t-bg-sidebar", ui.bgSidebar);
   root.style.setProperty("--t-bg-card", ui.bgCard);

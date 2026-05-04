@@ -34,6 +34,7 @@ export function MetricsPanel() {
 
   const [snap, setSnap] = useState<MetricsSnapshot | null>(null);
   const [disks, setDisks] = useState<DiskInfo[]>([]);
+  const [disksLoading, setDisksLoading] = useState(false);
   const [cpuH, setCpuH] = useState<number[]>([]);
   const [memH, setMemH] = useState<number[]>([]);
   const [rxH, setRxH] = useState<number[]>([]);
@@ -57,10 +58,13 @@ export function MetricsPanel() {
       setRxH([]);
       setTxH([]);
       setDisks([]);
+      setDisksLoading(false);
       return;
     }
 
     let cancelled = false;
+    setDisks([]);
+    setDisksLoading(true);
 
     (async () => {
       await stopStream();
@@ -72,18 +76,23 @@ export function MetricsPanel() {
         streamIdRef.current = sid;
 
         const unlisten = await onMetricsSnapshot(sid, (s) => {
+          if (cancelled) return;
           setSnap(s);
           setCpuH((h) => pushHistory(h, s.cpu_percent));
           setMemH((h) => pushHistory(h, s.mem_total_kb > 0 ? (s.mem_used_kb / s.mem_total_kb) * 100 : 0));
           setRxH((h) => pushHistory(h, s.net_rx_bytes_per_sec));
           setTxH((h) => pushHistory(h, s.net_tx_bytes_per_sec));
-          if (s.disks) setDisks(s.disks);
+          if (s.disks) {
+            setDisks(s.disks);
+            setDisksLoading(false);
+          }
         });
 
         if (cancelled) { unlisten(); metricsStop(sid).catch(() => {}); return; }
         unlistenRef.current = unlisten;
       } catch (e) {
         console.error("[monitoring] metrics_start failed:", e);
+        if (!cancelled) setDisksLoading(false);
       }
     })();
 
@@ -147,7 +156,9 @@ export function MetricsPanel() {
             history={txH}
           />
 
-          {disks.length > 0 && <DiskSection disks={disks} />}
+          {(disksLoading || disks.length > 0) && (
+            <DiskSection disks={disks} loading={disksLoading} />
+          )}
         </>
       )}
       <SystemInfoSection session={activeSession} />

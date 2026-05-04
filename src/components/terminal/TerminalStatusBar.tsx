@@ -78,6 +78,8 @@ function sparklinePoints(values: number[], width: number, height: number): strin
 }
 
 const SPARKLINE_MAX = 20;
+const statusBarItemClass = "h-full rounded-none transition-colors hover:bg-[var(--t-bg-card-hover)]";
+const statusBarIdentityGroupClass = "flex items-center h-full";
 
 const DISTRO_NAMES: Record<string, string> = {
   ubuntu: "Ubuntu", debian: "Debian", fedora: "Fedora",
@@ -399,14 +401,14 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, serial
         className="flex items-center justify-between px-3 shrink-0"
         style={{
           height: 24,
-          background: "var(--t-bg-terminal)",
+          background: "var(--t-bg-status-bar)",
           borderTop: `1px solid ${borderTopColor}`,
           fontSize: 11,
         }}
         onContextMenu={ctxItems.length ? openCtx : undefined}
       >
         {/* Left: connection info */}
-        <div className={`flex items-center gap-2${sessionStatus === "connecting" ? " statusbar-connecting-pulse" : ""}`}>
+        <div className={`flex items-center gap-2 h-full${sessionStatus === "connecting" ? " statusbar-connecting-pulse" : ""}`}>
           {sessionType === "ssh" && connection && (
             <>
               {/* Dot + latency: hover area for sparkline */}
@@ -494,85 +496,89 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, serial
                 </>
               )}
 
-              {distroIcon && connection.distro && (
-                <div
-                  style={{ position: "relative", display: "flex", alignItems: "center" }}
-                  onMouseEnter={handleDistroMouseEnter}
-                  onMouseLeave={() => setShowDistroInfo(false)}
-                >
-                  <Icon
-                    icon={distroIcon}
-                    width={12}
-                    style={{ flexShrink: 0, color: "var(--t-text-muted)", cursor: "pointer" }}
-                    onClick={() => {
-                      const text = systemInfo
-                        ? `${systemInfo.pretty_name || prettifyDistro(connection.distro!)}${systemInfo.kernel ? ` · ${systemInfo.kernel} ${systemInfo.arch}` : ""}`
-                        : prettifyDistro(connection.distro!);
-                      navigator.clipboard.writeText(text).catch(() => {});
-                      setCopiedDistro(true);
-                      if (copiedDistroTimeoutRef.current) clearTimeout(copiedDistroTimeoutRef.current);
-                      copiedDistroTimeoutRef.current = setTimeout(() => setCopiedDistro(false), 1200);
-                    }}
-                  />
-                  {showDistroInfo && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        bottom: "calc(100% + 6px)",
-                        left: 0,
-                        background: "var(--t-bg-card)",
-                        border: "1px solid var(--t-border)",
-                        borderRadius: 8,
-                        padding: "8px 12px",
-                        zIndex: 50,
-                        boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
-                        pointerEvents: "none",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        whiteSpace: "nowrap",
+              <div className={statusBarIdentityGroupClass}>
+                {distroIcon && connection.distro && (
+                  <div
+                    className={`flex items-center px-1 ${statusBarItemClass}`}
+                    style={{ position: "relative", display: "flex", alignItems: "center" }}
+                    onMouseEnter={handleDistroMouseEnter}
+                    onMouseLeave={() => setShowDistroInfo(false)}
+                  >
+                    <Icon
+                      icon={distroIcon}
+                      width={12}
+                      style={{ flexShrink: 0, color: "var(--t-text-muted)", cursor: "pointer" }}
+                      onClick={() => {
+                        const text = systemInfo
+                          ? `${systemInfo.pretty_name || prettifyDistro(connection.distro!)}${systemInfo.kernel ? ` · ${systemInfo.kernel} ${systemInfo.arch}` : ""}`
+                          : prettifyDistro(connection.distro!);
+                        navigator.clipboard.writeText(text).catch(() => {});
+                        setCopiedDistro(true);
+                        if (copiedDistroTimeoutRef.current) clearTimeout(copiedDistroTimeoutRef.current);
+                        copiedDistroTimeoutRef.current = setTimeout(() => setCopiedDistro(false), 1200);
                       }}
-                    >
-                      <Icon icon={distroIcon} width={22} style={{ color: getDistroColor(connection.distro), flexShrink: 0 }} />
-                      {copiedDistro ? (
-                        <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>Copied!</span>
-                      ) : (
-                        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                          <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>
-                            {systemInfo?.pretty_name || prettifyDistro(connection.distro)}
-                          </span>
-                          {systemInfo?.kernel && (
-                            <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>
-                              {systemInfo.kernel} · {systemInfo.arch}
+                    />
+                    {showDistroInfo && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: "calc(100% + 6px)",
+                          left: 0,
+                          background: "var(--t-bg-card)",
+                          border: "1px solid var(--t-border)",
+                          borderRadius: 8,
+                          padding: "8px 12px",
+                          zIndex: 50,
+                          boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+                          pointerEvents: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <Icon icon={distroIcon} width={22} style={{ color: getDistroColor(connection.distro), flexShrink: 0 }} />
+                        {copiedDistro ? (
+                          <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>Copied!</span>
+                        ) : (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>
+                              {systemInfo?.pretty_name || prettifyDistro(connection.distro)}
                             </span>
-                          )}
-                          {!systemInfo && (
-                            <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>loading…</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-              <span
-                title={`${connection.username}@${connection.host}`}
-                onClick={handleCopyHost}
-                className="text-[var(--t-text-muted)]"
-                style={{
-                  maxWidth: 160,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  cursor: "pointer",
-                }}
-              >
-                {copied ? "Copied!" : `${connection.username}@${connection.host}`}
-              </span>
+                            {systemInfo?.kernel && (
+                              <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>
+                                {systemInfo.kernel} · {systemInfo.arch}
+                              </span>
+                            )}
+                            {!systemInfo && (
+                              <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>loading…</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <span
+                  title={`${connection.username}@${connection.host}`}
+                  onClick={handleCopyHost}
+                  className={`flex items-center px-1 text-[var(--t-text-muted)] ${statusBarItemClass}`}
+                  style={{
+                    maxWidth: 160,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    cursor: "pointer",
+                  }}
+                >
+                  {copied ? "Copied!" : `${connection.username}@${connection.host}`}
+                </span>
+              </div>
               {isDisconnectedOrError && (
                 <button
                   onClick={() => void reconnect(sessionId)}
                   title="Reconnect"
+                  className={`items-center px-1 ${statusBarItemClass}`}
                   style={{ color: "var(--t-status-error)", display: "flex", alignItems: "center" }}
                 >
                   <Icon icon="lucide:rotate-ccw" width={11} />
@@ -586,7 +592,7 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, serial
               <span
                 title={serialConfig ? `${serialConfig.port} · ${serialConfig.baud} baud` : "serial"}
                 onClick={handleCopyHost}
-                className="text-[var(--t-text-muted)]"
+                className={`flex items-center px-1 text-[var(--t-text-muted)] ${statusBarItemClass}`}
                 style={{
                   maxWidth: 160,
                   overflow: "hidden",
@@ -601,6 +607,7 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, serial
                 <button
                   onClick={() => void reconnect(sessionId)}
                   title="Reconnect"
+                  className={`items-center px-1 ${statusBarItemClass}`}
                   style={{ color: "var(--t-status-error)", display: "flex", alignItems: "center" }}
                 >
                   <Icon icon="lucide:rotate-ccw" width={11} />
@@ -628,10 +635,10 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, serial
           {metrics && (
             <button
               onClick={() => toggleRightPanel("plugin:monitoring")}
-              className="flex items-center gap-1.5 px-1.5 h-full transition-colors rounded"
+              className={`flex items-center gap-1.5 px-1.5 ${statusBarItemClass}`}
               style={{
                 color: "var(--t-text-muted)",
-                background: metricsIsActive ? "var(--t-bg-elevated)" : "transparent",
+                background: metricsIsActive ? "var(--t-bg-elevated)" : undefined,
               }}
               title="System metrics"
             >
@@ -663,14 +670,14 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, serial
           {sessionType === "ssh" && (
             <button
               onClick={() => toggleRightPanel("ports")}
-              className="flex items-center gap-1 px-1.5 h-full transition-colors rounded"
+              className={`flex items-center gap-1 px-1.5 ${statusBarItemClass}`}
               style={{
                 color: activeTunnelCount > 0 ? "var(--t-text-primary)" : "var(--t-text-muted)",
                 background: portsIsActive
                   ? "var(--t-bg-elevated)"
                   : pulse
                   ? "var(--t-bg-card)"
-                  : "transparent",
+                  : undefined,
               }}
               title={`${activeTunnelCount} active tunnel${activeTunnelCount !== 1 ? "s" : ""}`}
             >

@@ -46,6 +46,7 @@ No account required. Your data, your machine.
 - **Local Terminal:** Start local terminals (Bash, Zsh, Fish, PowerShell, WSL, Git Bash, CMD, Cygwin, Cmder).
 - **Split Panes:** Organize your workspace with horizontal and vertical splits and broadcast input to multiple panes simultaneously.
 - **OS Detection:** Auto detect distros to show relevant icons and colors in the UI.
+- **Process Manager:** View and manage running processes on connected hosts with a built-in process manager.
 - **Port-Forwarding:** Automatic detection of open ports on connected hosts and one-click port forwarding.
 - **Snippets**
 - **Reachability checks:** Status badges and Latency indicators. Automatic ping checks with customizable intervals.

@@ -92,6 +92,43 @@ fn classify_install(
     }
 }
 
+/// Probe whether the directory containing the `.app` bundle is writable —
+/// i.e. whether the updater could replace the bundle. Writes and removes a
+/// temp file in the bundle's parent (e.g. /Applications). macOS only.
+#[cfg(target_os = "macos")]
+fn mac_install_writable(exe_path: &std::path::Path) -> bool {
+    let bundle = exe_path
+        .ancestors()
+        .find(|p| p.extension().map(|e| e == "app").unwrap_or(false));
+    let Some(parent) = bundle.and_then(|b| b.parent()) else {
+        return false;
+    };
+    let probe = parent.join(".voltius_write_probe");
+    let ok = std::fs::File::create(&probe).is_ok();
+    let _ = std::fs::remove_file(&probe);
+    ok
+}
+
+/// Whether the currently running install can self-update.
+#[allow(dead_code)]
+#[cfg(desktop)]
+fn self_update_capable() -> bool {
+    let os = if cfg!(target_os = "linux") {
+        Os::Linux
+    } else if cfg!(target_os = "macos") {
+        Os::Macos
+    } else {
+        Os::Windows
+    };
+    let appimage_env = std::env::var_os("APPIMAGE").is_some();
+    let exe = std::env::current_exe().unwrap_or_default();
+    #[cfg(target_os = "macos")]
+    let bundle_writable = mac_install_writable(&exe);
+    #[cfg(not(target_os = "macos"))]
+    let bundle_writable = true;
+    classify_install(os, appimage_env, &exe, bundle_writable) == InstallKind::SelfUpdate
+}
+
 #[cfg(desktop)]
 fn update_cache_dir(app: &tauri::AppHandle) -> Option<std::path::PathBuf> {
     use tauri::Manager;

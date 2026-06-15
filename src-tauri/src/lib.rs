@@ -240,11 +240,20 @@ fn force_quit(app: tauri::AppHandle) {
 fn updater_restart(app: tauri::AppHandle) {
     #[cfg(desktop)]
     {
-        use tauri::Manager;
+        use tauri::{Emitter, Manager};
         let pending = app.state::<PendingUpdate>();
-        if let Some((update, bytes)) = pending.0.lock().unwrap().take() {
-            let _ = update.install(bytes);
-        };
+        let taken = pending.0.lock().unwrap().take();
+        if let Some((update, bytes)) = taken {
+            if let Err(e) = update.install(bytes) {
+                let _ = app.emit(
+                    "updater-status",
+                    UpdaterEvent::Error {
+                        message: e.to_string(),
+                    },
+                );
+                return; // do not restart into an unchanged/broken state
+            }
+        }
     }
     app.restart();
 }

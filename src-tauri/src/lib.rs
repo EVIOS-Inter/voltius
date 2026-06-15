@@ -38,6 +38,19 @@ use storage::secrets::SecretsStore;
 struct PendingUpdate(Mutex<Option<(tauri_plugin_updater::Update, Vec<u8>)>>);
 
 #[cfg(desktop)]
+struct UpdaterBusy(std::sync::Arc<std::sync::atomic::AtomicBool>);
+
+#[cfg(desktop)]
+struct BusyGuard(std::sync::Arc<std::sync::atomic::AtomicBool>);
+
+#[cfg(desktop)]
+impl Drop for BusyGuard {
+    fn drop(&mut self) {
+        self.0.store(false, std::sync::atomic::Ordering::SeqCst);
+    }
+}
+
+#[cfg(desktop)]
 #[allow(dead_code)] // not every variant is constructed on every target
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Os {
@@ -143,6 +156,16 @@ enum UpdaterEvent {
 async fn check_for_update(handle: tauri::AppHandle) {
     use tauri::{Emitter, Manager};
     use tauri_plugin_updater::UpdaterExt;
+
+    use std::sync::atomic::Ordering;
+    let flag = handle.state::<UpdaterBusy>().0.clone();
+    if flag
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_err()
+    {
+        return; // a check is already running
+    }
+    let _busy = BusyGuard(flag); // released on every return path
 
     let _ = handle.emit("updater-status", UpdaterEvent::Checking);
 
@@ -338,6 +361,9 @@ pub fn run() {
             use tauri::Manager;
             #[cfg(desktop)]
             app.manage(PendingUpdate(Mutex::new(None)));
+            app.manage(UpdaterBusy(std::sync::Arc::new(
+                std::sync::atomic::AtomicBool::new(false),
+            )));
             app.manage(KnownHostsStore::load());
             app.manage(Arc::new(PendingConflicts::new()));
             app.manage(PortForwardManager::new(app.handle().clone()));

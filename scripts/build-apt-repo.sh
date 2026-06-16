@@ -49,7 +49,9 @@ for arch in $ARCHES; do
   dir="dists/$SUITE/$COMPONENT/binary-$arch"
   mkdir -p "$dir"
   apt-ftparchive --arch "$arch" packages "pool/$COMPONENT" > "$dir/Packages"
-  gzip -9c "$dir/Packages" > "$dir/Packages.gz"
+  # -n: omit gzip timestamp/name so identical content yields identical bytes
+  # (deterministic across rebuilds; avoids gratuitous hash churn / cache skew).
+  gzip -9nc "$dir/Packages" > "$dir/Packages.gz"
 done
 
 # --- Release (over the dists/<suite> tree), then sign ---

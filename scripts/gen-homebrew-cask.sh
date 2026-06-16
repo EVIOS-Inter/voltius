@@ -32,7 +32,7 @@ cask "voltius" do
   url "https://github.com/VoltiusApp/voltius/releases/download/v#{version}/Voltius_#{version}_#{arch}.dmg"
   name "Voltius"
   desc "Cross-platform SSH client and terminal"
-  homepage "https://voltius.app"
+  homepage "https://voltius.app/"
 
   livecheck do
     url :url
@@ -40,6 +40,7 @@ cask "voltius" do
   end
 
   auto_updates true
+  depends_on macos: ">= :high_sierra"
 
   app "Voltius.app"
 

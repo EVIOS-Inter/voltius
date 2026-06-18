@@ -189,6 +189,7 @@ export async function createServerAccount(
   await keychainSet("jwt", data.jwt_token);
   await keychainSet("refresh_token", data.refresh_token);
   await keychainSet("server_url", serverUrl);
+  await keychainSet("wrapped_user_secrets", wrapped_user_secrets);
   reloadSubscription();
 }
 
@@ -251,6 +252,7 @@ export async function login(password: string, email?: string, serverUrl?: string
       const unwrapped = await unwrapUserSecrets(kek, data.wrapped_user_secrets);
       useVaultKeysStore.getState().set({ dek: unwrapped.dek, x25519Private: unwrapped.x25519_private, kek });
       setVaultKey(unwrapped.dek);
+      await keychainSet("wrapped_user_secrets", data.wrapped_user_secrets);
     } else {
       // Legacy account — trigger one-time migration
       await migrateToWrappedUserSecrets(password, accountId, kek, resolvedServerUrl, data.jwt_token);
@@ -262,11 +264,19 @@ export async function login(password: string, email?: string, serverUrl?: string
 
 /** Auto-login from keychain — instant (no secret access). */
 export async function autoLogin(): Promise<boolean> {
-  const [password, accountId, mode] = await Promise.all([
-    keychainGet("master_password"),
-    keychainGet("account_id"),
-    keychainGet("mode"),
-  ]);
+  // A keychain failure here (e.g. an OS keychain backend unavailable on a platform)
+  // must degrade to "no session", never throw — an unhandled rejection would abort the
+  // splash init and freeze the app on its loading screen.
+  let password: string | null, accountId: string | null, mode: string | null;
+  try {
+    [password, accountId, mode] = await Promise.all([
+      keychainGet("master_password"),
+      keychainGet("account_id"),
+      keychainGet("mode"),
+    ]);
+  } catch {
+    return false;
+  }
   if (!password) return false;
 
   try {
@@ -286,8 +296,40 @@ export async function autoLogin(): Promise<boolean> {
       }
     } else {
       if (!accountId) return false;
-      const { enc_key } = await deriveKeys(password, accountId);
-      encKey = enc_key;
+      const { enc_key: kek } = await deriveKeys(password, accountId);
+      encKey = kek;
+
+      // Adopt dek when this device has previously unwrapped user secrets (cached at
+      // login/migration). Converges every session onto dek so the kek/dek split heals.
+      // Offline: unwrap + verify are local Tauri calls, no network — autoLogin stays instant.
+      const wrapped = await keychainGet("wrapped_user_secrets");
+      if (wrapped) {
+        try {
+          const unwrapped = await unwrapUserSecrets(kek, wrapped);
+          useVaultKeysStore.getState().set({
+            dek: unwrapped.dek,
+            x25519Private: unwrapped.x25519_private,
+            kek,
+          });
+          // Pick the key that actually opens secrets.enc — prefer dek, fall back to kek.
+          // Guards against a device whose on-disk vault is still kek-encrypted.
+          const { exists } = await getVaultStatus();
+          if (!exists) {
+            encKey = unwrapped.dek;
+          } else {
+            try {
+              await verifyVaultKey(unwrapped.dek);
+              encKey = unwrapped.dek;
+            } catch {
+              encKey = kek;
+            }
+          }
+        } catch {
+          // Corrupt/foreign cached secrets — stay on kek.
+          encKey = kek;
+        }
+      }
+
       if (!mode) {
         // Heal missing mode for local accounts (e.g. Windows after mock-keychain loss)
         await keychainSet("mode", "local");
@@ -446,6 +488,7 @@ export async function signInToCloud(
     const unwrapped = await unwrapUserSecrets(kek, data.wrapped_user_secrets);
     useVaultKeysStore.getState().set({ dek: unwrapped.dek, x25519Private: unwrapped.x25519_private, kek });
     vaultKey = unwrapped.dek;
+    await keychainSet("wrapped_user_secrets", data.wrapped_user_secrets);
   }
 
   setVaultKey(vaultKey);
@@ -512,6 +555,7 @@ export async function linkToCloud(
   await keychainSet("server_url", serverUrl);
   await keychainSet("jwt", data.jwt_token);
   await keychainSet("refresh_token", data.refresh_token);
+  await keychainSet("wrapped_user_secrets", wrapped_user_secrets);
   reloadSubscription();
 }
 
@@ -563,6 +607,7 @@ export async function changeMasterPassword(
   await keychainSet("master_password", newPassword);
   await keychainSet("jwt", data.jwt_token);
   await keychainSet("refresh_token", data.refresh_token);
+  await keychainSet("wrapped_user_secrets", new_wrapped_user_secrets);
   useVaultKeysStore.getState().set({ dek: cachedDek, x25519Private: cachedX25519, kek: new_kek });
   reloadSubscription();
 }
@@ -630,6 +675,7 @@ async function migrateToWrappedUserSecrets(
 
     useVaultKeysStore.getState().set({ dek, x25519Private: legacyX25519Private, kek });
     setVaultKey(dek);
+    await keychainSet("wrapped_user_secrets", wrapped_user_secrets);
 
     const { push } = await import("@/services/sync");
     push().catch(() => {});

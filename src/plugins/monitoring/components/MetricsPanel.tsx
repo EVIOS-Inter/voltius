@@ -1,12 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import { useSessionStore } from "@/stores/sessionStore";
-import { metricsStart, metricsStop, onMetricsSnapshot } from "@/services/metrics";
-import type { DiskInfo, MetricsSnapshot } from "../types";
+import { useIsAndroid } from "@/utils/platform";
+import { useHostMetrics } from "../useHostMetrics";
 import { MetricCard } from "./MetricCard";
 import { DiskSection } from "./DiskSection";
 import { SystemInfoSection } from "./SystemInfoSection";
-
-const MAX_HISTORY = 60;
 
 function fmtBytes(n: number): string {
   if (n < 1024) return `${n}B/s`;
@@ -19,94 +16,31 @@ function fmtMem(kb: number): string {
   return `${(kb / 1024 / 1024).toFixed(1)}GB`;
 }
 
-function pushHistory(arr: number[], val: number): number[] {
-  const next = [...arr, val];
-  if (next.length > MAX_HISTORY) next.shift();
-  return next;
-}
-
 export function MetricsPanel() {
   const { sessions, activeSessionId } = useSessionStore();
   const activeSession = sessions.find((s) => s.id === activeSessionId);
+  // Android can't read host metrics (/proc is restricted) — only remote (SSH).
+  const isAndroid = useIsAndroid();
+  const localUnsupported = isAndroid && !!activeSession && activeSession.type !== "ssh";
 
-  const streamIdRef = useRef<string | null>(null);
-  const unlistenRef = useRef<(() => void) | null>(null);
-
-  const [snap, setSnap] = useState<MetricsSnapshot | null>(null);
-  const [disks, setDisks] = useState<DiskInfo[]>([]);
-  const [disksLoading, setDisksLoading] = useState(false);
-  const [cpuH, setCpuH] = useState<number[]>([]);
-  const [memH, setMemH] = useState<number[]>([]);
-  const [rxH, setRxH] = useState<number[]>([]);
-  const [txH, setTxH] = useState<number[]>([]);
-
-  const stopStream = useCallback(async () => {
-    unlistenRef.current?.();
-    unlistenRef.current = null;
-    if (streamIdRef.current) {
-      await metricsStop(streamIdRef.current).catch(() => {});
-      streamIdRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!activeSession || activeSession.status !== "connected" || activeSession.type === "serial") {
-      stopStream();
-      setSnap(null);
-      setCpuH([]);
-      setMemH([]);
-      setRxH([]);
-      setTxH([]);
-      setDisks([]);
-      setDisksLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-    setDisks([]);
-    setDisksLoading(true);
-
-    (async () => {
-      await stopStream();
-      if (cancelled) return;
-
-      try {
-        const sid = await metricsStart(activeSession.id, activeSession.type === "ssh");
-        if (cancelled) { metricsStop(sid).catch(() => {}); return; }
-        streamIdRef.current = sid;
-
-        const unlisten = await onMetricsSnapshot(sid, (s) => {
-          if (cancelled) return;
-          setSnap(s);
-          setCpuH((h) => pushHistory(h, s.cpu_percent));
-          setMemH((h) => pushHistory(h, s.mem_total_kb > 0 ? (s.mem_used_kb / s.mem_total_kb) * 100 : 0));
-          setRxH((h) => pushHistory(h, s.net_rx_bytes_per_sec));
-          setTxH((h) => pushHistory(h, s.net_tx_bytes_per_sec));
-          if (s.disks) {
-            setDisks(s.disks);
-            setDisksLoading(false);
-          }
-        });
-
-        if (cancelled) { unlisten(); metricsStop(sid).catch(() => {}); return; }
-        unlistenRef.current = unlisten;
-      } catch (e) {
-        console.error("[monitoring] metrics_start failed:", e);
-        if (!cancelled) setDisksLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      stopStream();
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeSessionId, activeSession?.status, activeSession?.type]);
+  const { snap, disks, disksLoading, cpuH, memH, rxH, txH } = useHostMetrics(activeSession, {
+    localUnsupported,
+  });
 
   if (!activeSession || activeSession.status !== "connected") {
     return (
       <div className="flex items-center justify-center h-full opacity-40">
         <p className="text-sm text-(--t-text-muted)">No active session</p>
+      </div>
+    );
+  }
+
+  if (localUnsupported) {
+    return (
+      <div className="flex h-full items-center justify-center px-6 text-center">
+        <p className="max-w-[240px] text-[11px] leading-4 text-(--t-text-muted)">
+          Live metrics for this device aren't available on Android. Connect to a host over SSH to see its metrics.
+        </p>
       </div>
     );
   }

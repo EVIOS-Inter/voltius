@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { invoke } from "@tauri-apps/api/core";
 import { useSessionStore } from "@/stores/sessionStore";
-import { useUIStore } from "@/stores/uiStore";
-import { localConnect, localSendInput } from "@/services/local";
+import { useIsAndroid } from "@/utils/platform";
+import { useDockerList } from "../useDockerList";
 import {
   dockerListContainers,
   dockerListImages,
@@ -116,85 +115,17 @@ export function DockerPanel() {
   const isRemote = activeSession?.type === "ssh";
   const sessionId = activeSession?.id ?? "";
   const localShell = activeSession?.type === "local" ? (activeSession.localShell ?? null) : null;
+  // Android can't exec a local docker CLI — only remote (SSH) docker is supported.
+  const isAndroid = useIsAndroid();
 
-  const handleOpenTerminal = useCallback(
-    async (containerId: string, containerName: string) => {
-      const newSessionId = crypto.randomUUID();
-
-      if (isRemote) {
-        // Open a new PTY channel on the existing SSH connection
-        try {
-          const execSessionId = await invoke<string>("docker_open_exec_session", {
-            sourceSessionId: sessionId,
-            containerId,
-          });
-          useSessionStore.setState((s) => ({
-            sessions: [
-              ...s.sessions,
-              {
-                id: execSessionId,
-                connectionId: activeSession!.connectionId,
-                connectionName: `exec: ${containerName}`,
-                status: "connecting" as const,
-                type: "ssh" as const,
-                containerExec: { kind: "docker" as const, containerId, parentSessionId: sessionId },
-              },
-            ],
-            activeSessionId: execSessionId,
-          }));
-          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-          useSessionStore.setState((s) => ({
-            sessions: s.sessions.map((sess) =>
-              sess.id === execSessionId ? { ...sess, status: "connected" as const } : sess,
-            ),
-          }));
-        } catch (e) {
-          console.error("[docker] open exec session failed:", e);
-          return;
-        }
-      } else {
-        // Local: spawn a new local PTY running docker exec
-        useSessionStore.setState((s) => ({
-          sessions: [
-            ...s.sessions,
-            {
-              id: newSessionId,
-              connectionId: "local",
-              connectionName: `exec: ${containerName}`,
-              status: "connecting" as const,
-              type: "local" as const,
-              localShell: localShell ?? undefined,
-            },
-          ],
-          activeSessionId: newSessionId,
-        }));
-        try {
-          await localConnect(newSessionId, 80, 24, localShell ?? undefined);
-          await localSendInput(newSessionId, new TextEncoder().encode(`docker exec -it ${containerId} sh\r`));
-          useSessionStore.setState((s) => ({
-            sessions: s.sessions.map((sess) =>
-              sess.id === newSessionId ? { ...sess, status: "connected" as const } : sess,
-            ),
-          }));
-        } catch (e) {
-          useSessionStore.setState((s) => ({
-            sessions: s.sessions.map((sess) =>
-              sess.id === newSessionId ? { ...sess, status: "error" as const } : sess,
-            ),
-          }));
-          return;
-        }
-      }
-
-      useUIStore.getState().setActiveNav("terminal");
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sessionId, isRemote, activeSession?.connectionId, localShell],
-  );
+  // The exec-into-terminal flow lives in the shared hook; the list polling stays
+  // reducer-driven here (enabled: false) so desktop behavior is byte-identical.
+  const { openExecTerminal: handleOpenTerminal } = useDockerList(activeSession, { enabled: false });
 
   const fetchForView = useCallback(
     async (view: DockerView) => {
       if (!activeSession || activeSession.status !== "connected") return;
+      if (isAndroid && !isRemote) return; // never attempt local docker on Android
       dispatch({ type: "SET_LOADING", loading: true });
       try {
         switch (view) {
@@ -262,6 +193,25 @@ export function DockerPanel() {
     return (
       <div className="flex items-center justify-center h-full opacity-40">
         <p className="text-sm text-(--t-text-muted)">No active session</p>
+      </div>
+    );
+  }
+
+  // Android sandbox can't exec a local docker CLI; only remote (SSH) docker works.
+  if (isAndroid && !isRemote) {
+    return (
+      <div className="flex h-full items-center justify-center px-6 text-center">
+        <div className="max-w-[260px] space-y-2">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-(--t-bg-card) text-(--t-text-muted) border border-(--t-border)">
+            <Icon icon="mdi:docker" width={22} />
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-(--t-text)">Local Docker isn't available on Android</h3>
+            <p className="mt-1 text-[11px] leading-4 text-(--t-text-muted)">
+              Connect to a host over SSH to manage its Docker.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }

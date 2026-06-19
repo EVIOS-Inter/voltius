@@ -249,6 +249,18 @@ impl DockerFs {
             .map_err(|e| format!("decode failed: {e}"))
     }
 
+    pub async fn write_file(&self, path: &str, content: &str) -> Result<(), String> {
+        use base64::Engine;
+        let b64 = base64::engine::general_purpose::STANDARD.encode(content.as_bytes());
+        let script = "base64 -d > \"$1\"";
+        let cmd = format!("printf %s {} | {}", b64, self.dexec(script, &[path]));
+        let (_out, err, code) = self.run(&cmd).await?;
+        if code != 0 {
+            return Err(format!("write failed: {err}"));
+        }
+        Ok(())
+    }
+
     // ── Single file transfer ──────────────────────────────────────────────────
 
     pub async fn upload_file(

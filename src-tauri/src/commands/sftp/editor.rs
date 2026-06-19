@@ -1,8 +1,9 @@
 use super::get_backend;
 use crate::sftp::{SftpBackend, SftpManager};
+use russh_sftp::protocol::OpenFlags;
 use serde::Serialize;
 use tauri::State;
-use tokio::io::AsyncReadExt;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 #[derive(Serialize)]
 pub struct EditorFile {
@@ -90,6 +91,35 @@ pub async fn sftp_read_file(
         content: String::from_utf8_lossy(&bytes).into_owned(),
         size,
     })
+}
+
+#[tauri::command]
+pub async fn sftp_write_file(
+    sftp_state: State<'_, SftpManager>,
+    sftp_id: String,
+    path: String,
+    content: String,
+) -> Result<(), String> {
+    let lock = sftp_state.path_lock(&sftp_id, &path).await;
+    let _guard = lock.lock().await;
+    match get_backend(&sftp_state, &sftp_id).await? {
+        SftpBackend::Docker(d) => d.write_file(&path, &content).await,
+        SftpBackend::Real(session) => {
+            let sftp = session.lock().await;
+            let mut file = sftp
+                .open_with_flags(
+                    &path,
+                    OpenFlags::CREATE | OpenFlags::TRUNCATE | OpenFlags::WRITE,
+                )
+                .await
+                .map_err(|e| format!("open for write failed: {e}"))?;
+            file.write_all(content.as_bytes())
+                .await
+                .map_err(|e| format!("write failed: {e}"))?;
+            file.flush().await.map_err(|e| format!("flush failed: {e}"))?;
+            Ok(())
+        }
+    }
 }
 
 #[cfg(test)]

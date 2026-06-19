@@ -4,8 +4,8 @@ use serde::Serialize;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-pub mod editor;
 mod dir;
+pub mod editor;
 mod ops;
 mod tar;
 mod transfer;

@@ -53,34 +53,43 @@ pub async fn sftp_read_file(
         SftpBackend::Docker(d) => {
             let size = d.file_size(&path).await;
             if size > max_bytes {
-                return Err(ReadError::TooLarge { size, limit: max_bytes });
+                return Err(ReadError::TooLarge {
+                    size,
+                    limit: max_bytes,
+                });
             }
             d.read_file(&path).await?
         }
         SftpBackend::Real(session) => {
             let sftp = session.lock().await;
-            let meta = sftp
-                .metadata(&path)
-                .await
-                .map_err(|e| ReadError::Io { message: format!("stat failed: {e}") })?;
+            let meta = sftp.metadata(&path).await.map_err(|e| ReadError::Io {
+                message: format!("stat failed: {e}"),
+            })?;
             if let Some(size) = meta.size {
                 if size > max_bytes {
-                    return Err(ReadError::TooLarge { size, limit: max_bytes });
+                    return Err(ReadError::TooLarge {
+                        size,
+                        limit: max_bytes,
+                    });
                 }
             }
-            let mut file = sftp
-                .open(&path)
-                .await
-                .map_err(|e| ReadError::Io { message: format!("open failed: {e}") })?;
+            let mut file = sftp.open(&path).await.map_err(|e| ReadError::Io {
+                message: format!("open failed: {e}"),
+            })?;
             let mut buf = Vec::new();
             file.read_to_end(&mut buf)
                 .await
-                .map_err(|e| ReadError::Io { message: format!("read failed: {e}") })?;
+                .map_err(|e| ReadError::Io {
+                    message: format!("read failed: {e}"),
+                })?;
             buf
         }
     };
     if bytes.len() as u64 > max_bytes {
-        return Err(ReadError::TooLarge { size: bytes.len() as u64, limit: max_bytes });
+        return Err(ReadError::TooLarge {
+            size: bytes.len() as u64,
+            limit: max_bytes,
+        });
     }
     let sample = &bytes[..bytes.len().min(SNIFF_BYTES)];
     if is_binary(sample) {
@@ -116,7 +125,9 @@ pub async fn sftp_write_file(
             file.write_all(content.as_bytes())
                 .await
                 .map_err(|e| format!("write failed: {e}"))?;
-            file.flush().await.map_err(|e| format!("flush failed: {e}"))?;
+            file.flush()
+                .await
+                .map_err(|e| format!("flush failed: {e}"))?;
             Ok(())
         }
     }

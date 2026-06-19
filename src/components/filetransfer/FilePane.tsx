@@ -362,7 +362,7 @@ export function FilePane({
       {/* Path bar */}
       <div className="flex items-center gap-1.5 px-2 py-2 shrink-0 border-b border-b-(--t-border) bg-(--t-bg-elevated)">
         <IconBtn icon="lucide:arrow-up" title="Parent directory" onClick={goUp} />
-        <IconBtn icon="lucide:home" title="Home directory" onClick={handleGoHome} />
+        <IconBtn icon="lucide:house" title="Home directory" onClick={handleGoHome} />
         <div className="flex-1 flex items-center min-w-0 px-1.5 rounded-md">
           <PathBreadcrumb cwd={cwd} isLocal={isLocal} onNavigate={onNavigate} />
           {isLocal && <IconBtn icon="lucide:folder-open" title="Browse…" onClick={handlePickLocal} />}
@@ -402,7 +402,7 @@ export function FilePane({
 
       {selectedIdSet.size > 1 && (
         <div className="flex items-center gap-2 px-3 py-1 shrink-0 border-t border-(--t-border) bg-(--t-bg-elevated)">
-          <Icon icon="lucide:check-square" width={11} className="text-(--t-accent) shrink-0" />
+          <Icon icon="lucide:square-check-big" width={11} className="text-(--t-accent) shrink-0" />
           <span className="text-xs text-(--t-text-secondary)">
             {selectedIdSet.size} selected
             {selectedEntries.some((f) => !f.isDir) && (
@@ -521,9 +521,9 @@ function buildViewMenuItems(ctx: {
   const { showHidden, setShowHidden, visibleCols, setVisibleCols, isLocal } = ctx;
   const items: ContextMenuItem[] = [];
   items.push({ label: showHidden ? "Hide hidden files" : "Show hidden files", icon: showHidden ? "lucide:eye" : "lucide:eye-off", onClick: () => setShowHidden(!showHidden) });
-  items.push({ label: "Size column",        icon: visibleCols.size        ? "lucide:check-square" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, size:        !v.size        })) });
-  items.push({ label: "Date column",        icon: visibleCols.modified    ? "lucide:check-square" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, modified:    !v.modified    })) });
-  if (!isLocal) items.push({ label: "Permissions column", icon: visibleCols.permissions ? "lucide:check-square" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, permissions: !v.permissions })) });
+  items.push({ label: "Size column",        icon: visibleCols.size        ? "lucide:square-check-big" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, size:        !v.size        })) });
+  items.push({ label: "Date column",        icon: visibleCols.modified    ? "lucide:square-check-big" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, modified:    !v.modified    })) });
+  if (!isLocal) items.push({ label: "Permissions column", icon: visibleCols.permissions ? "lucide:square-check-big" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, permissions: !v.permissions })) });
   return items;
 }
 
@@ -856,7 +856,7 @@ function VirtualFileList({
   if (loading) {
     return (
       <div ref={itemAreaRef} data-drag-surface="true" className="h-full overflow-y-auto flex items-center justify-center">
-        <Icon icon="lucide:loader-2" className="animate-spin text-(--t-text-dim)" width={16} />
+        <Icon icon="lucide:loader-circle" className="animate-spin text-(--t-text-dim)" width={16} />
       </div>
     );
   }
@@ -986,7 +986,7 @@ function FileRow({ file, isSelected, isDragHover, isLocal, colWidths, visibleCol
       onContextMenu={(e) => { e.stopPropagation(); if (contextActions?.length) { if (!isSelected) onClick(e); open(e); } else { e.preventDefault(); } }}
     >
       <Icon
-        icon={file.isSymlink ? "lucide:arrow-up-right-from-square" : file.isDir ? "lucide:folder" : "lucide:file"}
+        icon={file.isSymlink ? "lucide:square-arrow-out-up-right" : file.isDir ? "lucide:folder" : "lucide:file"}
         width={15} className="shrink-0"
         style={{ color: file.isDir ? "#f0c050" : file.isSymlink ? "var(--t-accent)" : "var(--t-text-dim)" }}
       />

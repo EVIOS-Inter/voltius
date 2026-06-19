@@ -259,19 +259,19 @@ export function KeyForm({ initial, initialMode, onSubmit, onClose, onExport, onD
                 <div className="flex items-center gap-1.5 mt-1.5">
                   {keyInfo.valid && keyInfo.type ? (
                     <>
-                      <Icon icon="lucide:check-circle" width={12} className="text-(--t-status-connected)" />
+                      <Icon icon="lucide:circle-check-big" width={12} className="text-(--t-status-connected)" />
                       <span className="text-xs text-(--t-status-connected)">
                         {keyInfo.type}
                       </span>
                     </>
                   ) : keyInfo.valid ? (
                     <>
-                      <Icon icon="lucide:help-circle" width={12} className="text-(--t-text-dim)" />
+                      <Icon icon="lucide:circle-question-mark" width={12} className="text-(--t-text-dim)" />
                       <span className="text-xs text-(--t-text-dim)">Unknown type</span>
                     </>
                   ) : (
                     <>
-                      <Icon icon="lucide:x-circle" width={12} className="text-(--t-status-error)" />
+                      <Icon icon="lucide:circle-x" width={12} className="text-(--t-status-error)" />
                       <span className="text-xs text-(--t-status-error)">
                         {keyInfo.error ?? "Invalid key"}
                       </span>

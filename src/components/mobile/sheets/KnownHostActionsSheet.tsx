@@ -71,7 +71,7 @@ export default function KnownHostActionsSheet({ host, onClose }: { host: KnownHo
 
   const items: Item[] = [
     {
-      icon: "lucide:fingerprint",
+      icon: "lucide:fingerprint-pattern",
       label: "Copy fingerprint",
       onTap: () => {
         void writeClipboard(host.fingerprint);

@@ -537,7 +537,7 @@ function MemberDetailPanel({
                     }}
                   >
                     {toggling === role.id
-                      ? <Icon icon="lucide:loader-2" width={10} className="animate-spin" />
+                      ? <Icon icon="lucide:loader-circle" width={10} className="animate-spin" />
                       : justToggled === role.id
                         ? <Icon icon="lucide:check-check" width={10} />
                         : hasRole
@@ -601,7 +601,7 @@ function MemberDetailPanel({
               onMouseLeave={(e) => { if (!confirmRemove) e.currentTarget.style.background = "var(--t-bg-elevated)"; }}
             >
               {removing
-                ? <Icon icon="lucide:loader-2" width={13} className="animate-spin" />
+                ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin" />
                 : <Icon icon="lucide:user-minus" width={13} />
               }
               {confirmRemove ? "Click again to confirm removal" : "Remove from team"}
@@ -668,7 +668,7 @@ function PendingInviteCard({
         onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t-text-dim)")}
       >
         {revoking
-          ? <Icon icon="lucide:loader-2" width={16} className="animate-spin" />
+          ? <Icon icon="lucide:loader-circle" width={16} className="animate-spin" />
           : <Icon icon="lucide:x" width={16} />
         }
       </button>
@@ -907,7 +907,7 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
                 style={{ background: "var(--t-bg-input)", borderColor: open ? "var(--t-accent)" : "var(--t-border)" }}
               >
                 {searching
-                  ? <Icon icon="lucide:loader-2" width={14} className="animate-spin shrink-0 text-(--t-text-dim)" />
+                  ? <Icon icon="lucide:loader-circle" width={14} className="animate-spin shrink-0 text-(--t-text-dim)" />
                   : <Icon icon="lucide:search" width={14} className="shrink-0 text-(--t-text-dim)" />
                 }
                 <input
@@ -946,7 +946,7 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
                       <Avatar name={user.display_name} size={26} />
                       <span className="flex-1 text-sm truncate">{user.display_name}</span>
                       {adding === user.user_id
-                        ? <Icon icon="lucide:loader-2" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
+                        ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                         : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
                             Add ({selectedRoleLabel})
                           </span>
@@ -967,7 +967,7 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
                         Send invite to <span className="font-medium">{query}</span>
                       </span>
                       {sendingInvite
-                        ? <Icon icon="lucide:loader-2" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
+                        ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                         : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
                             Invite →
                           </span>
@@ -982,7 +982,7 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
           {error && <p className="text-xs px-1" style={{ color: "var(--t-status-error)" }}>{error}</p>}
           {success && (
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)" }}>
-              <Icon icon="lucide:check-circle-2" width={14} style={{ color: "#34d399" }} />
+              <Icon icon="lucide:circle-check" width={14} style={{ color: "#34d399" }} />
               <p className="text-xs" style={{ color: "#34d399" }}>{success}</p>
             </div>
           )}
@@ -1081,7 +1081,7 @@ function PrivateVaultInvitePanel({
               style={{ background: "var(--t-bg-input)", borderColor: open ? "var(--t-accent)" : "var(--t-border)" }}
             >
               {searching
-                ? <Icon icon="lucide:loader-2" width={14} className="animate-spin shrink-0 text-(--t-text-dim)" />
+                ? <Icon icon="lucide:loader-circle" width={14} className="animate-spin shrink-0 text-(--t-text-dim)" />
                 : <Icon icon="lucide:search" width={14} className="shrink-0 text-(--t-text-dim)" />
               }
               <input
@@ -1118,7 +1118,7 @@ function PrivateVaultInvitePanel({
                     <Avatar name={user.display_name} size={26} />
                     <span className="flex-1 text-sm truncate">{user.display_name}</span>
                     {adding === user.user_id
-                      ? <Icon icon="lucide:loader-2" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
+                      ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                       : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
                           Add as {selectedRole}
                         </span>
@@ -1405,7 +1405,7 @@ export default function MembersPage() {
 
       const assignedItems: ContextMenuItem[] = assignedRoles.map((r) => ({
         label: r.name,
-        icon: "lucide:check-square",
+        icon: "lucide:square-check-big",
         onClick: () => {
           void removeMemberRole(teamId!, member.user_id, r.id).then(() => {
             push({

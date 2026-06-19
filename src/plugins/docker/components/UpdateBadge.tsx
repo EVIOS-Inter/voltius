@@ -42,7 +42,7 @@ export function UpdateBadge({
       title={status.error ? `Could not check: ${status.error}` : "Update status unknown"}
       className="shrink-0 inline-flex"
     >
-      <Icon icon="lucide:help-circle" width={10} className="text-(--t-text-dim)" />
+      <Icon icon="lucide:circle-question-mark" width={10} className="text-(--t-text-dim)" />
     </span>
   );
 }

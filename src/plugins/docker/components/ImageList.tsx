@@ -84,7 +84,7 @@ export function ImageList({ images, sessionId, isRemote, localShell, onRefresh }
             title="Check all images for registry updates"
             className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-sm text-(--t-text-muted) hover:bg-(--t-bg-hover) hover:text-(--t-text) disabled:opacity-40"
           >
-            <Icon icon="lucide:arrow-up-circle" width={10} className={isChecking ? "animate-pulse" : ""} />
+            <Icon icon="lucide:circle-arrow-up" width={10} className={isChecking ? "animate-pulse" : ""} />
             {isChecking ? "checking…" : "check updates"}
           </button>
           <button

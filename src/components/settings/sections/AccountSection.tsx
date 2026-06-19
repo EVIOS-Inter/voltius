@@ -353,7 +353,7 @@ export default function AccountSection() {
 
       {step === "loading" && (
         <div className="flex items-center gap-2 px-1">
-          <Icon icon="lucide:loader-2" width={14} className="animate-spin text-(--t-accent)" />
+          <Icon icon="lucide:loader-circle" width={14} className="animate-spin text-(--t-accent)" />
           <span className="text-sm text-(--t-text-muted)">Working...</span>
         </div>
       )}

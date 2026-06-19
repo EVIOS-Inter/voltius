@@ -219,7 +219,7 @@ export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectio
       ) : tier === "free" && teamsLoading ? (
         /* ── Loading — defer upgrade wall decision until teams are known ── */
         <div className="px-4 py-6 flex items-center justify-center">
-          <Icon icon="lucide:loader-2" width={16} className="animate-spin" style={{ color: "var(--t-text-dim)" }} />
+          <Icon icon="lucide:loader-circle" width={16} className="animate-spin" style={{ color: "var(--t-text-dim)" }} />
         </div>
       ) : tier === "free" && (!hasQualifyingVaults || !connectionInQualifyingVault) ? (
         /* ── Free-tier upgrade wall — no qualifying team vaults ── */
@@ -468,8 +468,8 @@ function ActiveSharingView({
         onClick={onStop}
       >
         {loading
-          ? <Icon icon="lucide:loader-2" width={12} className="animate-spin" />
-          : <Icon icon="lucide:stop-circle" width={12} />}
+          ? <Icon icon="lucide:loader-circle" width={12} className="animate-spin" />
+          : <Icon icon="lucide:circle-stop" width={12} />}
         Stop sharing
       </button>
     </div>
@@ -574,7 +574,7 @@ function TeamTab({
           onClick={onShare}
         >
           {loading
-            ? <Icon icon="lucide:loader-2" width={12} className="animate-spin" />
+            ? <Icon icon="lucide:loader-circle" width={12} className="animate-spin" />
             : <Icon icon="lucide:radio" width={12} />}
           {selectedVaultIds.size > 0
             ? `Start sharing with ${selectedVaultIds.size} vault${selectedVaultIds.size > 1 ? "s" : ""}`
@@ -657,7 +657,7 @@ function InviteLinkTab({
             onClick={onGenerate}
           >
             {loading
-              ? <Icon icon="lucide:loader-2" width={12} className="animate-spin" />
+              ? <Icon icon="lucide:loader-circle" width={12} className="animate-spin" />
               : <Icon icon="lucide:link" width={12} />}
             Generate invite link
           </button>

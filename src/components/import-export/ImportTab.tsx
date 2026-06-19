@@ -621,7 +621,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
               border: `1px solid ${importResult.includes("Error") ? "rgba(239,68,68,0.25)" : "rgba(34,197,94,0.2)"}`,
             }}
           >
-            <Icon icon={importResult.includes("Error") ? "lucide:alert-circle" : "lucide:check-circle"} width={14} />
+            <Icon icon={importResult.includes("Error") ? "lucide:circle-alert" : "lucide:circle-check-big"} width={14} />
             {importResult}
           </div>
         )}
@@ -740,7 +740,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
             className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-50"
             style={{ background: "var(--t-accent)", color: "#fff" }}
           >
-            <Icon icon={extracting ? "lucide:loader-2" : "lucide:download"} width={14} className={extracting ? "animate-spin" : ""} />
+            <Icon icon={extracting ? "lucide:loader-circle" : "lucide:download"} width={14} className={extracting ? "animate-spin" : ""} />
             {extracting ? "Extracting…" : `Extract from ${source.label}`}
           </button>
         </div>
@@ -768,7 +768,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
 
       {status.type === "error" && (
         <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg text-sm" style={{ background: "rgba(239,68,68,0.12)", color: "var(--t-status-error)", border: "1px solid rgba(239,68,68,0.25)" }}>
-          <Icon icon="lucide:alert-circle" width={15} className="mt-0.5 shrink-0" />
+          <Icon icon="lucide:circle-alert" width={15} className="mt-0.5 shrink-0" />
           {status.message}
         </div>
       )}
@@ -789,7 +789,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
               autoFocus
               className="flex-1 px-2.5 py-1.5 rounded-lg text-sm outline-hidden bg-(--t-bg-input) border border-(--t-border-hover) text-(--t-text-primary)"
             />
-            <ActionBtn icon="lucide:unlock" label="Unlock" onClick={handleDecrypt} primary disabled={!decryptPassword} />
+            <ActionBtn icon="lucide:lock-open" label="Unlock" onClick={handleDecrypt} primary disabled={!decryptPassword} />
           </div>
         </div>
       )}
@@ -802,7 +802,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
             border: `1px solid ${importResult.includes("Error") ? "rgba(239,68,68,0.25)" : "rgba(34,197,94,0.2)"}`,
           }}
         >
-          <Icon icon={importResult.includes("Error") ? "lucide:alert-circle" : "lucide:check-circle"} width={14} />
+          <Icon icon={importResult.includes("Error") ? "lucide:circle-alert" : "lucide:circle-check-big"} width={14} />
           {importResult}
         </div>
       )}

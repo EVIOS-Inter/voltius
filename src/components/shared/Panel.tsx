@@ -64,8 +64,8 @@ export function PanelHeaderIconButton({
 
 const SAVE_STATE_CONFIG = {
   dirty:  { icon: "lucide:pencil",      label: "Editing...", color: "var(--t-text-dim)",    spin: false },
-  saving: { icon: "lucide:loader-2",    label: "Saving...",  color: "var(--t-text-dim)",    spin: true  },
-  saved:  { icon: "lucide:check-circle", label: "Saved",     color: "var(--t-accent)",      spin: false },
+  saving: { icon: "lucide:loader-circle",    label: "Saving...",  color: "var(--t-text-dim)",    spin: true  },
+  saved:  { icon: "lucide:circle-check-big", label: "Saved",     color: "var(--t-accent)",      spin: false },
 } as const;
 
 function SaveStateIndicator({ state }: { state: SaveState }) {

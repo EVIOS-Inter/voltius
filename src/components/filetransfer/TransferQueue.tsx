@@ -26,10 +26,10 @@ export function TransferQueue({ transfers, onClear, onCancel, onCancelAll, colla
   const badgeCount = hasActive ? active.length : transfers.length;
 
   function statusIcon(t: Transfer) {
-    if (t.status === "done") return { icon: "lucide:check-circle", color: "var(--t-status-connected)", spin: false };
-    if (t.status === "error") return { icon: "lucide:alert-circle", color: "var(--t-status-error)", spin: false };
+    if (t.status === "done") return { icon: "lucide:circle-check-big", color: "var(--t-status-connected)", spin: false };
+    if (t.status === "error") return { icon: "lucide:circle-alert", color: "var(--t-status-error)", spin: false };
     if (t.status === "cancelled") return { icon: "lucide:ban", color: "var(--t-text-dim)", spin: false };
-    return { icon: "lucide:loader-2", color: "var(--t-text-dim)", spin: true };
+    return { icon: "lucide:loader-circle", color: "var(--t-text-dim)", spin: true };
   }
 
   function statusLabel(t: Transfer) {
@@ -49,7 +49,7 @@ export function TransferQueue({ transfers, onClear, onCancel, onCancelAll, colla
       <div className="relative flex items-center justify-between gap-2 px-3.5 py-2 select-none">
         <div className="flex items-center gap-2 min-w-0">
           <Icon
-            icon={hasActive ? "lucide:loader-2" : "lucide:arrow-down-up"}
+            icon={hasActive ? "lucide:loader-circle" : "lucide:arrow-down-up"}
             width={12}
             className={`shrink-0 ${hasActive ? "animate-spin" : ""}`}
             style={{ color: hasActive ? "var(--t-accent)" : "var(--t-text-dim)" }}

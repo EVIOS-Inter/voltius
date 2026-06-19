@@ -165,7 +165,7 @@ export default function MobileProcessesScreen({ sessionId }: { sessionId: string
         <BottomSheet title={`${sheetFor.name} · ${sheetFor.pid}`} onClose={() => setSheetFor(null)}>
           <div className="flex flex-col">
             <SheetRow
-              icon="lucide:x-circle"
+              icon="lucide:circle-x"
               label="Kill (SIGTERM)"
               onClick={() => setConfirm({ entry: sheetFor, force: false })}
             />

@@ -142,7 +142,7 @@ export default function BuySeatsModal({ teamId, pendingUser, pendingRole, onClos
           >
             {loading
               ? <span className="flex items-center justify-center gap-1.5">
-                  <Icon icon="lucide:loader-2" width={13} className="animate-spin" />
+                  <Icon icon="lucide:loader-circle" width={13} className="animate-spin" />
                   Processing…
                 </span>
               : `Buy ${additionalSeats} seat${additionalSeats !== 1 ? "s" : ""} & Invite`

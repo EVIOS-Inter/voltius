@@ -13,7 +13,7 @@ const NAV_ITEMS: NavEntry[] = [
   { id: "keychain",        label: "Keychain",        icon: "lucide:key-round" },
   { id: "port-forwarding", label: "Port Forwarding", icon: "lucide:arrow-left-right" },
   { id: "snippets",        label: "Snippets",        icon: "lucide:braces" },
-  { id: "known-hosts",     label: "Known Hosts",     icon: "lucide:fingerprint" },
+  { id: "known-hosts",     label: "Known Hosts",     icon: "lucide:fingerprint-pattern" },
   { id: "members",         label: "Members",         icon: "lucide:users-round" },
   { id: "logs",            label: "Logs",            icon: "lucide:scroll-text" },
 ];

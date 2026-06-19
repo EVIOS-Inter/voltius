@@ -19,7 +19,7 @@ export interface ToggleDef {
 export const TOGGLE_DEFS = {
   "scroll-minimap": {
     label: "Scroll Minimap",
-    icon: "lucide:layout-panel-right",
+    icon: "lucide:panel-right",
     description: "Appearance",
     keywords: ["minimap", "scrollbar", "terminal", "map"],
     default: true,

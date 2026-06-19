@@ -159,7 +159,7 @@ export function KeyGenFields({
 
       {genError && (
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs bg-[#2D1515] border border-[#5C2020] text-[#F87171]">
-          <Icon icon="lucide:alert-circle" width={13} />
+          <Icon icon="lucide:circle-alert" width={13} />
           <span className="flex-1">{genError}</span>
         </div>
       )}
@@ -178,7 +178,7 @@ export function KeyGenFields({
         {ripplesGenerate}
         {generating ? (
           <>
-            <Icon icon="lucide:loader-2" width={15} className="animate-spin" />
+            <Icon icon="lucide:loader-circle" width={15} className="animate-spin" />
             Generating…
           </>
         ) : (

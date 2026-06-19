@@ -273,7 +273,7 @@ function ActionButton({ icon, label, sub, primary, loading, onClick }: {
         if (!primary) (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--t-border)";
       }}
     >
-      <Icon icon={loading ? "lucide:loader-2" : icon} width={18}
+      <Icon icon={loading ? "lucide:loader-circle" : icon} width={18}
         className={`shrink-0 ${loading ? "animate-spin" : ""}`}
         style={{ color: primary ? "white" : "var(--t-accent)" }} />
       <div>
@@ -315,7 +315,7 @@ function SubmitBtn({ loading, label }: { loading: boolean; label: string }) {
       className="btn btn-primary w-full py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
       style={{ opacity: loading ? 0.7 : 1 }}
     >
-      {loading && <Icon icon="lucide:loader-2" width={14} className="animate-spin" />}
+      {loading && <Icon icon="lucide:loader-circle" width={14} className="animate-spin" />}
       {label}
     </button>
   );

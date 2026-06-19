@@ -129,7 +129,7 @@ export default function MobileSftpPane({
       <div className="flex-1 overflow-y-auto min-h-0">
         {phase.tag === "connecting" && (
           <div className="flex items-center justify-center pt-10 text-sm text-(--t-text-dim) gap-2">
-            <Icon icon="lucide:loader-2" width={18} className="animate-spin" /> Connecting…
+            <Icon icon="lucide:loader-circle" width={18} className="animate-spin" /> Connecting…
           </div>
         )}
         {phase.tag === "error" && (
@@ -271,7 +271,7 @@ function FileRow({ file, checked, onTap, onToggle, onLong }: { file: FileEntry; 
         role="checkbox" aria-checked={checked} data-sftp-select={file.path}
         onClick={(e) => { e.stopPropagation(); onToggle(); }}
         className="p-1 -m-1 shrink-0">
-        <Icon icon={checked ? "lucide:check-square" : "lucide:square"} width={16}
+        <Icon icon={checked ? "lucide:square-check-big" : "lucide:square"} width={16}
           style={{ color: checked ? "var(--t-accent)" : "var(--t-text-dim)" }} />
       </span>
       <Icon icon={icon} width={20} className="text-(--t-text-dim) shrink-0" />

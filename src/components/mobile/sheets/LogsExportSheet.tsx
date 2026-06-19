@@ -34,7 +34,7 @@ export default function LogsExportSheet({ context, onClose }: {
         onClick={() => void handleExport("csv")}
       >
         {exporting ? (
-          <Icon icon="lucide:loader-2" width={18} className="animate-spin" />
+          <Icon icon="lucide:loader-circle" width={18} className="animate-spin" />
         ) : (
           <Icon icon="lucide:file-text" width={18} />
         )}
@@ -48,7 +48,7 @@ export default function LogsExportSheet({ context, onClose }: {
         onClick={() => void handleExport("json")}
       >
         {exporting ? (
-          <Icon icon="lucide:loader-2" width={18} className="animate-spin" />
+          <Icon icon="lucide:loader-circle" width={18} className="animate-spin" />
         ) : (
           <Icon icon="lucide:braces" width={18} />
         )}

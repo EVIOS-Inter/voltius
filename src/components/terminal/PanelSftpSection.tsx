@@ -245,7 +245,7 @@ export default function PanelSftpSection() {
             {panelState?.tag === "error" ? (
               <Icon icon="lucide:wifi-off" width={20} className="text-(--t-status-error)" />
             ) : panelState?.tag === "connecting" ? (
-              <Icon icon="lucide:loader-2" width={16} className="animate-spin text-(--t-text-dim)" />
+              <Icon icon="lucide:loader-circle" width={16} className="animate-spin text-(--t-text-dim)" />
             ) : (
               <Icon icon="lucide:folder-tree" width={20} className="text-(--t-text-dim)" />
             )}

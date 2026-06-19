@@ -6,9 +6,9 @@ import type { BannerEntry, HistoryEntry } from "@/stores/notificationStore";
 
 const SEVERITY_ICONS: Record<string, string> = {
   info: "lucide:info",
-  success: "lucide:check-circle",
+  success: "lucide:circle-check-big",
   warning: "lucide:triangle-alert",
-  error: "lucide:x-circle",
+  error: "lucide:circle-x",
 };
 
 const SEVERITY_COLORS: Record<string, string> = {

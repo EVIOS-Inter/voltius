@@ -68,7 +68,7 @@ export default function ChangeMasterPasswordModal({ onClose }: Props) {
         {done ? (
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-(--t-status-connected)">
-              <Icon icon="lucide:check-circle" width={14} />
+              <Icon icon="lucide:circle-check-big" width={14} />
               <p className="text-xs font-medium">Password changed successfully.</p>
             </div>
             <p className="text-xs text-(--t-text-dim)">

@@ -66,7 +66,7 @@ export function KnownHostCard({
       data-selectable-id={host.id}
     >
       {/* Fingerprint icon */}
-      <AvatarTile icon="lucide:fingerprint" iconSize={isList ? 14 : 18} className={`rounded-xl ${isList ? "w-7 h-7" : "w-10 h-10"}`} />
+      <AvatarTile icon="lucide:fingerprint-pattern" iconSize={isList ? 14 : 18} className={`rounded-xl ${isList ? "w-7 h-7" : "w-10 h-10"}`} />
 
       <div className="min-w-0 flex-1">
         {isList ? (

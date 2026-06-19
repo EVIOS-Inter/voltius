@@ -187,7 +187,7 @@ export function MultiplayerBar({ localSessionId }: MultiplayerBarProps) {
         }}
         title={isHost ? "Stop sharing" : "Leave session"}
       >
-        <Icon icon={isHost ? "lucide:stop-circle" : "lucide:log-out"} width={13} />
+        <Icon icon={isHost ? "lucide:circle-stop" : "lucide:log-out"} width={13} />
         {isHost ? "Stop" : "Leave"}
       </button>
     </div>

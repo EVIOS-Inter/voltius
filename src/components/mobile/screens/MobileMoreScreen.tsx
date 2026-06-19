@@ -10,7 +10,7 @@ import type { MorePage } from "@/stores/mobileNavCore";
 const PAGES: { page: MorePage; label: string; icon: string }[] = [
   { page: "keychain",        label: "Keychain",        icon: "lucide:key-round" },
   { page: "port-forwarding", label: "Port Forwarding", icon: "lucide:arrow-left-right" },
-  { page: "known-hosts",     label: "Known Hosts",     icon: "lucide:fingerprint" },
+  { page: "known-hosts",     label: "Known Hosts",     icon: "lucide:fingerprint-pattern" },
   { page: "members",         label: "Members",         icon: "lucide:users-round" },
   { page: "logs",            label: "Logs",            icon: "lucide:scroll-text" },
 ];

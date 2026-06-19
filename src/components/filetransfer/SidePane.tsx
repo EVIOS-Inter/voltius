@@ -200,7 +200,7 @@ export function SidePane({
             style={{ width: "1.333rem", height: "1.333rem", ...(host ? {} : { background: "var(--t-bg-input)", boxShadow: "none" }) }}
           >
             {phase.tag === "connecting"
-              ? <Icon icon="lucide:loader-2" width={11} className="animate-spin" />
+              ? <Icon icon="lucide:loader-circle" width={11} className="animate-spin" />
               : <Icon icon={hostIcon} width={11} />
             }
           </AvatarTile>

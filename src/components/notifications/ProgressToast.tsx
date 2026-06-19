@@ -33,7 +33,7 @@ export function ProgressToast({ toast, onDismiss, pluginUnloaded }: Props) {
       <div className="flex items-center gap-2">
         {isFinished ? (
           <Icon
-            icon={displaySeverity === "error" ? "lucide:x-circle" : "lucide:check-circle"}
+            icon={displaySeverity === "error" ? "lucide:circle-x" : "lucide:circle-check-big"}
             width={14}
             style={{ color: borderColor, flexShrink: 0 }}
           />

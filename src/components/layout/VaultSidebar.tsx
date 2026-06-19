@@ -521,7 +521,7 @@ function WhatsNewButton({ onClick }: { onClick: () => void }) {
   let iconStyle: React.CSSProperties | undefined;
   const ready = updater.status === "ready";
   if (updater.status === "checking") {
-    icon = "lucide:loader-2";
+    icon = "lucide:loader-circle";
     title = "Checking for updates…";
     iconClass = "animate-spin";
   } else if (updater.status === "downloading") {

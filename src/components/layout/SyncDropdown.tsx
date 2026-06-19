@@ -169,7 +169,7 @@ function SyncSection({
       {variant.kind === "misconfigured" && (
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5" style={{ color: "var(--t-status-warning, var(--t-text-dim))" }}>
-            <Icon icon="lucide:alert-triangle" width={11} style={{ color: "var(--t-status-error)" }} />
+            <Icon icon="lucide:triangle-alert" width={11} style={{ color: "var(--t-status-error)" }} />
             <span className="text-xs" style={{ color: "var(--t-status-error)" }}>Not configured</span>
           </div>
           <button

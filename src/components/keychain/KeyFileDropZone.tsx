@@ -102,9 +102,9 @@ export function KeyFileDropZone({
       <Icon
         icon={
           status === "ok"
-            ? "lucide:check-circle"
+            ? "lucide:circle-check-big"
             : status === "err"
-            ? "lucide:x-circle"
+            ? "lucide:circle-x"
             : dragging
             ? "lucide:file-down"
             : "lucide:import"

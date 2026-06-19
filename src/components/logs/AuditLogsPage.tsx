@@ -137,7 +137,7 @@ export default function AuditLogsPage() {
             </div>
           ) : loading && logs.length === 0 ? (
             <div className="flex items-center justify-center py-16">
-              <Icon icon="lucide:loader-2" width={24} className="animate-spin text-(--t-text-dim)" />
+              <Icon icon="lucide:loader-circle" width={24} className="animate-spin text-(--t-text-dim)" />
             </div>
           ) : layout === "timeline" ? (
             <AuditTimeline logs={visibleLogs} />

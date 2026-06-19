@@ -50,7 +50,7 @@ export function AuditExportButton({ context }: Props) {
         }}
       >
         {exporting ? (
-          <Icon icon="lucide:loader-2" width={14} className="animate-spin" />
+          <Icon icon="lucide:loader-circle" width={14} className="animate-spin" />
         ) : (
           <Icon icon="lucide:download" width={14} />
         )}

@@ -148,7 +148,7 @@ function ProcessRow({
             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t-text-muted)")}
             title={`Kill process ${entry.pid}`}
           >
-            <Icon icon="lucide:x-circle" width={11} />
+            <Icon icon="lucide:circle-x" width={11} />
           </button>
         )}
       </div>

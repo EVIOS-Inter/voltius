@@ -363,7 +363,7 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
             style={{ background: "var(--t-bg-input)", borderColor: open ? "var(--t-accent)" : "var(--t-border)" }}
           >
             {searching
-              ? <Icon icon="lucide:loader-2" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
+              ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
               : <Icon icon="lucide:search" width={13} className="shrink-0" style={{ color: "var(--t-text-dim)" }} />
             }
             <input
@@ -402,7 +402,7 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
                   <Avatar email={user.display_name} size={26} />
                   <span className="flex-1 text-sm truncate">{user.display_name}</span>
                   {adding === user.user_id
-                    ? <Icon icon="lucide:loader-2" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
+                    ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                     : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
                         Add
                       </span>
@@ -423,7 +423,7 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
                     Send invite to <span className="font-medium">{query}</span>
                   </span>
                   {sendingInvite
-                    ? <Icon icon="lucide:loader-2" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
+                    ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                     : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
                         Invite →
                       </span>
@@ -517,7 +517,7 @@ function MemberRow({ member, isMe, myMember, teamId, roles }: {
 
         {canChangeRole ? (
           <div className="flex items-center gap-1 flex-wrap">
-            {busy && <Icon icon="lucide:loader-2" width={11} className="animate-spin" style={{ color: "var(--t-text-dim)" }} />}
+            {busy && <Icon icon="lucide:loader-circle" width={11} className="animate-spin" style={{ color: "var(--t-text-dim)" }} />}
             {nonOwnerRoles.map((r) => {
               const hasRole = member.role_ids.includes(r.id);
               const m = ROLE_META[r.name];
@@ -561,8 +561,8 @@ function MemberRow({ member, isMe, myMember, teamId, roles }: {
             title={confirmRemove ? "Click again to confirm" : "Remove from vault"}
           >
             {busy
-              ? <Icon icon="lucide:loader-2" width={13} className="animate-spin" />
-              : <Icon icon={confirmRemove ? "lucide:alert-triangle" : "lucide:user-minus"} width={13} />
+              ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin" />
+              : <Icon icon={confirmRemove ? "lucide:triangle-alert" : "lucide:user-minus"} width={13} />
             }
           </button>
         )}
@@ -667,7 +667,7 @@ export function TeamVaultPanel({ teamId, myUserId }: { teamId: string; myUserId:
                   style={{ color: "var(--t-text-dim)", opacity: revokingId === inv.id ? 0.4 : 1 }}
                 >
                   {revokingId === inv.id
-                    ? <Icon icon="lucide:loader-2" width={13} className="animate-spin" />
+                    ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin" />
                     : <Icon icon="lucide:x" width={13} />
                   }
                 </button>
@@ -950,7 +950,7 @@ export function PrivateVaultMembersPanel({
             style={{ background: "var(--t-bg-input)", borderColor: open ? "var(--t-accent)" : "var(--t-border)" }}
           >
             {searching
-              ? <Icon icon="lucide:loader-2" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
+              ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
               : <Icon icon="lucide:search" width={13} className="shrink-0" style={{ color: "var(--t-text-dim)" }} />
             }
             <input
@@ -991,7 +991,7 @@ export function PrivateVaultMembersPanel({
                     <Avatar email={user.display_name} size={26} />
                     <span className="flex-1 text-sm truncate">{user.display_name}</span>
                     {adding === user.user_id
-                      ? <Icon icon="lucide:loader-2" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
+                      ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                       : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
                           Add as Member
                         </span>

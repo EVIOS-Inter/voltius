@@ -51,7 +51,7 @@ export function RemoteDeviceSessions() {
             <div className="flex-1 min-w-0 self-start flex items-start gap-2">
               <AvatarTile
                 base="var(--t-accent)"
-                icon={joiningId === a.sessionId ? "lucide:loader-2" : "lucide:monitor-smartphone"}
+                icon={joiningId === a.sessionId ? "lucide:loader-circle" : "lucide:monitor-smartphone"}
                 size={30}
                 radius={6}
                 className="text-white"

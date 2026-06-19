@@ -56,7 +56,7 @@ export default function MobileRemoteDeviceSessions() {
               style={{ width: 30, height: 30, background: "var(--t-accent)" }}
             >
               <Icon
-                icon={joiningId === a.sessionId ? "lucide:loader-2" : "lucide:monitor-smartphone"}
+                icon={joiningId === a.sessionId ? "lucide:loader-circle" : "lucide:monitor-smartphone"}
                 width={16}
                 className={joiningId === a.sessionId ? "text-white animate-spin" : "text-white"}
               />

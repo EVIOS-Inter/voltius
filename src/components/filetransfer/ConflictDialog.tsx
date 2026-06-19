@@ -18,7 +18,7 @@ export function ConflictDialog({ conflict, conflictNumber, totalConflicts, onRes
             className="flex items-center justify-center rounded-lg shrink-0 w-[2.133rem] h-[2.133rem]"
             style={{ background: "color-mix(in srgb, #f59e0b 18%, transparent)" }}
           >
-            <Icon icon="lucide:alert-triangle" width={16} className="text-[#f59e0b]" />
+            <Icon icon="lucide:triangle-alert" width={16} className="text-[#f59e0b]" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-(--t-text-primary)">File already exists</p>

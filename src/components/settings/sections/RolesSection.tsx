@@ -287,7 +287,7 @@ export function RoleModal({
             className="px-4 py-2 rounded-lg text-sm font-medium text-white inline-flex items-center gap-2"
             style={{ background: "var(--t-accent)", opacity: saving || !name.trim() ? 0.7 : 1 }}
           >
-            {saving && <Icon icon="lucide:loader-2" width={13} className="animate-spin" />}
+            {saving && <Icon icon="lucide:loader-circle" width={13} className="animate-spin" />}
             {role ? "Save changes" : "Create role"}
           </button>
         </div>
@@ -410,8 +410,8 @@ function RoleCard({
                 title={confirmDelete ? "Click again to confirm" : "Delete role"}
               >
                 {deleting
-                  ? <Icon icon="lucide:loader-2" width={13} className="animate-spin" />
-                  : <Icon icon={confirmDelete ? "lucide:alert-triangle" : "lucide:trash-2"} width={13} />
+                  ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin" />
+                  : <Icon icon={confirmDelete ? "lucide:triangle-alert" : "lucide:trash-2"} width={13} />
                 }
               </button>
             </>

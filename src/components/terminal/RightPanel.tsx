@@ -131,7 +131,7 @@ function ThemesSection() {
           onMouseEnter={(e) => (e.currentTarget.style.background = "var(--t-bg-card)")}
           onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
         >
-          <Icon icon="lucide:plus-circle" width={15} />
+          <Icon icon="lucide:circle-plus" width={15} />
           <span className="text-sm font-medium">Create New Theme</span>
         </button>
       </div>

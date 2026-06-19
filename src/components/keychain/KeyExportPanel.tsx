@@ -168,13 +168,13 @@ export function KeyExportPanel({ sshKey, onClose }: { sshKey: SshKey; onClose: (
 
           {exportStatus === "success" && (
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg mx-1" style={{ background: "color-mix(in srgb, var(--t-accent) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--t-accent) 30%, transparent)" }}>
-              <Icon icon="lucide:check-circle" width={14} className="text-(--t-accent) shrink-0" />
+              <Icon icon="lucide:circle-check-big" width={14} className="text-(--t-accent) shrink-0" />
               <span className="text-xs text-(--t-accent)">Key exported successfully</span>
             </div>
           )}
           {exportStatus === "error" && (
             <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg mx-1" style={{ background: "color-mix(in srgb, var(--t-danger, #ef4444) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--t-danger, #ef4444) 30%, transparent)" }}>
-              <Icon icon="lucide:x-circle" width={14} className="text-(--t-danger,#ef4444) shrink-0" style={{ marginTop: 1 }} />
+              <Icon icon="lucide:circle-x" width={14} className="text-(--t-danger,#ef4444) shrink-0" style={{ marginTop: 1 }} />
               <span className="text-xs break-all text-(--t-danger,#ef4444)">{exportError}</span>
             </div>
           )}

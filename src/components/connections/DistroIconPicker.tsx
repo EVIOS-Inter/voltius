@@ -100,7 +100,7 @@ export function DistroIconPicker({
           className="btn btn-primary w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium disabled:cursor-not-allowed"
         >
           <Icon
-            icon={detectingDistro ? "lucide:loader-2" : "lucide:scan-search"}
+            icon={detectingDistro ? "lucide:loader-circle" : "lucide:scan-search"}
             width={13}
             className={detectingDistro ? "animate-spin" : undefined}
           />

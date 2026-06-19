@@ -189,7 +189,7 @@ export function TeamSessions() {
             style={{ background: "var(--t-accent)", color: "white" }}
           >
             {joinLoading
-              ? <Icon icon="lucide:loader-2" width={12} className="animate-spin" />
+              ? <Icon icon="lucide:loader-circle" width={12} className="animate-spin" />
               : <Icon icon="lucide:log-in" width={12} />}
             Join
           </button>

@@ -68,19 +68,19 @@ export default function AboutSection() {
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
                 {updater.status === "checking" && (
-                  <Icon icon="lucide:loader-2" width={14} className="animate-spin shrink-0 text-(--t-accent)" />
+                  <Icon icon="lucide:loader-circle" width={14} className="animate-spin shrink-0 text-(--t-accent)" />
                 )}
                 {updater.status === "downloading" && (
                   <Icon icon="lucide:download" width={14} className="shrink-0 text-(--t-accent)" />
                 )}
                 {updater.status === "ready" && (
-                  <Icon icon="lucide:check-circle-2" width={14} className="shrink-0 text-(--t-status-connected)" />
+                  <Icon icon="lucide:circle-check" width={14} className="shrink-0 text-(--t-status-connected)" />
                 )}
                 {updater.status === "upToDate" && (
-                  <Icon icon="lucide:check-circle-2" width={14} className="shrink-0 text-(--t-status-connected)" />
+                  <Icon icon="lucide:circle-check" width={14} className="shrink-0 text-(--t-status-connected)" />
                 )}
                 {updater.status === "error" && (
-                  <Icon icon="lucide:alert-circle" width={14} className="shrink-0 text-(--t-status-error)" />
+                  <Icon icon="lucide:circle-alert" width={14} className="shrink-0 text-(--t-status-error)" />
                 )}
                 {(updater.status === "idle" || updater.status === "upToDate" || updater.status === "checking") && (
                   <span className="text-sm text-(--t-text-primary)">

@@ -100,7 +100,7 @@ function WhatsNewInner() {
         <div className="overflow-y-auto px-5 py-4 space-y-5">
           {loading && (
             <div className="flex items-center gap-2 text-sm text-(--t-text-dim) py-6 justify-center">
-              <Icon icon="lucide:loader-2" width={16} className="animate-spin" />
+              <Icon icon="lucide:loader-circle" width={16} className="animate-spin" />
               Loading changelog…
             </div>
           )}
@@ -189,7 +189,7 @@ function UpdateBanner({ state }: { state: UpdaterStatus }) {
   if (state.status === "checking") {
     return (
       <div className="flex items-center gap-2 px-5 py-2.5 border-b border-(--t-border) text-xs text-(--t-text-dim) shrink-0">
-        <Icon icon="lucide:loader-2" width={13} className="animate-spin" />
+        <Icon icon="lucide:loader-circle" width={13} className="animate-spin" />
         Checking for updates…
       </div>
     );

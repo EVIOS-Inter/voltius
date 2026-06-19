@@ -136,7 +136,7 @@ export default function FolderSelector({ value, folders, onChange, onCreateFolde
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--t-bg-card-hover)"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
             >
-              <Icon icon={saving ? "lucide:loader-2" : "lucide:check"} width={13} className={saving ? "animate-spin" : undefined} />
+              <Icon icon={saving ? "lucide:loader-circle" : "lucide:check"} width={13} className={saving ? "animate-spin" : undefined} />
             </button>
             <button
               type="button"

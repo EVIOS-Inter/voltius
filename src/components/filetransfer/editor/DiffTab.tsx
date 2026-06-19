@@ -4,14 +4,18 @@ import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { sftpReadFile } from "@/services/sftp";
 import { useSftpSettingsStore } from "@/stores/sftpSettingsStore";
+import { useThemeStore } from "@/stores/themeStore";
 import { type DiffDoc } from "@/stores/editorStore";
 import { languageForPath } from "./languageForPath";
+import { cmTheme } from "./cmTheme";
 
 export function DiffTab({ doc }: { doc: DiffDoc }) {
   const maxBytes = useSftpSettingsStore((s) => s.editorMaxBytes);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState<{ a: string; b: string } | null>(null);
+  const activeThemeId = useThemeStore((s) => s.activeThemeId);
+  const getActiveTheme = useThemeStore((s) => s.getActiveTheme);
 
   useEffect(() => {
     let cancelled = false;
@@ -36,21 +40,23 @@ export function DiffTab({ doc }: { doc: DiffDoc }) {
     if (!ready || !hostRef.current) return;
     const readOnly = EditorState.readOnly.of(true);
     const notEditable = EditorView.editable.of(false);
+    const theme = cmTheme(getActiveTheme());
     const langA = languageForPath(doc.left.path);
     const langB = languageForPath(doc.right.path);
     const view = new MergeView({
       a: {
         doc: ready.a,
-        extensions: [readOnly, notEditable, ...(langA ? [langA] : [])],
+        extensions: [readOnly, notEditable, ...theme, ...(langA ? [langA] : [])],
       },
       b: {
         doc: ready.b,
-        extensions: [readOnly, notEditable, ...(langB ? [langB] : [])],
+        extensions: [readOnly, notEditable, ...theme, ...(langB ? [langB] : [])],
       },
       parent: hostRef.current,
     });
     return () => view.destroy();
-  }, [ready, doc.left.path, doc.right.path]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, doc.left.path, doc.right.path, activeThemeId]);
 
   if (error)
     return (

@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { sftpReadFile, sftpWriteFile, type EditorReadError } from "@/services/sftp";
 import { useSftpSettingsStore } from "@/stores/sftpSettingsStore";
 import { useEditorStore, type EditorDoc } from "@/stores/editorStore";
+import { useThemeStore } from "@/stores/themeStore";
 import { languageForPath } from "./languageForPath";
+import { cmTheme } from "./cmTheme";
 import { IconBtn } from "@/components/filetransfer/FilePane";
 
 export function createDebouncedSaver(
@@ -49,8 +51,20 @@ export function EditorTab({ doc }: { doc: EditorDoc }) {
   const [saving, setSaving] = useState(false);
   const lastSaved = useRef<string>("");
 
+  const activeThemeId = useThemeStore((s) => s.activeThemeId);
+  const customThemes = useThemeStore((s) => s.customThemes);
+  const getActiveTheme = useThemeStore((s) => s.getActiveTheme);
+  const themeExt = useMemo(
+    () => cmTheme(getActiveTheme()),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeThemeId, customThemes],
+  );
+
   const ext = languageForPath(doc.path);
-  const extensions = ext ? [ext] : [];
+  const extensions = useMemo(
+    () => [...themeExt, ...(ext ? [ext] : [])],
+    [themeExt, ext],
+  );
 
   const doSave = async (text: string) => {
     setSaving(true);
@@ -149,7 +163,13 @@ export function EditorTab({ doc }: { doc: EditorDoc }) {
       </div>
       {/* Editor */}
       <div className="min-h-0 flex-1 overflow-auto">
-        <CodeMirror value={content} extensions={extensions} onChange={onChange} height="100%" />
+        <CodeMirror
+          value={content}
+          extensions={extensions}
+          onChange={onChange}
+          height="100%"
+          theme="none"
+        />
       </div>
     </div>
   );

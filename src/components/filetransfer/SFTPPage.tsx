@@ -30,6 +30,10 @@ import { triggerOsDrop as triggerOsDropPipeline } from "./osDropPipeline";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useConnectionStore } from "@/stores/connectionStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { EditorTabStrip } from "./editor/EditorTabStrip";
+import { EditorTab } from "./editor/EditorTab";
+import { DiffTab } from "./editor/DiffTab";
 
 export default function SFTPPage() {
   const sftpPanelOpen = useUIStore((s) => s.sftpPanelOpen);
@@ -397,9 +401,21 @@ export default function SFTPPage() {
   const transferLRTitle = canTransferLR ? (leftSelected.length  === 1 ? `Transfer "${leftSelected[0].name}" →`  : `Transfer ${leftSelected.length} items →`)  : "Select a file on the left";
   const transferRLTitle = canTransferRL ? (rightSelected.length === 1 ? `Transfer "${rightSelected[0].name}" ←` : `Transfer ${rightSelected.length} items ←`) : "Select a file on the right";
 
+  const editorTabs = useEditorStore((s) => s.tabs);
+  const activeTabId = useEditorStore((s) => s.activeTabId);
+  const activeTab = editorTabs.find((t) => t.id === activeTabId) ?? null;
+
   return (
     <div className="flex flex-col h-full bg-(--t-bg-base)">
-      <div className="flex flex-1 min-h-0 gap-3 p-3">
+      <EditorTabStrip />
+      {activeTab !== null ? (
+        activeTab.kind === "file" ? (
+          <EditorTab doc={activeTab} />
+        ) : (
+          <DiffTab doc={activeTab} />
+        )
+      ) : null}
+      <div className={`flex flex-1 min-h-0 gap-3 p-3${activeTab !== null ? " hidden" : ""}`}>
         <div className="flex-1 min-w-0 rounded-xl overflow-hidden border border-(--t-border)">
           <SidePane
             host={leftHost} phase={leftPhase} refreshTick={leftRefresh}

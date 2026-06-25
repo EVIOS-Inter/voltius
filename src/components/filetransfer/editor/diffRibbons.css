@@ -1,0 +1,24 @@
+/* Central channel between the two merge editors + the ribbon/button overlay. */
+.cm-diff-ribbons-host { position: relative; }
+.cm-diff-ribbons-gap { gap: 44px; }
+
+.cm-diff-ribbons-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+.cm-diff-ribbons-svg { position: absolute; inset: 0; overflow: visible; }
+
+.cm-diff-ribbon { stroke-width: 1; }
+.cm-diff-ribbon-ins { fill: color-mix(in srgb, var(--t-status-success) 22%, transparent); stroke: var(--t-status-success); }
+.cm-diff-ribbon-del { fill: color-mix(in srgb, var(--t-status-error) 22%, transparent); stroke: var(--t-status-error); }
+.cm-diff-ribbon-mod { fill: color-mix(in srgb, var(--t-accent) 22%, transparent); stroke: var(--t-accent); }
+
+.cm-diff-ribbon-actions {
+  position: absolute; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; gap: 2px; pointer-events: auto;
+}
+.cm-diff-ribbon-btn {
+  width: 18px; height: 16px; line-height: 1; font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 3px; cursor: pointer;
+  color: var(--t-text); background: var(--t-bg-elevated);
+  border: 1px solid var(--t-border);
+}
+.cm-diff-ribbon-btn:hover { background: var(--t-bg-card); border-color: var(--t-accent); }

@@ -35,11 +35,14 @@ export function PortsPanel() {
   const [busy, setBusy] = useState<Set<string>>(new Set());
 
   const quickForwardInputRef = useRef<HTMLInputElement>(null);
+  const savingTunnelsRef = useRef<Set<string>>(new Set());
   const defaultVaultId = useDefaultVaultId();
   const [renamingRuleId, setRenamingRuleId] = useState<string | null>(null);
 
   async function handleSaveAsRule(tunnel: ActiveTunnel) {
     if (!activeSessionId) return;
+    if (savingTunnelsRef.current.has(tunnel.id)) return;
+    savingTunnelsRef.current.add(tunnel.id);
     const key = `save-${tunnel.id}`;
     setBusyKey(key, true);
     try {
@@ -72,6 +75,7 @@ export function PortsPanel() {
       console.error("save as rule failed:", e);
     } finally {
       setBusyKey(key, false);
+      savingTunnelsRef.current.delete(tunnel.id);
     }
   }
 
@@ -309,13 +313,14 @@ export function PortsPanel() {
                 isError={isError}
                 isBusy={busy.has(key)}
                 isDeleting={busy.has(`del-${key}`)}
+                isSaving={busy.has(`save-${tunnel.id}`)}
                 badge={isAuto ? "auto" : "adhoc"}
                 bytesTransferred={tunnel.bytes_transferred}
                 localPort={tunnel.local_port}
                 httpUrl={getLocalTunnelHttpUrl(tunnel.tunnel_type ?? "local", tunnel.remote_port, tunnel.local_port)}
                 onToggle={() => handleTunnelStop(tunnel.id, key)}
                 onDelete={() => handleTunnelDelete(tunnel.id, tunnel.remote_port, key)}
-                onSaveAsRule={() => handleSaveAsRule(tunnel)}
+                onSaveAsRule={tunnel.tunnel_type === "dynamic" ? undefined : () => handleSaveAsRule(tunnel)}
               />
             );
           })}

@@ -19,6 +19,7 @@ export function PortRow({
   isError,
   isBusy,
   isDeleting,
+  isSaving,
   badge,
   bytesTransferred,
   httpUrl,
@@ -37,6 +38,7 @@ export function PortRow({
   isError?: boolean;
   isBusy: boolean;
   isDeleting: boolean;
+  isSaving?: boolean;
   badge: BadgeType;
   bytesTransferred?: number;
   httpUrl?: string | null;
@@ -52,10 +54,12 @@ export function PortRow({
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState(defaultName ?? label);
   const renameInputRef = useRef<HTMLInputElement>(null);
+  const renameCommittedRef = useRef(false);
 
   useEffect(() => {
     if (isRenaming) {
       setNameDraft(defaultName ?? label);
+      renameCommittedRef.current = false;
       // focus + select on entering rename mode
       requestAnimationFrame(() => {
         renameInputRef.current?.focus();
@@ -88,10 +92,10 @@ export function PortRow({
               value={nameDraft}
               onChange={(e) => setNameDraft(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") { e.preventDefault(); onRenameCommit?.(nameDraft.trim() || (defaultName ?? label)); }
-                else if (e.key === "Escape") { e.preventDefault(); onRenameCancel?.(); }
+                if (e.key === "Enter") { e.preventDefault(); renameCommittedRef.current = true; onRenameCommit?.(nameDraft.trim() || (defaultName ?? label)); }
+                else if (e.key === "Escape") { e.preventDefault(); renameCommittedRef.current = true; onRenameCancel?.(); }
               }}
-              onBlur={() => onRenameCommit?.(nameDraft.trim() || (defaultName ?? label))}
+              onBlur={() => { if (renameCommittedRef.current) return; onRenameCommit?.(nameDraft.trim() || (defaultName ?? label)); }}
               spellCheck={false}
               className="text-xs font-medium bg-(--t-bg-elevated) text-(--t-text-primary)
                 rounded px-1 -mx-1 outline-none min-w-0 flex-1 leading-tight"
@@ -164,12 +168,17 @@ export function PortRow({
       {onSaveAsRule && (
         <button
           onClick={(e) => { e.stopPropagation(); onSaveAsRule(); }}
+          disabled={isSaving}
           title="Save as rule"
           className="w-5 h-5 flex items-center justify-center rounded shrink-0 transition-all
             opacity-0 group-hover:opacity-100
             text-(--t-text-muted) hover:text-(--t-accent) hover:bg-(--t-bg-elevated)"
         >
-          <Icon icon="lucide:bookmark-plus" width={11} />
+          {isSaving ? (
+            <Icon icon="lucide:loader-circle" width={11} className="animate-spin" />
+          ) : (
+            <Icon icon="lucide:bookmark-plus" width={11} />
+          )}
         </button>
       )}
 

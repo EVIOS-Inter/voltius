@@ -1,14 +1,14 @@
-use crate::sftp::{SftpBackend, SftpManager};
+use crate::sftp::{FileBackend, SftpManager};
 use russh_sftp::client::SftpSession;
 use serde::Serialize;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-mod dir;
+pub mod dir;
 pub mod editor;
 mod ops;
 mod tar;
-mod transfer;
+pub mod transfer;
 
 pub use dir::*;
 pub use ops::*;
@@ -39,15 +39,16 @@ pub(super) async fn get_session<'a>(
     sftp_id: &'a str,
 ) -> Result<Arc<Mutex<SftpSession>>, String> {
     manager
-        .get(sftp_id)
+        .backend(sftp_id)
         .await
+        .and_then(|b| b.as_sftp_session())
         .ok_or_else(|| format!("SFTP session '{}' not found", sftp_id))
 }
 
 pub(super) async fn get_backend(
     manager: &SftpManager,
     sftp_id: &str,
-) -> Result<SftpBackend, String> {
+) -> Result<Arc<dyn FileBackend>, String> {
     manager
         .backend(sftp_id)
         .await

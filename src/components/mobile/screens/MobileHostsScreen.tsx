@@ -140,6 +140,12 @@ export default function MobileHostsScreen() {
   }, [inVault, nav.activeFolderId, search, isPinnedFn]);
 
   const handleConnect = (id: string) => {
+    // FTP hosts have no terminal — open the file browser instead.
+    const c = connections.find((x) => x.id === id);
+    if (c?.connection_type === "ftp") {
+      push({ kind: "panel-sftp", connectionId: id });
+      return;
+    }
     void connect(id).catch(console.error);
     setTab("terminal");
   };

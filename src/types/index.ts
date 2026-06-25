@@ -124,7 +124,8 @@ export interface Connection {
   shell_integration_disabled?: boolean;
   keepalive_preset?: KeepalivePreset;
   persist_session?: boolean;
-  connection_type?: "ssh" | "serial";
+  connection_type?: "ssh" | "serial" | "ftp";
+  ftp_secure?: boolean;
   serial_port?: string;
   serial_baud?: number;
   serial_data_bits?: number;
@@ -160,7 +161,8 @@ export interface ConnectionFormData {
   shell_integration_disabled?: boolean;
   keepalive_preset?: KeepalivePreset;
   persist_session?: boolean;
-  connection_type?: "ssh" | "serial";
+  connection_type?: "ssh" | "serial" | "ftp";
+  ftp_secure?: boolean;
   serial_port?: string;
   serial_baud?: number;
   serial_data_bits?: number;

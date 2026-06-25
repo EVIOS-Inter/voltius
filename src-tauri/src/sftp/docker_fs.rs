@@ -10,7 +10,9 @@
 //! characters (acceptable for a file manager).
 
 use crate::commands::sftp::{RemoteFile, TransferProgress};
+use crate::sftp::backend::FileBackend;
 use crate::ssh::client::SshClient;
+use async_trait::async_trait;
 use russh::client::Handle;
 use russh::ChannelMsg;
 use std::path::Path;
@@ -682,5 +684,99 @@ impl DockerFs {
             return Err("Local tar extraction failed".into());
         }
         Ok(())
+    }
+}
+
+#[async_trait]
+impl FileBackend for DockerFs {
+    async fn list_dir(&self, path: &str) -> Result<Vec<RemoteFile>, String> {
+        DockerFs::list_dir(self, path).await
+    }
+    async fn stat(&self, path: &str) -> Result<Option<bool>, String> {
+        DockerFs::stat(self, path).await
+    }
+    async fn canonicalize(&self, path: &str) -> Result<String, String> {
+        DockerFs::canonicalize(self, path).await
+    }
+    async fn mkdir(&self, path: &str) -> Result<(), String> {
+        DockerFs::mkdir(self, path).await
+    }
+    async fn touch(&self, path: &str) -> Result<(), String> {
+        DockerFs::touch(self, path).await
+    }
+    async fn rename(&self, from: &str, to: &str) -> Result<(), String> {
+        DockerFs::rename(self, from, to).await
+    }
+    async fn delete(&self, path: &str) -> Result<(), String> {
+        DockerFs::delete(self, path).await
+    }
+    async fn file_size(&self, path: &str) -> u64 {
+        DockerFs::file_size(self, path).await
+    }
+    async fn read_file(&self, path: &str) -> Result<Vec<u8>, String> {
+        DockerFs::read_file(self, path).await
+    }
+    async fn write_file(&self, path: &str, content: &str) -> Result<(), String> {
+        DockerFs::write_file(self, path, content).await
+    }
+    async fn upload_file(
+        &self,
+        app: &AppHandle,
+        local_path: &str,
+        remote_path: &str,
+        transfer_id: &str,
+        token: &CancellationToken,
+    ) -> Result<(), String> {
+        DockerFs::upload_file(self, app, local_path, remote_path, transfer_id, token).await
+    }
+    async fn download_file(
+        &self,
+        app: &AppHandle,
+        remote_path: &str,
+        local_path: &str,
+        transfer_id: &str,
+        token: &CancellationToken,
+    ) -> Result<(), String> {
+        DockerFs::download_file(self, app, remote_path, local_path, transfer_id, token).await
+    }
+    async fn upload_dir(
+        &self,
+        app: &AppHandle,
+        local_path: &str,
+        remote_path: &str,
+        transfer_id: &str,
+        token: &CancellationToken,
+    ) -> Result<(), String> {
+        DockerFs::upload_dir(self, app, local_path, remote_path, transfer_id, token).await
+    }
+    async fn download_dir(
+        &self,
+        app: &AppHandle,
+        remote_path: &str,
+        local_path: &str,
+        transfer_id: &str,
+        token: &CancellationToken,
+    ) -> Result<(), String> {
+        DockerFs::download_dir(self, app, remote_path, local_path, transfer_id, token).await
+    }
+    async fn upload_batch(
+        &self,
+        app: &AppHandle,
+        local_paths: &[String],
+        remote_dir: &str,
+        transfer_id: &str,
+        token: &CancellationToken,
+    ) -> Result<(), String> {
+        DockerFs::upload_batch(self, app, local_paths, remote_dir, transfer_id, token).await
+    }
+    async fn download_batch(
+        &self,
+        app: &AppHandle,
+        remote_paths: &[String],
+        local_dir: &str,
+        transfer_id: &str,
+        token: &CancellationToken,
+    ) -> Result<(), String> {
+        DockerFs::download_batch(self, app, remote_paths, local_dir, transfer_id, token).await
     }
 }

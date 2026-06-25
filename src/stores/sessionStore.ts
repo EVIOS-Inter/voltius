@@ -469,6 +469,12 @@ function beginConnection(set: SessionSetter, connectionId: string): string {
 
   const sessionId = crypto.randomUUID();
 
+  // FTP hosts have no terminal — open the file browser instead.
+  if (connection.connection_type === "ftp") {
+    useUIStore.getState().openSftpWith(connectionId);
+    return sessionId;
+  }
+
   if (connection.connection_type === "serial") {
     const serialParams = createSerialSession(set, connection, sessionId);
     void connectSerialSession(set, connection, sessionId, serialParams);
@@ -495,6 +501,12 @@ async function connectConnection(
   if (!connection) throw new Error("Connection not found");
 
   const sessionId = crypto.randomUUID();
+
+  // FTP hosts have no terminal — open the file browser instead.
+  if (connection.connection_type === "ftp") {
+    useUIStore.getState().openSftpWith(connectionId);
+    return sessionId;
+  }
 
   if (connection.connection_type === "serial") {
     await startSerialSession(set, connection, sessionId);

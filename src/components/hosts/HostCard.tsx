@@ -60,6 +60,8 @@ export default function HostCard({
 }: Props) {
   const isList = layout === "list";
   const isSerial = connection.connection_type === "serial";
+  const isFtp = connection.connection_type === "ftp";
+  const protocolLabel = isSerial ? "SERIAL" : isFtp ? (connection.ftp_secure ? "FTPS" : "FTP") : "SSH";
   const contributions = useUIContributions("connection.contextMenu", connection);
   const isSynced = useSyncPrefsStore((s) => s.isObjectSynced(connection.id, "connection"));
   const pinConnection = useConnectionStore((s) => s.pinConnection);
@@ -145,7 +147,7 @@ export default function HostCard({
         });
       },
     }] : []),
-    ...(!isSerial && onExecuteSnippet ? [{ label: "Execute Snippet", icon: "lucide:braces", onClick: () => onExecuteSnippet(connection), divider: true }] : []),
+    ...(!isSerial && !isFtp && onExecuteSnippet ? [{ label: "Execute Snippet", icon: "lucide:braces", onClick: () => onExecuteSnippet(connection), divider: true }] : []),
     ...buildConnectionMenuItems({
       canEdit,
       contributions,
@@ -267,15 +269,15 @@ export default function HostCard({
             {syncIcon}
             {canEdit && <CardActionButton icon="lucide:square-pen" title="Edit" onClick={() => onEdit(connection)} />}
             {canEdit && <CardActionButton icon="lucide:trash-2" title="Delete" onClick={() => onDelete(connection.id)} danger />}
-            {!isSerial && <CardActionButton icon="lucide:folder-open" title="Open in SFTP" onClick={() => useUIStore.getState().openSftpWith(connection.id)} />}
+            {!isSerial && !isFtp && <CardActionButton icon="lucide:folder-open" title="Open in SFTP" onClick={() => useUIStore.getState().openSftpWith(connection.id)} />}
             <button
               onClick={(e) => { e.stopPropagation(); onConnect(connection); }}
               className="flex items-center justify-center p-1.5 rounded-lg transition-colors text-(--t-accent)"
               onMouseEnter={(e) => (e.currentTarget.style.background = "color-mix(in srgb, var(--t-accent) 16%, transparent)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-              title="Connect (or double-click)"
+              title={isFtp ? "Open files (or double-click)" : "Connect (or double-click)"}
             >
-              <Icon icon="lucide:terminal" width={18} />
+              <Icon icon={isFtp ? "lucide:folder-open" : "lucide:terminal"} width={18} />
             </button>
           </div>
         </>
@@ -290,7 +292,7 @@ export default function HostCard({
                     {connectionDisplayName(connection)}
                   </p>
                   <span className="shrink-0 px-1.5 py-0.5 rounded-md text-[11px] font-semibold bg-(--t-bg-input) text-(--t-text-dim) border border-(--t-border)">
-                    {isSerial ? "SERIAL" : "SSH"}
+                    {protocolLabel}
                   </span>
                   <button
                     onClick={(e) => { e.stopPropagation(); handlePinClick(); }}
@@ -341,7 +343,7 @@ export default function HostCard({
                 {canEdit && (
                   <CardActionButton icon="lucide:square-pen" title="Edit" reveal={false} onClick={() => onEdit(connection)} />
                 )}
-                {!isSerial && (
+                {!isSerial && !isFtp && (
                   <CardActionButton icon="lucide:folder-open" title="Open in SFTP" reveal={false} onClick={() => useUIStore.getState().openSftpWith(connection.id)} />
                 )}
               </div>
@@ -352,7 +354,7 @@ export default function HostCard({
                 onClick={(e) => { e.stopPropagation(); onConnect(connection); }}
                 className="terminal-connect-btn -mt-5 -mr-[calc(0.75rem+2px)] -mb-[calc(0.75rem+2px)] pr-[calc(0.75rem+2px)] pb-3.5 pt-2.5 pl-3 rounded-tl-xl rounded-br-2xl bg-(--t-bg-terminal) text-(--t-terminal-foreground) hover:brightness-150 transition-all text-xs flex flex-col min-w-0 overflow-hidden max-w-[75%]"
                 style={{ fontFamily: "var(--t-terminal-font-family)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.07), inset 1px 0 0 rgba(255,255,255,0.07)" }}
-                title="Connect (or double-click)"
+                title={isFtp ? "Open files (or double-click)" : "Connect (or double-click)"}
               >
                 <div className="flex gap-1 mb-1.5 shrink-0">
                   <span className="w-2 h-2 rounded-full bg-[#ff5f56]" />
@@ -360,7 +362,12 @@ export default function HostCard({
                   <span className="w-2 h-2 rounded-full bg-[#27c93f]" />
                 </div>
                 <div className="flex items-center min-w-0 w-full">
-                  {isSerial ? (
+                  {isFtp ? (
+                    <>
+                      <span className="truncate" style={{ color: "var(--t-terminal-cyan)" }}>{connection.host}</span>
+                      <span className="shrink-0"> · files</span>
+                    </>
+                  ) : isSerial ? (
                     <>
                       <span className="truncate" style={{ color: "var(--t-terminal-yellow)" }}>{connection.serial_port ?? "serial"}</span>
                       <span className="shrink-0"> &gt;<span className="cursor-blink-char">_</span></span>

@@ -1,8 +1,13 @@
+pub mod backend;
 pub mod docker_fs;
+pub mod real;
+
+pub use backend::FileBackend;
 
 use crate::known_hosts::KnownHostsStore;
 use crate::ssh::client::{authenticate_handle, JumpHostConnect, SshClient};
 use docker_fs::DockerFs;
+use real::RealSftp;
 use russh::client::Handle;
 use russh_sftp::client::SftpSession;
 use serde::Serialize;
@@ -40,17 +45,12 @@ fn emit_step(app: &AppHandle, connect_id: &str, step: SftpStep, detail: impl Int
     );
 }
 
-/// The transport behind an `sftpId`. Most sessions speak real SFTP; container
-/// sessions whose image lacks an sftp-server binary use a `docker exec` shim.
-#[derive(Clone)]
-pub enum SftpBackend {
-    Real(Arc<Mutex<SftpSession>>),
-    Docker(DockerFs),
-}
-
 struct SftpEntry {
-    backend: SftpBackend,
-    handle: Arc<Handle<SshClient>>,
+    backend: Arc<dyn FileBackend>,
+    /// SSH handle for the session's host. Present for SSH-based transports
+    /// (real SFTP, docker exec); None for transports that don't ride SSH.
+    /// Used by `exec_command` and the keepalive monitor.
+    handle: Option<Arc<Handle<SshClient>>>,
     cancel: CancellationToken,
     _jump_handles: Vec<Arc<Handle<SshClient>>>,
 }
@@ -93,8 +93,8 @@ impl SftpManager {
         self.sessions.lock().await.insert(
             id.clone(),
             SftpEntry {
-                backend: SftpBackend::Real(Arc::new(Mutex::new(sftp))),
-                handle,
+                backend: Arc::new(RealSftp::new(Arc::new(Mutex::new(sftp)))),
+                handle: Some(handle),
                 cancel: CancellationToken::new(),
                 _jump_handles: vec![],
             },
@@ -114,8 +114,8 @@ impl SftpManager {
         self.sessions.lock().await.insert(
             id.clone(),
             SftpEntry {
-                backend: SftpBackend::Docker(fs),
-                handle,
+                backend: Arc::new(fs),
+                handle: Some(handle),
                 cancel: CancellationToken::new(),
                 _jump_handles: vec![],
             },
@@ -139,8 +139,32 @@ impl SftpManager {
         self.sessions.lock().await.insert(
             id.clone(),
             SftpEntry {
-                backend: SftpBackend::Real(Arc::new(Mutex::new(sftp))),
-                handle,
+                backend: Arc::new(RealSftp::new(Arc::new(Mutex::new(sftp)))),
+                handle: Some(handle),
+                cancel: CancellationToken::new(),
+                _jump_handles: vec![],
+            },
+        );
+        Ok(id)
+    }
+
+    /// Open a standalone FTP / explicit-FTPS connection. No SSH handle, so
+    /// exec/tar fast paths are unavailable (transfers fall back to per-file).
+    pub async fn connect_ftp(
+        &self,
+        host: &str,
+        port: u16,
+        username: &str,
+        password: Option<&str>,
+        secure: bool,
+    ) -> Result<String, String> {
+        let backend = crate::ftp::connect(host, port, username, password, secure).await?;
+        let id = Uuid::new_v4().to_string();
+        self.sessions.lock().await.insert(
+            id.clone(),
+            SftpEntry {
+                backend: Arc::new(backend),
+                handle: None,
                 cancel: CancellationToken::new(),
                 _jump_handles: vec![],
             },
@@ -327,8 +351,8 @@ impl SftpManager {
         self.sessions.lock().await.insert(
             id.clone(),
             SftpEntry {
-                backend: SftpBackend::Real(Arc::clone(&sftp_arc)),
-                handle: Arc::clone(&handle),
+                backend: Arc::new(RealSftp::new(sftp_arc)),
+                handle: Some(Arc::clone(&handle)),
                 cancel: cancel.clone(),
                 _jump_handles: jump_handles,
             },
@@ -375,33 +399,20 @@ impl SftpManager {
         Ok(id)
     }
 
-    /// Fetch the real SFTP session for an id. Returns None for docker-exec
-    /// backends (callers that need docker should use `backend`).
-    pub async fn get(&self, id: &str) -> Option<Arc<Mutex<SftpSession>>> {
+    /// Fetch the file backend for an id.
+    pub async fn backend(&self, id: &str) -> Option<Arc<dyn FileBackend>> {
         self.sessions
             .lock()
             .await
             .get(id)
-            .and_then(|e| match &e.backend {
-                SftpBackend::Real(s) => Some(Arc::clone(s)),
-                SftpBackend::Docker(_) => None,
-            })
-    }
-
-    /// Fetch the backend (real SFTP or docker-exec) for an id.
-    pub async fn backend(&self, id: &str) -> Option<SftpBackend> {
-        self.sessions
-            .lock()
-            .await
-            .get(id)
-            .map(|e| e.backend.clone())
+            .map(|e| Arc::clone(&e.backend))
     }
 
     pub async fn close(&self, id: &str) {
         let entry = self.sessions.lock().await.remove(id);
         if let Some(e) = entry {
             e.cancel.cancel();
-            if let SftpBackend::Real(s) = &e.backend {
+            if let Some(s) = e.backend.as_sftp_session() {
                 let _ = s.lock().await.close().await;
             }
         }
@@ -448,6 +459,9 @@ impl SftpManager {
                 .ok_or_else(|| format!("SFTP session '{}' not found", sftp_id))?
                 .handle
                 .clone()
+                .ok_or_else(|| {
+                    "Remote command execution not supported for this connection".to_string()
+                })?
         };
 
         let channel = handle

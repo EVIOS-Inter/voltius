@@ -62,6 +62,7 @@ fn merge_form_into_connection(existing: &Connection, data: ConnectionFormData) -
         serial_parity: data.serial_parity,
         serial_stop_bits: data.serial_stop_bits,
         serial_flow_control: data.serial_flow_control,
+        ftp_secure: data.ftp_secure,
         created_at: existing.created_at.clone(),
         last_used_at: existing.last_used_at.clone(),
         updated_at: existing.updated_at.clone(), // caller sets this after clock bumps
@@ -119,7 +120,7 @@ connection_clocks! {
         folder_id, vault_id, agent_forwarding, pre_command, post_command,
         terminal_encoding, distro, icon, ping_disabled,
         shell_integration_disabled, keepalive_preset, persist_session, connection_type, serial_port, serial_baud,
-        serial_data_bits, serial_parity, serial_stop_bits, serial_flow_control,
+        serial_data_bits, serial_parity, serial_stop_bits, serial_flow_control, ftp_secure,
     ],
     by_id: [jump_hosts, env_vars],
 }
@@ -185,6 +186,7 @@ pub fn connection_save(data: ConnectionFormData) -> Result<Connection, String> {
         serial_parity: data.serial_parity,
         serial_stop_bits: data.serial_stop_bits,
         serial_flow_control: data.serial_flow_control,
+        ftp_secure: data.ftp_secure,
         clocks,
     };
     connections.push(conn.clone());
@@ -320,6 +322,7 @@ mod tests {
             serial_parity: Some("none".into()),
             serial_stop_bits: Some(1),
             serial_flow_control: Some("none".into()),
+            ftp_secure: false,
             updated_at: "2026-01-01T00:00:00Z".into(),
             deleted_at: None,
             clocks: HashMap::new(),
@@ -370,6 +373,7 @@ mod tests {
             serial_parity: Some("even".into()),
             serial_stop_bits: Some(2),
             serial_flow_control: Some("rtscts".into()),
+            ftp_secure: true,
         }
     }
 
@@ -536,12 +540,25 @@ mod tests {
     }
 
     /// Pins the exact set of fields `bump_changed_clocks` tracks when everything
-    /// changes (29 fields, incl. `agent_forwarding`, `ping_disabled`,
+    /// changes (30 fields, incl. `agent_forwarding`, `ping_disabled`,
     /// `shell_integration_disabled`, `keepalive_preset`, `persist_session`;
     /// `pinned` is excluded as device-local).
     /// Since Phase 1, create-time init and update-time bump both derive from the
     /// single `connection_clocks!` list, so this set equals the one seeded by
     /// `initial_clocks` — see `initial_clocks_match_bumpable_field_set`.
+    #[test]
+    fn ftp_form_payload_deserializes_and_merges() {
+        // Mirrors what the connection form sends for a new FTP host.
+        let json = r#"{"host":"ftp.example.com","port":21,"username":"u",
+            "auth_type":"password","tags":[],"connection_type":"ftp","ftp_secure":true}"#;
+        let data: ConnectionFormData = serde_json::from_str(json).expect("deserialize");
+        assert_eq!(data.connection_type, ConnectionType::Ftp);
+        assert!(data.ftp_secure);
+        let merged = merge_form_into_connection(&sample_connection(), data);
+        assert_eq!(merged.connection_type, ConnectionType::Ftp);
+        assert!(merged.ftp_secure);
+    }
+
     #[test]
     fn bump_covers_the_expected_field_set() {
         let old = sample_connection();
@@ -558,6 +575,7 @@ mod tests {
             "distro",
             "env_vars",
             "folder_id",
+            "ftp_secure",
             "host",
             "icon",
             "identity_id",
@@ -584,7 +602,7 @@ mod tests {
         ];
         expected.sort();
         assert_eq!(keys, expected);
-        assert_eq!(keys.len(), 29);
+        assert_eq!(keys.len(), 30);
     }
 
     /// Phase 1 reconciliation: the clocks seeded for a brand-new connection
@@ -604,6 +622,6 @@ mod tests {
         let bumpable: HashSet<String> = new.clocks.into_keys().collect();
 
         assert_eq!(seeded, bumpable);
-        assert_eq!(seeded.len(), 29);
+        assert_eq!(seeded.len(), 30);
     }
 }

@@ -79,6 +79,9 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
   const [host, setHost] = useState(initial?.host ?? "");
   const [port, setPort] = useState<number | "">(initial?.port ?? 22);
   const [username, setUsername] = useState(initial?.username ?? "root");
+  const [protocol, setProtocol] = useState<"ssh" | "ftp">(initial?.connection_type === "ftp" ? "ftp" : "ssh");
+  const [ftpSecure, setFtpSecure] = useState(initial?.ftp_secure ?? false);
+  const isFtp = protocol === "ftp";
   const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [password, setPassword] = useState("");
   const [privateKey, setPrivateKey] = useState("");
@@ -196,6 +199,26 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
   const selectedIdentity = relevantIdentities.find((i) => i.id === identityId) ?? null;
 
   const buildSubmit = () => {
+    if (isFtp) {
+      return {
+        data: {
+          name: name.trim() || undefined,
+          host,
+          port: port || 21,
+          username,
+          auth_type: "password",
+          tags,
+          folder_id: folderId ?? undefined,
+          vault_id: resolveVaultIdForSave(vaultId),
+          icon: icon || undefined,
+          connection_type: "ftp",
+          ftp_secure: ftpSecure,
+        } as ConnectionFormData,
+        password: passwordDirty.current ? password : null,
+        privateKey: null,
+        passphrase: null,
+      };
+    }
     let submitUsername = username;
     let submitAuthType: AuthType = (keyId || privateKey.trim()) ? "key" : "password";
     if (identityId && selectedIdentity) {
@@ -241,7 +264,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
 
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => schedule(), [name, host, port, username, password, privateKey, passphrase, identityId, keyId, folderId, tags, vaultId, jumpHosts, envVars, agentForwarding, preCommand, postCommand, terminalEncoding, distro, icon, pingDisabled, shellIntegrationDisabled, keepalivePreset, persistSession]);
+  useEffect(() => schedule(), [name, host, port, username, protocol, ftpSecure, password, privateKey, passphrase, identityId, keyId, folderId, tags, vaultId, jumpHosts, envVars, agentForwarding, preCommand, postCommand, terminalEncoding, distro, icon, pingDisabled, shellIntegrationDisabled, keepalivePreset, persistSession]);
 
   useImperativeHandle(ref, () => ({ flush, isDirty: () => userEditedRef.current }), [flush]);
 
@@ -446,6 +469,19 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
           </FormSection>
 
           <FormSection label="Connection">
+            <div>
+              <label className={formLabelClass} style={formLabelStyle}>Protocol</label>
+              <FormSelect
+                value={protocol}
+                options={[{ value: "ssh", label: "SSH / SFTP" }, { value: "ftp", label: "FTP" }]}
+                onChange={(v) => {
+                  markDirty();
+                  const next = v as "ssh" | "ftp";
+                  setProtocol(next);
+                  setPort((p) => (next === "ftp" ? (p === 22 || p === "" ? 21 : p) : (p === 21 || p === "" ? 22 : p)));
+                }}
+              />
+            </div>
             <div className="flex gap-2.5">
               <div className="flex-1">
                 <label className={formLabelClass} style={formLabelStyle}>Host / IP <span className="text-(--t-accent)">*</span></label>
@@ -472,6 +508,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                 />
               </div>
             </div>
+            {!isFtp && (<>
             <button
               type="button"
               onClick={() => setShowAdvanced((v) => !v)}
@@ -593,9 +630,11 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
               </div>
               </div>
             </div>
+            </>)}
           </FormSection>
 
-          <FormSection label="Identity">
+          <FormSection label={isFtp ? "Credentials" : "Identity"}>
+            {!isFtp && (
             <div>
               <label className={formLabelClass} style={formLabelStyle}>Keychain Identity</label>
               <IdentitySelector
@@ -605,8 +644,9 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                 onGoToKeychain={() => setActiveNav("keychain")}
               />
             </div>
+            )}
 
-            {!identityId && (
+            {(isFtp || !identityId) && (
               <>
                 <div>
                   <label className={formLabelClass} style={formLabelStyle}>
@@ -632,6 +672,22 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                   />
                 </div>
 
+                {isFtp && (
+                  <div className="flex items-center gap-1.5 text-xs text-(--t-text-dim) w-full py-1">
+                    <Icon icon="lucide:shield" width={13} />
+                    <span>Explicit FTPS (AUTH TLS)</span>
+                    <span className="ml-auto"><Toggle checked={ftpSecure} onChange={(v) => { markDirty(); setFtpSecure(v); }} /></span>
+                  </div>
+                )}
+                {isFtp && (
+                  <div className="flex items-center gap-1.5 text-xs text-(--t-text-dim) w-full py-1">
+                    <Icon icon="lucide:user-x" width={13} />
+                    <span>Anonymous login</span>
+                    <span className="ml-auto"><Toggle checked={username === "anonymous"} onChange={(v) => { markDirty(); setUsername(v ? "anonymous" : ""); }} /></span>
+                  </div>
+                )}
+
+                {!isFtp && (
                 <div>
                   <label className={formLabelClass} style={formLabelStyle}>Private Key</label>
                   <KeySelector
@@ -678,6 +734,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                     </>
                   )}
                 </div>
+                )}
               </>
             )}
 

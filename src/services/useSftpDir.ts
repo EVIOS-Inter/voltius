@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import {
-  sftpConnect, sftpClose, sftpCanonicalize, sftpListDir,
+  sftpConnect, ftpConnect, sftpClose, sftpCanonicalize, sftpListDir,
   sftpMkdir, sftpRename, sftpDelete, sftpTouch,
   type RemoteFile,
 } from "@/services/sftp";
@@ -66,23 +66,35 @@ export function useSftpDir(connection: Connection | undefined) {
     (async () => {
       try {
         const connectId = genId();
-        const [creds, jumpHosts] = await Promise.all([
-          resolveConnectionCredentials(connection),
-          resolveJumpHosts(connection),
-        ]);
-        const ka = resolveKeepalive(connection.keepalive_preset ?? getGlobalKeepalivePreset());
-        const sftpId = await sftpConnect({
-          connectId,
-          host: connection.host,
-          port: connection.port,
-          username: creds.username,
-          password: creds.password,
-          privateKey: creds.privateKey,
-          passphrase: creds.passphrase,
-          jumpHosts: jumpHosts.length > 0 ? jumpHosts : undefined,
-          keepaliveIntervalSecs: ka.intervalSecs,
-          keepaliveMax: ka.max,
-        });
+        let sftpId: string;
+        if (connection.connection_type === "ftp") {
+          const creds = await resolveConnectionCredentials(connection);
+          sftpId = await ftpConnect({
+            host: connection.host,
+            port: connection.port,
+            username: creds.username,
+            password: creds.password,
+            secure: !!connection.ftp_secure,
+          });
+        } else {
+          const [creds, jumpHosts] = await Promise.all([
+            resolveConnectionCredentials(connection),
+            resolveJumpHosts(connection),
+          ]);
+          const ka = resolveKeepalive(connection.keepalive_preset ?? getGlobalKeepalivePreset());
+          sftpId = await sftpConnect({
+            connectId,
+            host: connection.host,
+            port: connection.port,
+            username: creds.username,
+            password: creds.password,
+            privateKey: creds.privateKey,
+            passphrase: creds.passphrase,
+            jumpHosts: jumpHosts.length > 0 ? jumpHosts : undefined,
+            keepaliveIntervalSecs: ka.intervalSecs,
+            keepaliveMax: ka.max,
+          });
+        }
         if (cancelled) { sftpClose(sftpId).catch(() => {}); return; }
         sftpIdRef.current = sftpId;
         const home = await sftpCanonicalize(sftpId, ".");

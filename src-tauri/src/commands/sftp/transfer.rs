@@ -1,5 +1,5 @@
 use super::{get_backend, get_session, TransferProgress, CHUNK_SIZE};
-use crate::sftp::{SftpBackend, SftpManager};
+use crate::sftp::SftpManager;
 use russh_sftp::client::SftpSession;
 use russh_sftp::protocol::OpenFlags;
 use std::path::Path;
@@ -22,20 +22,10 @@ pub async fn sftp_upload(
 ) -> Result<(), String> {
     let token = sftp_state.register_transfer(&transfer_id).await;
     let result = match get_backend(&sftp_state, &sftp_id).await {
-        Ok(SftpBackend::Docker(d)) => {
-            d.upload_file(&app, &local_path, &remote_path, &transfer_id, &token)
+        Ok(backend) => {
+            backend
+                .upload_file(&app, &local_path, &remote_path, &transfer_id, &token)
                 .await
-        }
-        Ok(SftpBackend::Real(session)) => {
-            sftp_upload_inner(
-                &app,
-                session,
-                &local_path,
-                &remote_path,
-                &transfer_id,
-                &token,
-            )
-            .await
         }
         Err(e) => Err(e),
     };
@@ -43,7 +33,7 @@ pub async fn sftp_upload(
     result
 }
 
-pub(super) async fn sftp_upload_inner(
+pub(crate) async fn sftp_upload_inner(
     app: &AppHandle,
     session: Arc<Mutex<SftpSession>>,
     local_path: &str,
@@ -107,20 +97,10 @@ pub async fn sftp_download(
 ) -> Result<(), String> {
     let token = sftp_state.register_transfer(&transfer_id).await;
     let result = match get_backend(&sftp_state, &sftp_id).await {
-        Ok(SftpBackend::Docker(d)) => {
-            d.download_file(&app, &remote_path, &local_path, &transfer_id, &token)
+        Ok(backend) => {
+            backend
+                .download_file(&app, &remote_path, &local_path, &transfer_id, &token)
                 .await
-        }
-        Ok(SftpBackend::Real(session)) => {
-            sftp_download_inner(
-                &app,
-                session,
-                &remote_path,
-                &local_path,
-                &transfer_id,
-                &token,
-            )
-            .await
         }
         Err(e) => Err(e),
     };
@@ -128,7 +108,7 @@ pub async fn sftp_download(
     result
 }
 
-pub(super) async fn sftp_download_inner(
+pub(crate) async fn sftp_download_inner(
     app: &AppHandle,
     session: Arc<Mutex<SftpSession>>,
     remote_path: &str,

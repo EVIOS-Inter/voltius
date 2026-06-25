@@ -37,6 +37,7 @@ pub enum ConnectionType {
     #[default]
     Ssh,
     Serial,
+    Ftp,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -165,6 +166,9 @@ pub struct Connection {
     pub serial_stop_bits: Option<u8>,
     #[serde(default)]
     pub serial_flow_control: Option<String>,
+    /// FTP only: use explicit FTPS (AUTH TLS) instead of plain FTP.
+    #[serde(default)]
+    pub ftp_secure: bool,
     pub updated_at: String,
     pub deleted_at: Option<String>,
     pub clocks: HashMap<String, String>,
@@ -233,6 +237,8 @@ pub struct ConnectionFormData {
     pub serial_stop_bits: Option<u8>,
     #[serde(default)]
     pub serial_flow_control: Option<String>,
+    #[serde(default)]
+    pub ftp_secure: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -354,7 +360,7 @@ fn migrate_enum_fields(obj: &mut serde_json::Map<String, serde_json::Value>) {
     }
     if !matches!(
         obj.get("connection_type").and_then(|v| v.as_str()),
-        Some("ssh") | Some("serial")
+        Some("ssh") | Some("serial") | Some("ftp")
     ) {
         obj.remove("connection_type");
     }
@@ -744,6 +750,7 @@ mod tests {
             serial_parity: Some("none".into()),
             serial_stop_bits: Some(1),
             serial_flow_control: Some("none".into()),
+            ftp_secure: false,
             updated_at: "2026-01-02T00:00:00Z".into(),
             deleted_at: None,
             clocks: clocks(),
@@ -865,6 +872,10 @@ mod tests {
             migrate_enums(serde_json::json!({ "auth_type": "key", "connection_type": "serial" }));
         assert_eq!(out.get("auth_type").unwrap(), "key");
         assert_eq!(out.get("connection_type").unwrap(), "serial");
+
+        // FTP is a valid connection_type and must survive a load round-trip.
+        let ftp = migrate_enums(serde_json::json!({ "connection_type": "ftp" }));
+        assert_eq!(ftp.get("connection_type").unwrap(), "ftp");
     }
 
     #[test]

@@ -1,9 +1,7 @@
 use super::get_backend;
-use crate::sftp::{SftpBackend, SftpManager};
-use russh_sftp::protocol::OpenFlags;
+use crate::sftp::SftpManager;
 use serde::Serialize;
 use tauri::State;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 #[derive(Serialize)]
 pub struct EditorFile {
@@ -49,42 +47,15 @@ pub async fn sftp_read_file(
     path: String,
     max_bytes: u64,
 ) -> Result<EditorFile, ReadError> {
-    let bytes: Vec<u8> = match get_backend(&sftp_state, &sftp_id).await? {
-        SftpBackend::Docker(d) => {
-            let size = d.file_size(&path).await;
-            if size > max_bytes {
-                return Err(ReadError::TooLarge {
-                    size,
-                    limit: max_bytes,
-                });
-            }
-            d.read_file(&path).await?
-        }
-        SftpBackend::Real(session) => {
-            let sftp = session.lock().await;
-            let meta = sftp.metadata(&path).await.map_err(|e| ReadError::Io {
-                message: format!("stat failed: {e}"),
-            })?;
-            if let Some(size) = meta.size {
-                if size > max_bytes {
-                    return Err(ReadError::TooLarge {
-                        size,
-                        limit: max_bytes,
-                    });
-                }
-            }
-            let mut file = sftp.open(&path).await.map_err(|e| ReadError::Io {
-                message: format!("open failed: {e}"),
-            })?;
-            let mut buf = Vec::new();
-            file.read_to_end(&mut buf)
-                .await
-                .map_err(|e| ReadError::Io {
-                    message: format!("read failed: {e}"),
-                })?;
-            buf
-        }
-    };
+    let backend = get_backend(&sftp_state, &sftp_id).await?;
+    let size = backend.file_size(&path).await;
+    if size > max_bytes {
+        return Err(ReadError::TooLarge {
+            size,
+            limit: max_bytes,
+        });
+    }
+    let bytes: Vec<u8> = backend.read_file(&path).await?;
     if bytes.len() as u64 > max_bytes {
         return Err(ReadError::TooLarge {
             size: bytes.len() as u64,
@@ -111,26 +82,10 @@ pub async fn sftp_write_file(
 ) -> Result<(), String> {
     let lock = sftp_state.path_lock(&sftp_id, &path).await;
     let _guard = lock.lock().await;
-    match get_backend(&sftp_state, &sftp_id).await? {
-        SftpBackend::Docker(d) => d.write_file(&path, &content).await,
-        SftpBackend::Real(session) => {
-            let sftp = session.lock().await;
-            let mut file = sftp
-                .open_with_flags(
-                    &path,
-                    OpenFlags::CREATE | OpenFlags::TRUNCATE | OpenFlags::WRITE,
-                )
-                .await
-                .map_err(|e| format!("open for write failed: {e}"))?;
-            file.write_all(content.as_bytes())
-                .await
-                .map_err(|e| format!("write failed: {e}"))?;
-            file.flush()
-                .await
-                .map_err(|e| format!("flush failed: {e}"))?;
-            Ok(())
-        }
-    }
+    get_backend(&sftp_state, &sftp_id)
+        .await?
+        .write_file(&path, &content)
+        .await
 }
 
 #[cfg(test)]

@@ -58,6 +58,23 @@ export async function sftpOpen(sessionId: string): Promise<string> {
   return invoke("sftp_open", { sessionId });
 }
 
+/** Standalone FTP / explicit-FTPS connection. Returns an sftpId usable with all sftp* calls. */
+export async function ftpConnect(params: {
+  host: string;
+  port: number;
+  username: string;
+  password?: string;
+  secure: boolean;
+}): Promise<string> {
+  return invoke("ftp_connect", {
+    host: params.host,
+    port: params.port,
+    username: params.username,
+    password: params.password ?? null,
+    secure: params.secure,
+  });
+}
+
 export async function sftpClose(sftpId: string): Promise<void> {
   return invoke("sftp_close", { sftpId });
 }

@@ -2,7 +2,7 @@ use super::{
     get_backend, get_session, shell_quote, temp_archive_name, transfer::sftp_download_inner,
     transfer::sftp_rr_file_inner, transfer::sftp_upload_inner,
 };
-use crate::sftp::{SftpBackend, SftpManager};
+use crate::sftp::SftpManager;
 use std::path::Path;
 use std::sync::Arc;
 use tauri::{AppHandle, State};
@@ -84,18 +84,21 @@ pub async fn sftp_upload_batch_tar(
         return Ok(());
     }
     let token = sftp_state.register_transfer(&transfer_id).await;
-    let session = match get_backend(&sftp_state, &sftp_id).await {
-        Ok(SftpBackend::Docker(d)) => {
-            let r = d
+    let backend = match get_backend(&sftp_state, &sftp_id).await {
+        Ok(b) => b,
+        Err(e) => {
+            sftp_state.finish_transfer(&transfer_id).await;
+            return Err(e);
+        }
+    };
+    let session = match backend.as_sftp_session() {
+        Some(s) => s,
+        None => {
+            let r = backend
                 .upload_batch(&app, &local_paths, &remote_dir, &transfer_id, &token)
                 .await;
             sftp_state.finish_transfer(&transfer_id).await;
             return r;
-        }
-        Ok(SftpBackend::Real(s)) => s,
-        Err(e) => {
-            sftp_state.finish_transfer(&transfer_id).await;
-            return Err(e);
         }
     };
 
@@ -162,18 +165,21 @@ pub async fn sftp_download_batch_tar(
         return Ok(());
     }
     let token = sftp_state.register_transfer(&transfer_id).await;
-    let session = match get_backend(&sftp_state, &sftp_id).await {
-        Ok(SftpBackend::Docker(d)) => {
-            let r = d
+    let backend = match get_backend(&sftp_state, &sftp_id).await {
+        Ok(b) => b,
+        Err(e) => {
+            sftp_state.finish_transfer(&transfer_id).await;
+            return Err(e);
+        }
+    };
+    let session = match backend.as_sftp_session() {
+        Some(s) => s,
+        None => {
+            let r = backend
                 .download_batch(&app, &remote_paths, &local_dir, &transfer_id, &token)
                 .await;
             sftp_state.finish_transfer(&transfer_id).await;
             return r;
-        }
-        Ok(SftpBackend::Real(s)) => s,
-        Err(e) => {
-            sftp_state.finish_transfer(&transfer_id).await;
-            return Err(e);
         }
     };
 
@@ -327,18 +333,21 @@ pub async fn sftp_upload_dir_tar(
     transfer_id: String,
 ) -> Result<(), String> {
     let token = sftp_state.register_transfer(&transfer_id).await;
-    let session = match get_backend(&sftp_state, &sftp_id).await {
-        Ok(SftpBackend::Docker(d)) => {
-            let r = d
+    let backend = match get_backend(&sftp_state, &sftp_id).await {
+        Ok(b) => b,
+        Err(e) => {
+            sftp_state.finish_transfer(&transfer_id).await;
+            return Err(e);
+        }
+    };
+    let session = match backend.as_sftp_session() {
+        Some(s) => s,
+        None => {
+            let r = backend
                 .upload_dir(&app, &local_path, &remote_path, &transfer_id, &token)
                 .await;
             sftp_state.finish_transfer(&transfer_id).await;
             return r;
-        }
-        Ok(SftpBackend::Real(s)) => s,
-        Err(e) => {
-            sftp_state.finish_transfer(&transfer_id).await;
-            return Err(e);
         }
     };
 
@@ -399,18 +408,21 @@ pub async fn sftp_download_dir_tar(
     transfer_id: String,
 ) -> Result<(), String> {
     let token = sftp_state.register_transfer(&transfer_id).await;
-    let session = match get_backend(&sftp_state, &sftp_id).await {
-        Ok(SftpBackend::Docker(d)) => {
-            let r = d
+    let backend = match get_backend(&sftp_state, &sftp_id).await {
+        Ok(b) => b,
+        Err(e) => {
+            sftp_state.finish_transfer(&transfer_id).await;
+            return Err(e);
+        }
+    };
+    let session = match backend.as_sftp_session() {
+        Some(s) => s,
+        None => {
+            let r = backend
                 .download_dir(&app, &remote_path, &local_path, &transfer_id, &token)
                 .await;
             sftp_state.finish_transfer(&transfer_id).await;
             return r;
-        }
-        Ok(SftpBackend::Real(s)) => s,
-        Err(e) => {
-            sftp_state.finish_transfer(&transfer_id).await;
-            return Err(e);
         }
     };
 

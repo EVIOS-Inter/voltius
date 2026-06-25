@@ -1,5 +1,5 @@
 use super::{get_backend, get_session, sftp_rr_file_inner_accum, TransferProgress, CHUNK_SIZE};
-use crate::sftp::{SftpBackend, SftpManager};
+use crate::sftp::SftpManager;
 use russh_sftp::client::SftpSession;
 use russh_sftp::protocol::OpenFlags;
 use std::future::Future;
@@ -8,6 +8,8 @@ use std::pin::Pin;
 use std::sync::Arc;
 use tauri::{AppHandle, Emitter, State};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::sync::Mutex;
+use tokio_util::sync::CancellationToken;
 
 /// `(absolute_path, relative_path, size_bytes)` for a remote file.
 type RemoteEntry = (String, String, u64);
@@ -28,21 +30,28 @@ pub async fn sftp_upload_dir(
     transfer_id: String,
 ) -> Result<(), String> {
     let token = sftp_state.register_transfer(&transfer_id).await;
-    let session = match get_backend(&sftp_state, &sftp_id).await {
-        Ok(SftpBackend::Docker(d)) => {
-            let r = d
+    let result = match get_backend(&sftp_state, &sftp_id).await {
+        Ok(backend) => {
+            backend
                 .upload_dir(&app, &local_path, &remote_path, &transfer_id, &token)
-                .await;
-            sftp_state.finish_transfer(&transfer_id).await;
-            return r;
+                .await
         }
-        Ok(SftpBackend::Real(s)) => s,
-        Err(e) => {
-            sftp_state.finish_transfer(&transfer_id).await;
-            return Err(e);
-        }
+        Err(e) => Err(e),
     };
-    let local_base = PathBuf::from(&local_path);
+    sftp_state.finish_transfer(&transfer_id).await;
+    result
+}
+
+/// Recursively upload a local directory over a real SFTP session.
+pub(crate) async fn sftp_upload_dir_inner(
+    app: &AppHandle,
+    session: Arc<Mutex<SftpSession>>,
+    local_path: &str,
+    remote_path: &str,
+    transfer_id: &str,
+    token: &CancellationToken,
+) -> Result<(), String> {
+    let local_base = PathBuf::from(local_path);
 
     // Collect all files and their sizes
     let (dirs, files) = collect_local_entries(&local_base)?;
@@ -62,7 +71,7 @@ pub async fn sftp_upload_dir(
     // Create remote directory structure
     {
         let sftp = session.lock().await;
-        let _ = sftp.create_dir(&remote_path).await; // ignore if exists
+        let _ = sftp.create_dir(remote_path).await; // ignore if exists
         for dir_rel in &dirs {
             let remote_dir = format!(
                 "{}/{}",
@@ -77,7 +86,6 @@ pub async fn sftp_upload_dir(
     let mut transferred = 0u64;
     for file_rel in &files {
         if token.is_cancelled() {
-            sftp_state.finish_transfer(&transfer_id).await;
             return Err("Transfer cancelled".into());
         }
         let local_abs = local_base.join(file_rel);
@@ -104,7 +112,6 @@ pub async fn sftp_upload_dir(
         let mut buf = vec![0u8; CHUNK_SIZE];
         loop {
             if token.is_cancelled() {
-                sftp_state.finish_transfer(&transfer_id).await;
                 return Err("Transfer cancelled".into());
             }
             let n = local_file
@@ -129,7 +136,6 @@ pub async fn sftp_upload_dir(
             .await
             .map_err(|e| format!("Flush error: {e}"))?;
     }
-    sftp_state.finish_transfer(&transfer_id).await;
     Ok(())
 }
 
@@ -143,29 +149,35 @@ pub async fn sftp_download_dir(
     transfer_id: String,
 ) -> Result<(), String> {
     let token = sftp_state.register_transfer(&transfer_id).await;
-    let session = match get_backend(&sftp_state, &sftp_id).await {
-        Ok(SftpBackend::Docker(d)) => {
-            let r = d
+    let result = match get_backend(&sftp_state, &sftp_id).await {
+        Ok(backend) => {
+            backend
                 .download_dir(&app, &remote_path, &local_path, &transfer_id, &token)
-                .await;
-            sftp_state.finish_transfer(&transfer_id).await;
-            return r;
+                .await
         }
-        Ok(SftpBackend::Real(s)) => s,
-        Err(e) => {
-            sftp_state.finish_transfer(&transfer_id).await;
-            return Err(e);
-        }
+        Err(e) => Err(e),
     };
+    sftp_state.finish_transfer(&transfer_id).await;
+    result
+}
 
+/// Recursively download a remote directory over a real SFTP session.
+pub(crate) async fn sftp_download_dir_inner(
+    app: &AppHandle,
+    session: Arc<Mutex<SftpSession>>,
+    remote_path: &str,
+    local_path: &str,
+    transfer_id: &str,
+    token: &CancellationToken,
+) -> Result<(), String> {
     // Collect remote files recursively
     let remote_entries: Vec<(String, String, u64)> = {
         let sftp = session.lock().await;
-        collect_remote_entries(&sftp, &remote_path, &remote_path).await?
+        collect_remote_entries(&sftp, remote_path, remote_path).await?
     };
 
     let total: u64 = remote_entries.iter().map(|(_, _, size)| size).sum();
-    let local_base = PathBuf::from(&local_path);
+    let local_base = PathBuf::from(local_path);
 
     let mut transferred = 0u64;
     for (remote_abs, rel, _) in &remote_entries {
@@ -194,7 +206,6 @@ pub async fn sftp_download_dir(
         let mut buf = vec![0u8; CHUNK_SIZE];
         loop {
             if token.is_cancelled() {
-                sftp_state.finish_transfer(&transfer_id).await;
                 return Err("Transfer cancelled".into());
             }
             let n = remote_file
@@ -222,7 +233,6 @@ pub async fn sftp_download_dir(
             .await
             .map_err(|e| format!("Close error: {e}"))?;
     }
-    sftp_state.finish_transfer(&transfer_id).await;
     Ok(())
 }
 

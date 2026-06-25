@@ -42,6 +42,7 @@ export default function HostActionsSheet({ hostId }: { hostId: string }) {
   if (!conn) return null;
   const name = connectionDisplayName(conn);
   const isSerial = conn.connection_type === "serial" || !!conn.serial_port;
+  const isFtp = conn.connection_type === "ftp";
   const currentVaultId = conn.vault_id ?? "personal";
   const moveTargets = vaults.filter((v) => v.id !== currentVaultId);
 
@@ -95,9 +96,9 @@ export default function HostActionsSheet({ hostId }: { hostId: string }) {
   }
 
   const items: Item[] = [
-    ...(!isSerial ? [{ icon: "lucide:terminal", label: "Connect", onTap: () => { closeSheet(); void connect(hostId).catch(console.error); setTab("terminal"); } }] : []),
+    ...(!isSerial && !isFtp ? [{ icon: "lucide:terminal", label: "Connect", onTap: () => { closeSheet(); void connect(hostId).catch(console.error); setTab("terminal"); } }] : []),
     { icon: "lucide:pencil", label: "Edit", onTap: () => { closeSheet(); push({ kind: "host-edit", hostId }); } },
-    ...(!isSerial ? [{ icon: "lucide:folder-open", label: "SFTP", onTap: () => { closeSheet(); push({ kind: "panel-sftp", connectionId: hostId }); } }] : []),
+    ...(!isSerial ? [{ icon: "lucide:folder-open", label: isFtp ? "Open files" : "SFTP", onTap: () => { closeSheet(); push({ kind: "panel-sftp", connectionId: hostId }); } }] : []),
     ...(conn.host ? [{ icon: "lucide:clipboard-copy", label: "Copy address", onTap: () => {
       void writeClipboard(conn.host);
       useNotificationStore.getState().addToast({ pluginId: "core", pluginName: "Voltius", type: "toast", message: `Copied ${conn.host}`, severity: "success", duration: 2000 });

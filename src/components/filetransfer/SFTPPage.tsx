@@ -4,7 +4,7 @@ import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { invoke } from "@tauri-apps/api/core";
 import { Icon } from "@iconify/react";
 import {
-  sftpConnect, sftpClose,
+  sftpConnect, ftpConnect, sftpClose,
   sftpUpload, sftpDownload, sftpUploadDir, sftpDownloadDir,
   sftpUploadDirTar, sftpDownloadDirTar, sftpTransferDirTar,
   sftpUploadBatchTar, sftpDownloadBatchTar, sftpTransferBatchTar,
@@ -70,6 +70,12 @@ export default function SFTPPage() {
       let cwd = "/";
       if (host.kind === "local") {
         cwd = host.wslDistro ? await wslHomeDir(host.wslDistro) : await fsHomeDir();
+      } else if (host.connection.connection_type === "ftp") {
+        const creds = await resolveConnectionCredentials(host.connection);
+        sftpId = await ftpConnect({ host: host.connection.host, port: host.connection.port, username: creds.username, password: creds.password, secure: !!host.connection.ftp_secure });
+        openSftpIds.current.add(sftpId);
+        const { sftpCanonicalize } = await import("@/services/sftp");
+        cwd = await sftpCanonicalize(sftpId, ".");
       } else {
         const [creds, jumpHosts] = await Promise.all([
           resolveConnectionCredentials(host.connection),

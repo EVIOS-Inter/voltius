@@ -10,6 +10,7 @@ mod commands;
 mod crypto;
 mod docker;
 mod error;
+mod ftp;
 #[cfg(target_os = "android")]
 mod keychain_android;
 mod known_hosts;
@@ -550,6 +551,7 @@ pub fn run() {
             commands::sftp::sftp_cancel_transfer,
             commands::sftp::sftp_stat,
             commands::sftp::sftp_connect,
+            commands::sftp::ftp_connect,
             commands::sftp::sftp_open,
             commands::sftp::sftp_close,
             commands::sftp::sftp_list_dir,

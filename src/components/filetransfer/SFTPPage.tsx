@@ -26,6 +26,7 @@ import {
 import { SidePane } from "./SidePane";
 import { ConflictDialog } from "./ConflictDialog";
 import { InternalDragGhost } from "./InternalDragGhost";
+import { TabDragGhost } from "./editor/TabDragGhost";
 import { triggerOsDrop as triggerOsDropPipeline } from "./osDropPipeline";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useUIStore } from "@/stores/uiStore";
@@ -501,6 +502,7 @@ export default function SFTPPage() {
       )}
 
       <InternalDragGhost />
+      <TabDragGhost />
     </div>
   );
 }

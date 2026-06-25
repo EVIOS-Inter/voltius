@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useEditorStore, type EditorTab } from "@/stores/editorStore";
 import { ConfirmModal } from "@/components/shared/ConfirmModal";
 import { tabIcon } from "./tabIcon";
+import { startTabDragGesture, useTabDragSemantic } from "./tabDrag";
 
 function tabLabel(t: EditorTab): string {
   return t.kind === "file"
@@ -16,6 +17,9 @@ export function EditorTabStrip() {
   const setActiveTab = useEditorStore((s) => s.setActiveTab);
   const closeTab = useEditorStore((s) => s.closeTab);
   const [pendingClose, setPendingClose] = useState<string | null>(null);
+
+  const drag = useTabDragSemantic();
+  const reorderIndex = drag?.target?.kind === "reorder" ? drag.target.index : null;
 
   // Keep the active tab visible when it changes and the strip has scrolled.
   const activeRef = useRef<HTMLElement | null>(null);
@@ -65,44 +69,64 @@ export function EditorTabStrip() {
       </button>
 
       <div className="flex items-stretch min-w-0 overflow-x-auto">
-        {tabs.map((t) => {
+        {tabs.map((t, i) => {
           const active = activeTabId === t.id;
           const name = tabLabel(t);
+          const diffTarget = drag?.target?.kind === "diff" && drag.target.targetId === t.id;
           return (
-            <div
-              key={t.id}
-              ref={active ? setActiveRef : undefined}
-              data-tab-id={t.id}
-              className="group relative flex items-center gap-1.5 shrink-0 pl-2.5 pr-1.5 cursor-pointer transition-colors"
-              style={{
-                maxWidth: "200px",
-                color: active ? "var(--t-text)" : "var(--t-text-dim)",
-                background: active ? "var(--t-bg-card)" : "transparent",
-                borderTop: active ? "2px solid var(--t-accent)" : "2px solid transparent",
-                borderRight: "1px solid var(--t-border)",
-              }}
-              title={t.kind === "diff" ? `diff: ${name}` : name}
-              onClick={() => setActiveTab(t.id)}
-            >
-              <Icon icon={tabIcon(t)} width={14} className="shrink-0" style={{ opacity: 0.8 }} />
-              {t.dirty && (
-                <span
-                  className="shrink-0"
-                  style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--t-accent-warn, #f59e0b)" }}
-                />
+            <Fragment key={t.id}>
+              {reorderIndex === i && (
+                <div className="shrink-0 self-stretch" style={{ width: 2, background: "var(--t-accent)" }} />
               )}
-              <span className="truncate min-w-0">{name}</span>
-              <button
-                className="shrink-0 ml-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                title="Close"
-                style={{ color: "var(--t-text-dim)" }}
-                onClick={(e) => { e.stopPropagation(); requestClose(t.id); }}
+              <div
+                ref={active ? setActiveRef : undefined}
+                data-tab-id={t.id}
+                className="group relative flex items-center gap-1.5 shrink-0 pl-2.5 pr-1.5 cursor-pointer transition-colors"
+                style={{
+                  maxWidth: "200px",
+                  color: active ? "var(--t-text)" : "var(--t-text-dim)",
+                  background: active ? "var(--t-bg-card)" : "transparent",
+                  borderTop: active ? "2px solid var(--t-accent)" : "2px solid transparent",
+                  borderRight: "1px solid var(--t-border)",
+                  boxShadow: diffTarget ? "inset 0 0 0 2px var(--t-accent)" : undefined,
+                }}
+                title={t.kind === "diff" ? `diff: ${name}` : name}
+                onClick={() => setActiveTab(t.id)}
+                onPointerDown={(e) => {
+                  if (e.button !== 0) return;
+                  startTabDragGesture({
+                    id: t.id,
+                    label: name,
+                    canDiff: t.kind === "file",
+                    startX: e.clientX,
+                    startY: e.clientY,
+                  });
+                }}
               >
-                <Icon icon="lucide:x" width={13} />
-              </button>
-            </div>
+                <Icon icon={tabIcon(t)} width={14} className="shrink-0" style={{ opacity: 0.8 }} />
+                {t.dirty && (
+                  <span
+                    className="shrink-0"
+                    style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--t-accent-warn, #f59e0b)" }}
+                  />
+                )}
+                <span className="truncate min-w-0">{name}</span>
+                <button
+                  className="shrink-0 ml-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Close"
+                  style={{ color: "var(--t-text-dim)" }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => { e.stopPropagation(); requestClose(t.id); }}
+                >
+                  <Icon icon="lucide:x" width={13} />
+                </button>
+              </div>
+            </Fragment>
           );
         })}
+        {reorderIndex === tabs.length && (
+          <div className="shrink-0 self-stretch" style={{ width: 2, background: "var(--t-accent)" }} />
+        )}
       </div>
 
       {pendingClose && (

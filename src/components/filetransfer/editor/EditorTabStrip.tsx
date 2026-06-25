@@ -12,28 +12,30 @@ export function EditorTabStrip() {
   // Close immediately unless the tab has unsaved edits, in which case confirm.
   const requestClose = (id: string) => {
     const tab = tabs.find((t) => t.id === id);
-    if (tab && tab.kind === "file" && tab.dirty) setPendingClose(id);
+    if (tab && tab.dirty) setPendingClose(id);
     else closeTab(id);
   };
   const pendingTab = pendingClose ? tabs.find((t) => t.id === pendingClose) : null;
-  const pendingName =
-    pendingTab && pendingTab.kind === "file"
+  const pendingName = !pendingTab
+    ? "this file"
+    : pendingTab.kind === "file"
       ? (pendingTab.path.split("/").pop() ?? pendingTab.path)
-      : "this file";
+      : "this diff";
 
   if (tabs.length === 0) return null;
 
   return (
     <div
-      className="flex items-center gap-1 px-2 text-xs shrink-0"
+      className="flex items-center pl-2 text-xs shrink-0"
       style={{
         borderBottom: "1px solid var(--t-border)",
         background: "var(--t-bg-elevated)",
         minHeight: "32px",
       }}
     >
+      {/* "Files" stays pinned; only the tab list scrolls when it overflows. */}
       <button
-        className="px-2 py-1 rounded transition-colors"
+        className="shrink-0 px-2 py-1 rounded transition-colors"
         style={{
           fontWeight: activeTabId === null ? 600 : undefined,
           color: activeTabId === null ? "var(--t-text)" : "var(--t-text-dim)",
@@ -43,14 +45,15 @@ export function EditorTabStrip() {
       >
         Files
       </button>
+      <div className="flex items-center gap-1 px-2 min-w-0 overflow-x-auto">
       {tabs.map((t) => {
         const label =
           t.kind === "file"
             ? (t.path.split("/").pop() ?? t.path) + (t.dirty ? " ●" : "")
-            : `diff: ${t.left.path.split("/").pop() ?? t.left.path} ↔ ${t.right.path.split("/").pop() ?? t.right.path}`;
+            : `diff: ${t.left.path.split("/").pop() ?? t.left.path} ↔ ${t.right.path.split("/").pop() ?? t.right.path}` + (t.dirty ? " ●" : "");
         const active = activeTabId === t.id;
         return (
-          <span key={t.id} className="flex items-center gap-0.5">
+          <span key={t.id} className="flex items-center gap-0.5 shrink-0">
             <button
               className="px-2 py-1 rounded transition-colors"
               style={{
@@ -78,6 +81,7 @@ export function EditorTabStrip() {
           </span>
         );
       })}
+      </div>
       {pendingClose && (
         <ConfirmModal
           title="Discard unsaved changes?"

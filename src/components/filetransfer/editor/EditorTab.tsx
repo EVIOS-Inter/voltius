@@ -5,6 +5,7 @@ import { useSftpSettingsStore } from "@/stores/sftpSettingsStore";
 import { useEditorStore, type EditorDoc } from "@/stores/editorStore";
 import { useThemeStore } from "@/stores/themeStore";
 import { languageForPath } from "./languageForPath";
+import { shouldHandleSaveKey } from "./editorSaveKey";
 import { cmTheme } from "./cmTheme";
 import { IconBtn } from "@/components/filetransfer/FilePane";
 
@@ -116,7 +117,9 @@ export function EditorTab({ doc }: { doc: EditorDoc }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+      // Every mounted EditorTab shares the window; only the active tab saves.
+      const isActive = useEditorStore.getState().activeTabId === doc.id;
+      if (shouldHandleSaveKey(e, isActive)) {
         e.preventDefault();
         saverRef.current.cancel();
         void doSave(content);

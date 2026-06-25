@@ -19,6 +19,7 @@ export interface DiffDoc {
   kind: "diff";
   left: DiffSide;
   right: DiffSide;
+  dirty: boolean;
 }
 export type EditorTab = EditorDoc | DiffDoc;
 
@@ -30,6 +31,7 @@ interface EditorState {
   closeTab(id: string): void;
   setActiveTab(id: string | null): void;
   setDirty(id: string, dirty: boolean): void;
+  setDiffDirty(id: string, dirty: boolean): void;
   setDocAutoSave(id: string, autoSave: boolean): void;
 }
 
@@ -51,7 +53,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
   openDiff: (left, right) => {
     const id = crypto.randomUUID();
-    const diff: DiffDoc = { id, kind: "diff", left, right };
+    const diff: DiffDoc = { id, kind: "diff", left, right, dirty: false };
     set((s) => ({ tabs: [...s.tabs, diff], activeTabId: id }));
     return id;
   },
@@ -64,6 +66,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setDirty: (id, dirty) =>
     set((s) => ({
       tabs: s.tabs.map((t) => (t.id === id && t.kind === "file" ? { ...t, dirty } : t)),
+    })),
+  setDiffDirty: (id, dirty) =>
+    set((s) => ({
+      tabs: s.tabs.map((t) => (t.id === id && t.kind === "diff" ? { ...t, dirty } : t)),
     })),
   setDocAutoSave: (id, autoSave) =>
     set((s) => ({

@@ -51,12 +51,23 @@ describe("editorStore", () => {
     expect(useEditorStore.getState().tabs).toHaveLength(1);
   });
 
-  it("openDiff creates a diff tab", () => {
+  it("openDiff creates a diff tab that starts clean", () => {
     const id = useEditorStore.getState().openDiff(
       { sftpId: "s1", path: "/a", hostLabel: "h1" },
       { sftpId: "s2", path: "/b", hostLabel: "h2" },
     );
     const tab = useEditorStore.getState().tabs.find((t) => t.id === id);
     expect(tab?.kind).toBe("diff");
+    expect(tab && tab.kind === "diff" && tab.dirty).toBe(false);
+  });
+
+  it("setDiffDirty toggles the diff dirty flag", () => {
+    const id = useEditorStore.getState().openDiff(
+      { sftpId: "s1", path: "/a", hostLabel: "h1" },
+      { sftpId: "s2", path: "/b", hostLabel: "h2" },
+    );
+    useEditorStore.getState().setDiffDirty(id, true);
+    const tab = useEditorStore.getState().tabs.find((t) => t.id === id);
+    expect(tab && tab.kind === "diff" && tab.dirty).toBe(true);
   });
 });

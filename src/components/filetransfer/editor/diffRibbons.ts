@@ -13,8 +13,9 @@ export interface DiffRibbonsHandle {
 }
 
 // Draws the connecting ribbons + apply buttons over a MergeView. `scroller` is the
-// scrolling ancestor (DiffTab's host div); the editors are full-height inside it,
-// so coordsAtPos resolves every chunk and overlay-local y equals content y.
+// scrolling ancestor (DiffTab's host div). Geometry comes from the height map
+// (documentTop + lineBlockAt), so it stays correct for chunks CodeMirror has
+// virtualized out of the rendered viewport.
 export function attachDiffRibbons(view: MergeView, scroller: HTMLElement): DiffRibbonsHandle {
   view.dom.classList.add("cm-diff-ribbons-host");
   view.dom.querySelector<HTMLElement>(".cm-mergeViewEditors")?.classList.add("cm-diff-ribbons-gap");

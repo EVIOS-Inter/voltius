@@ -10,6 +10,7 @@ import PanelSftpSection from "@/components/terminal/PanelSftpSection";
 import { useThemeStore } from "@/stores/themeStore";
 import { BUILT_IN_THEMES } from "@/themes/presets";
 import type { AppTheme } from "@/themes/types";
+import { useActiveTunnelCount } from "@/hooks/useActiveTunnelCount";
 
 const PANEL_WIDTH = 300;
 const TRANSITION = "width 180ms cubic-bezier(0.4, 0, 0.2, 1)";
@@ -153,6 +154,7 @@ function PanelContent() {
   const rightPanelSection = useUIStore((s) => s.rightPanelSection);
   const toggleRightPanel = useUIStore((s) => s.toggleRightPanel);
   const pluginSections = usePluginStore((s) => s.rightPanelSections);
+  const tunnelCount = useActiveTunnelCount();
 
   const allSections = useMemo(() => [
     ...BUILTIN_SECTIONS,
@@ -174,7 +176,7 @@ function PanelContent() {
               <button
                 key={s.id}
                 onClick={() => toggleRightPanel(s.id)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg transition-all"
+                className="relative w-8 h-8 flex items-center justify-center rounded-lg transition-all"
                 style={{
                   background: isActive ? "var(--t-tab-active-bg)" : "transparent",
                   color: isActive ? "var(--t-tab-active-text)" : "var(--t-text-muted)",
@@ -184,6 +186,15 @@ function PanelContent() {
                 onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-muted)"; }}
               >
                 <Icon icon={s.icon} width={15} />
+                {s.id === "ports" && tunnelCount > 0 && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 min-w-3.5 h-3.5 px-0.5 flex items-center justify-center
+                      rounded-full text-[9px] font-semibold leading-none"
+                    style={{ background: "var(--t-accent)", color: "var(--t-bg-modal)" }}
+                  >
+                    {tunnelCount}
+                  </span>
+                )}
               </button>
             );
           })}

@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { useEditorStore } from "@/stores/editorStore";
+import { Icon } from "@iconify/react";
+import { useEditorStore, type EditorTab } from "@/stores/editorStore";
 import { ConfirmModal } from "@/components/shared/ConfirmModal";
+import { tabIcon } from "./tabIcon";
+
+function tabLabel(t: EditorTab): string {
+  return t.kind === "file"
+    ? (t.path.split("/").pop() ?? t.path)
+    : `${t.left.path.split("/").pop() ?? t.left.path} ↔ ${t.right.path.split("/").pop() ?? t.right.path}`;
+}
 
 export function EditorTabStrip() {
   const tabs = useEditorStore((s) => s.tabs);
@@ -10,7 +18,8 @@ export function EditorTabStrip() {
   const [pendingClose, setPendingClose] = useState<string | null>(null);
 
   // Keep the active tab visible when it changes and the strip has scrolled.
-  const activeRef = useRef<HTMLButtonElement | null>(null);
+  const activeRef = useRef<HTMLElement | null>(null);
+  const setActiveRef = (el: HTMLElement | null) => { activeRef.current = el; };
   useEffect(() => {
     activeRef.current?.scrollIntoView({ inline: "nearest", block: "nearest" });
   }, [activeTabId]);
@@ -32,64 +41,70 @@ export function EditorTabStrip() {
 
   return (
     <div
-      className="flex items-center pl-2 text-xs shrink-0"
+      className="flex items-stretch text-xs shrink-0"
       style={{
         borderBottom: "1px solid var(--t-border)",
         background: "var(--t-bg-elevated)",
-        minHeight: "32px",
+        minHeight: "34px",
       }}
     >
-      {/* "Files" stays pinned; only the tab list scrolls when it overflows. */}
+      {/* "Files" stays pinned as a folder icon; only the tab list scrolls. */}
       <button
-        ref={activeTabId === null ? activeRef : undefined}
-        className="shrink-0 px-2 py-1 rounded transition-colors"
+        ref={activeTabId === null ? setActiveRef : undefined}
+        className="shrink-0 flex items-center justify-center px-3 transition-colors"
+        title="Files"
         style={{
-          fontWeight: activeTabId === null ? 600 : undefined,
-          color: activeTabId === null ? "var(--t-text)" : "var(--t-text-dim)",
-          background: activeTabId === null ? "var(--t-bg-card-hover)" : "transparent",
+          color: activeTabId === null ? "var(--t-accent)" : "var(--t-text-dim)",
+          background: activeTabId === null ? "var(--t-bg-card)" : "transparent",
+          borderTop: activeTabId === null ? "2px solid var(--t-accent)" : "2px solid transparent",
+          borderRight: "1px solid var(--t-border)",
         }}
         onClick={() => setActiveTab(null)}
       >
-        Files
+        <Icon icon="lucide:folder" width={15} />
       </button>
-      <div className="flex items-center gap-1 px-2 min-w-0 overflow-x-auto">
-      {tabs.map((t) => {
-        const label =
-          t.kind === "file"
-            ? (t.path.split("/").pop() ?? t.path) + (t.dirty ? " ●" : "")
-            : `diff: ${t.left.path.split("/").pop() ?? t.left.path} ↔ ${t.right.path.split("/").pop() ?? t.right.path}` + (t.dirty ? " ●" : "");
-        const active = activeTabId === t.id;
-        return (
-          <span key={t.id} className="flex items-center gap-0.5 shrink-0">
-            <button
-              ref={active ? activeRef : undefined}
-              className="px-2 py-1 rounded transition-colors"
+
+      <div className="flex items-stretch min-w-0 overflow-x-auto">
+        {tabs.map((t) => {
+          const active = activeTabId === t.id;
+          const name = tabLabel(t);
+          return (
+            <div
+              key={t.id}
+              ref={active ? setActiveRef : undefined}
+              data-tab-id={t.id}
+              className="group relative flex items-center gap-1.5 shrink-0 pl-2.5 pr-1.5 cursor-pointer transition-colors"
               style={{
-                fontWeight: active ? 600 : undefined,
+                maxWidth: "200px",
                 color: active ? "var(--t-text)" : "var(--t-text-dim)",
-                background: active ? "var(--t-bg-card-hover)" : "transparent",
-                maxWidth: "180px",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
+                background: active ? "var(--t-bg-card)" : "transparent",
+                borderTop: active ? "2px solid var(--t-accent)" : "2px solid transparent",
+                borderRight: "1px solid var(--t-border)",
               }}
-              title={label}
+              title={t.kind === "diff" ? `diff: ${name}` : name}
               onClick={() => setActiveTab(t.id)}
             >
-              {label}
-            </button>
-            <button
-              className="px-1 py-1 rounded transition-colors"
-              style={{ color: "var(--t-text-dim)" }}
-              title="Close"
-              onClick={() => requestClose(t.id)}
-            >
-              ×
-            </button>
-          </span>
-        );
-      })}
+              <Icon icon={tabIcon(t)} width={14} className="shrink-0" style={{ opacity: 0.8 }} />
+              {t.dirty && (
+                <span
+                  className="shrink-0"
+                  style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--t-accent-warn, #f59e0b)" }}
+                />
+              )}
+              <span className="truncate min-w-0">{name}</span>
+              <button
+                className="shrink-0 ml-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Close"
+                style={{ color: "var(--t-text-dim)" }}
+                onClick={(e) => { e.stopPropagation(); requestClose(t.id); }}
+              >
+                <Icon icon="lucide:x" width={13} />
+              </button>
+            </div>
+          );
+        })}
       </div>
+
       {pendingClose && (
         <ConfirmModal
           title="Discard unsaved changes?"

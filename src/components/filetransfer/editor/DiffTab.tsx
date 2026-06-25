@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MergeView } from "@codemirror/merge";
-import { EditorView } from "@codemirror/view";
+import { EditorView, keymap } from "@codemirror/view";
+import { history, historyKeymap } from "@codemirror/commands";
 import { readEditorFile, writeEditorFile } from "@/services/sftp";
 import { useSftpSettingsStore } from "@/stores/sftpSettingsStore";
 import { useThemeStore } from "@/stores/themeStore";
@@ -136,11 +137,11 @@ export function DiffTab({ doc }: { doc: DiffDoc }) {
     const view = new MergeView({
       a: {
         doc: contentA.current,
-        extensions: [track("a"), ...theme, ...(langA ? [langA] : [])],
+        extensions: [history(), keymap.of(historyKeymap), track("a"), ...theme, ...(langA ? [langA] : [])],
       },
       b: {
         doc: contentB.current,
-        extensions: [track("b"), ...theme, ...(langB ? [langB] : [])],
+        extensions: [history(), keymap.of(historyKeymap), track("b"), ...theme, ...(langB ? [langB] : [])],
       },
       collapseUnchanged: { margin: 3, minSize: 6 },
       parent: hostRef.current,

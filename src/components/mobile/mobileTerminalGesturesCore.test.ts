@@ -5,7 +5,7 @@ import {
   linesFromPixelDelta,
   extendSelection,
   type CellMetrics,
-} from "./mobileTerminalGestures.ts";
+} from "./mobileTerminalGesturesCore.ts";
 import { test } from "vitest";
 
 test("mobileTerminalGestures", async () => {

@@ -10,7 +10,7 @@ import {
   extendSelection,
   type Cell,
   type CellMetrics,
-} from "./mobileTerminalGestures";
+} from "./mobileTerminalGesturesCore";
 import { writeClipboard, readClipboard } from "@/utils/clipboard";
 
 const LONG_PRESS_MS = 380;

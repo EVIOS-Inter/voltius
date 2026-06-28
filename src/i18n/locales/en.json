@@ -47,6 +47,180 @@
       "cancel": "Cancel",
       "resetToDefault": "Reset to default",
       "modifiedFromDefault": "Modified from default"
+    },
+    "account": {
+      "modeTitle": "Account Mode",
+      "currentMode": "Current mode",
+      "mode": {
+        "localNoPassword": "Local (OS keychain)",
+        "local": "Local (master password)",
+        "server": "Cloud account",
+        "unknown": "Unknown"
+      },
+      "sessionSecurity": {
+        "title": "Session Security",
+        "autoLockLabel": "Auto-lock vault after inactivity",
+        "autoLockDesc": "Locks your vault and asks for your master password when your session expires.",
+        "noPasswordHint": "Enable a master password to use auto-lock and session timeout.",
+        "timeout": {
+          "never": "Never",
+          "5min": "5 minutes",
+          "15min": "15 minutes",
+          "30min": "30 minutes",
+          "1h": "1 hour",
+          "4h": "4 hours"
+        }
+      },
+      "email": "Email",
+      "displayName": {
+        "title": "Display name",
+        "cannotBeEmpty": "Cannot be empty",
+        "saving": "Saving…",
+        "save": "Save"
+      },
+      "changeMasterPassword": {
+        "label": "Change master password",
+        "sub": "Update your password without re-encrypting your vault"
+      },
+      "setMasterPassword": {
+        "label": "Set a master password",
+        "sub": "Protect your vault locally without cloud sync"
+      },
+      "lockVault": {
+        "label": "Lock vault",
+        "sub": "Lock now and require your master password"
+      },
+      "signOut": {
+        "label": "Sign out of cloud account",
+        "sub": "Clears cached password and sync tokens"
+      },
+      "wipeData": {
+        "label": "Wipe all local data",
+        "sub": "Permanently deletes all connections, keys, vault, and keychain entries"
+      },
+      "confirmWipe": {
+        "descPre": "This will permanently delete ",
+        "descBold": "all local data",
+        "descPost": ": connections, SSH keys, identities, vault secrets, and OS keychain entries. This cannot be undone.",
+        "confirm": "Wipe everything"
+      },
+      "setPassword": {
+        "desc": "Choose a master password. Your existing data will be re-encrypted.",
+        "newPlaceholder": "New master password",
+        "confirmPlaceholder": "Confirm password",
+        "submit": "Set password"
+      },
+      "error": {
+        "minLength": "At least 4 characters",
+        "mismatch": "Passwords don't match",
+        "updateFailed": "Update failed"
+      },
+      "success": {
+        "passwordSet": "Master password set. Your vault is now password-protected."
+      },
+      "loading": "Working...",
+      "plan": {
+        "title": "Plan",
+        "badge": {
+          "business": "Business",
+          "teams": "Teams",
+          "proTrial": "Pro Trial — {{daysLeft}}d left",
+          "pro": "Pro",
+          "free": "Free"
+        },
+        "manageBilling": "Manage billing →",
+        "subscription": {
+          "cancelled": "Cancels on {{date}}. You keep access until then.",
+          "cancelledNoPeriod": "Cancels at the period end. You keep access until then.",
+          "renews": "Renews on {{date}}.",
+          "active": "Your subscription is active."
+        },
+        "seats": "Seats",
+        "seatsUsed": "{{used}} / {{total}} used",
+        "upgradeToPro": "Upgrade to unlock cloud sync and more",
+        "upgrade": "Upgrade",
+        "upgradeToTeams": "Upgrade to Teams for shared vaults and unlimited guests",
+        "teamsButton": "Teams →",
+        "viewAllPlans": "View all plans →",
+        "feature": {
+          "localVault": "Local vault",
+          "auditLogs": "Audit logs",
+          "gistSync": "GitHub Gist sync",
+          "realtimeSync": "Real-time cloud sync",
+          "unlimitedVaults": "Unlimited private vaults",
+          "terminalSharing": "Terminal sharing (1 session · 1 guest)",
+          "teamVaults": "Shared team vaults",
+          "teamSharing": "Team sharing (5 sessions · 10 guests)",
+          "customRoles": "Custom roles"
+        }
+      }
+    },
+    "about": {
+      "versionTitle": "Version",
+      "loading": "Loading…",
+      "updatesTitle": "Updates",
+      "checkForUpdate": "Check for update",
+      "restartToUpdate": "Restart to update · v{{version}}",
+      "status": {
+        "idle": "Not checked yet",
+        "checking": "Checking for updates…",
+        "upToDate": "You're up to date",
+        "downloading": "Downloading v{{version}} — {{progress}}%",
+        "ready": "v{{version}} ready to install"
+      },
+      "autoDownload": {
+        "title": "Auto-download updates",
+        "desc": "Check & download new versions in the background"
+      },
+      "whatsNew": {
+        "title": "Show what's new after updates",
+        "desc": "Open the changelog automatically on a new release"
+      },
+      "linksTitle": "Links",
+      "links": {
+        "github": "GitHub",
+        "documentation": "Documentation",
+        "x": "X",
+        "kofi": "Ko-Fi",
+        "contact": "Contact"
+      }
+    },
+    "sync": {
+      "voltiusCloud": "Voltius Cloud",
+      "active": {
+        "title": "Cloud sync active",
+        "syncing": "Syncing…",
+        "error": "Error: {{error}}",
+        "lastSync": "Last sync: {{time}}",
+        "offline": "Offline",
+        "idle": "Not synced yet",
+        "syncNow": "Sync now"
+      },
+      "requiresPro": {
+        "title": "Cloud sync",
+        "sub": "Requires a Pro subscription",
+        "upgrade": "Upgrade"
+      },
+      "notConnected": {
+        "title": "Cloud account not connected",
+        "sub": "Sign in or create a cloud account to sync across devices.",
+        "signIn": "Sign in"
+      },
+      "gistTitle": "GitHub Gist (E2EE)",
+      "gist": {
+        "title": "Gist Sync plugin",
+        "sub": "End-to-end encrypted sync via GitHub Gist",
+        "configure": "Configure →"
+      },
+      "prefsTitle": "Sync Preferences",
+      "prefsFooter": "Disabled types won't trigger automatic syncs when changed. Individual objects can also be excluded via their edit panel.",
+      "objectType": {
+        "connection": { "label": "Hosts", "sub": "SSH connections" },
+        "identity": { "label": "Identities", "sub": "Usernames and credentials" },
+        "key": { "label": "SSH Keys", "sub": "Key pairs stored in keychain" },
+        "folder": { "label": "Folders", "sub": "Folder structure for organizing objects" },
+        "port-forwarding-rule": { "label": "Port Forwarding", "sub": "Saved tunnel rules" }
+      }
     }
   }
 }

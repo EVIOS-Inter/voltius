@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { Toggle } from "@/components/shared/Toggle";
 import { getSyncState, onSyncStateChange, syncNow } from "@/services/sync";
 import { useSyncPrefsStore, SYNC_OBJECT_TYPES } from "@/stores/syncPrefsStore";
@@ -8,6 +9,7 @@ import { useUIStore } from "@/stores/uiStore";
 import { openPortal } from "@/utils/billing";
 
 export default function SyncSection() {
+  const { t } = useTranslation();
   const [syncState, setSyncState] = useState(getSyncState);
   useEffect(() => onSyncStateChange(() => setSyncState(getSyncState())), []);
 
@@ -24,19 +26,19 @@ export default function SyncSection() {
       {/* Voltius cloud sync */}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-          Voltius Cloud
+          {t("settings.sync.voltiusCloud")}
         </h3>
         <div className="rounded-lg px-4 py-3 bg-(--t-bg-elevated) border border-(--t-border)">
           {isLoggedIn && isPro ? (
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-(--t-text-primary)">Cloud sync active</p>
+                <p className="text-sm font-medium text-(--t-text-primary)">{t("settings.sync.active.title")}</p>
                 <p className="text-xs mt-0.5 text-(--t-text-dim)">
-                  {syncState.status === "syncing" && "Syncing…"}
-                  {syncState.status === "error" && `Error: ${syncState.error ?? "unknown"}`}
-                  {syncState.status === "success" && syncState.lastSync && `Last sync: ${syncState.lastSync.toLocaleTimeString()}`}
-                  {syncState.status === "offline" && "Offline"}
-                  {syncState.status === "idle" && "Not synced yet"}
+                  {syncState.status === "syncing" && t("settings.sync.active.syncing")}
+                  {syncState.status === "error" && t("settings.sync.active.error", { error: syncState.error ?? "unknown" })}
+                  {syncState.status === "success" && syncState.lastSync && t("settings.sync.active.lastSync", { time: syncState.lastSync.toLocaleTimeString() })}
+                  {syncState.status === "offline" && t("settings.sync.active.offline")}
+                  {syncState.status === "idle" && t("settings.sync.active.idle")}
                 </p>
               </div>
               <button
@@ -53,35 +55,35 @@ export default function SyncSection() {
                   width={18}
                   className={syncState.status === "syncing" ? "animate-spin" : ""}
                 />
-                Sync now
+                {t("settings.sync.active.syncNow")}
               </button>
             </div>
           ) : isLoggedIn && !isPro ? (
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-(--t-text-primary)">Cloud sync</p>
-                <p className="text-xs mt-0.5 text-(--t-text-dim)">Requires a Pro subscription</p>
+                <p className="text-sm font-medium text-(--t-text-primary)">{t("settings.sync.requiresPro.title")}</p>
+                <p className="text-xs mt-0.5 text-(--t-text-dim)">{t("settings.sync.requiresPro.sub")}</p>
               </div>
               <button
                 onClick={() => openPortal()}
                 className="text-xs px-2.5 py-1 rounded-md font-medium shrink-0 bg-(--t-accent) text-white hover:opacity-85 transition-opacity"
               >
-                Upgrade
+                {t("settings.sync.requiresPro.upgrade")}
               </button>
             </div>
           ) : (
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-(--t-text-primary)">Cloud account not connected</p>
+                <p className="text-sm font-medium text-(--t-text-primary)">{t("settings.sync.notConnected.title")}</p>
                 <p className="text-xs mt-0.5 text-(--t-text-dim)">
-                  Sign in or create a cloud account to sync across devices.
+                  {t("settings.sync.notConnected.sub")}
                 </p>
               </div>
               <button
                 onClick={() => openCloudAuth("signin")}
                 className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 bg-(--t-bg-input) text-(--t-text-primary)"
               >
-                Sign in
+                {t("settings.sync.notConnected.signIn")}
               </button>
             </div>
           )}
@@ -91,19 +93,19 @@ export default function SyncSection() {
       {/* Gist sync — pointer to plugins */}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-          GitHub Gist (E2EE)
+          {t("settings.sync.gistTitle")}
         </h3>
         <div className="rounded-lg px-4 py-3 bg-(--t-bg-elevated) border border-(--t-border)">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-medium text-(--t-text-primary)">Gist Sync plugin</p>
-              <p className="text-xs mt-0.5 text-(--t-text-dim)">End-to-end encrypted sync via GitHub Gist</p>
+              <p className="text-sm font-medium text-(--t-text-primary)">{t("settings.sync.gist.title")}</p>
+              <p className="text-xs mt-0.5 text-(--t-text-dim)">{t("settings.sync.gist.sub")}</p>
             </div>
             <button
               onClick={() => openSettings("plugins", "plugin-gist-sync:gist-sync-settings")}
               className="text-xs px-2.5 py-1.5 rounded-lg font-medium shrink-0 bg-(--t-bg-input) text-(--t-text-primary) transition-opacity hover:opacity-75"
             >
-              Configure →
+              {t("settings.sync.gist.configure")}
             </button>
           </div>
         </div>
@@ -112,10 +114,10 @@ export default function SyncSection() {
       {/* Sync preferences */}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-          Sync Preferences
+          {t("settings.sync.prefsTitle")}
         </h3>
         <div className="rounded-lg divide-y bg-(--t-bg-elevated) border border-(--t-border)">
-          {SYNC_OBJECT_TYPES.map(({ id, label, sub }, i) => {
+          {SYNC_OBJECT_TYPES.map(({ id }, i) => {
             const value = syncTypes[id] ?? true;
             return (
               <div
@@ -124,8 +126,8 @@ export default function SyncSection() {
                 style={i > 0 ? { borderTop: "1px solid var(--t-border)" } : undefined}
               >
                 <div>
-                  <p className="text-sm font-medium text-(--t-text-primary)">{label}</p>
-                  <p className="text-xs mt-0.5 text-(--t-text-dim)">{sub}</p>
+                  <p className="text-sm font-medium text-(--t-text-primary)">{t(`settings.sync.objectType.${id}.label`)}</p>
+                  <p className="text-xs mt-0.5 text-(--t-text-dim)">{t(`settings.sync.objectType.${id}.sub`)}</p>
                 </div>
                 <Toggle checked={value} onChange={(v) => setSyncType(id, v)} />
               </div>
@@ -133,7 +135,7 @@ export default function SyncSection() {
           })}
         </div>
         <p className="text-xs mt-2 px-1 text-(--t-text-muted)">
-          Disabled types won't trigger automatic syncs when changed. Individual objects can also be excluded via their edit panel.
+          {t("settings.sync.prefsFooter")}
         </p>
       </div>
     </div>

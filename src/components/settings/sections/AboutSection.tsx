@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { getVersion } from "@tauri-apps/api/app";
 import { useIsAndroid } from "@/utils/platform";
 
 const LINKS = [
-  { icon: "simple-icons:github", label: "GitHub",  sub: "VoltiusApp/voltius", href: "https://github.com/VoltiusApp/voltius" },
-  { icon: "lucide:book-open", label: "Documentation", sub: "docs.voltius.app", href: "https://docs.voltius.app" },
-  { icon: "simple-icons:x",      label: "X",        sub: "@VoltiusApp",        href: "https://x.com/VoltiusApp" },
-  { icon: "simple-icons:kofi",   label: "Ko-Fi",   sub: "ko-fi.com/kipavy",   href: "https://ko-fi.com/kipavy" },
-  { icon: "lucide:mail", label: "Contact", sub: "contact@voltius.app", href: "mailto:contact@voltius.app" },
+  { icon: "simple-icons:github", key: "github",        sub: "VoltiusApp/voltius",   href: "https://github.com/VoltiusApp/voltius" },
+  { icon: "lucide:book-open",    key: "documentation", sub: "docs.voltius.app",     href: "https://docs.voltius.app" },
+  { icon: "simple-icons:x",      key: "x",             sub: "@VoltiusApp",           href: "https://x.com/VoltiusApp" },
+  { icon: "simple-icons:kofi",   key: "kofi",          sub: "ko-fi.com/kipavy",     href: "https://ko-fi.com/kipavy" },
+  { icon: "lucide:mail",         key: "contact",       sub: "contact@voltius.app",  href: "mailto:contact@voltius.app" },
 ];
 import {
   getUpdaterState,
@@ -22,6 +23,7 @@ import { useToggle } from "@/stores/toggleSettingsStore";
 import LogoBadge from "@/components/layout/LogoBadge";
 
 export default function AboutSection() {
+  const { t } = useTranslation();
   const [appVersion, setAppVersion] = useState<string | null>(null);
   const [updater, setUpdater] = useState(getUpdaterState);
   const autoUpdate = useUpdaterPrefStore((s) => s.autoUpdate);
@@ -41,7 +43,7 @@ export default function AboutSection() {
       {/* App version */}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-          Version
+          {t("settings.about.versionTitle")}
         </h3>
         <div
           className="rounded-lg px-4 py-3 flex items-center gap-3 bg-(--t-bg-elevated) border border-(--t-border)"
@@ -50,7 +52,7 @@ export default function AboutSection() {
           <div>
             <p className="text-sm font-medium text-(--t-text-primary)">Voltius</p>
             <p className="text-xs mt-0.5 text-(--t-text-dim)">
-              {appVersion ? `v${appVersion}` : "Loading…"}
+              {appVersion ? `v${appVersion}` : t("settings.about.loading")}
             </p>
           </div>
         </div>
@@ -59,7 +61,7 @@ export default function AboutSection() {
       {!isAndroid && (
         <div>
           <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-            Updates
+            {t("settings.about.updatesTitle")}
           </h3>
           <div
             className="rounded-lg px-4 py-3 space-y-3 bg-(--t-bg-elevated) border border-(--t-border)"
@@ -84,19 +86,19 @@ export default function AboutSection() {
                 )}
                 {(updater.status === "idle" || updater.status === "upToDate" || updater.status === "checking") && (
                   <span className="text-sm text-(--t-text-primary)">
-                    {updater.status === "idle" && "Not checked yet"}
-                    {updater.status === "checking" && "Checking for updates…"}
-                    {updater.status === "upToDate" && "You're up to date"}
+                    {updater.status === "idle" && t("settings.about.status.idle")}
+                    {updater.status === "checking" && t("settings.about.status.checking")}
+                    {updater.status === "upToDate" && t("settings.about.status.upToDate")}
                   </span>
                 )}
                 {updater.status === "downloading" && (
                   <span className="text-sm text-(--t-text-primary)">
-                    Downloading v{updater.version} — {updater.progress}%
+                    {t("settings.about.status.downloading", { version: updater.version, progress: updater.progress })}
                   </span>
                 )}
                 {updater.status === "ready" && (
                   <span className="text-sm text-(--t-text-primary)">
-                    v{updater.version} ready to install
+                    {t("settings.about.status.ready", { version: updater.version })}
                   </span>
                 )}
                 {updater.status === "error" && (
@@ -118,7 +120,7 @@ export default function AboutSection() {
                   }}
                 >
                   <Icon icon="lucide:refresh-cw" width={12} className={busy ? "animate-spin" : ""} />
-                  Check for update
+                  {t("settings.about.checkForUpdate")}
                 </button>
               )}
             </div>
@@ -140,16 +142,16 @@ export default function AboutSection() {
                 className="btn btn-primary w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium"
               >
                 <Icon icon="lucide:refresh-cw" width={14} />
-                Restart to update · v{updater.version}
+                {t("settings.about.restartToUpdate", { version: updater.version })}
               </button>
             )}
 
             {/* Automatic updates toggle */}
             <div className="flex items-center justify-between gap-3 pt-3 border-t border-(--t-border)">
               <div className="min-w-0">
-                <p className="text-sm text-(--t-text-primary)">Auto-download updates</p>
+                <p className="text-sm text-(--t-text-primary)">{t("settings.about.autoDownload.title")}</p>
                 <p className="text-xs mt-0.5 text-(--t-text-dim)">
-                  Check &amp; download new versions in the background
+                  {t("settings.about.autoDownload.desc")}
                 </p>
               </div>
               <Toggle checked={autoUpdate} onChange={setAutoUpdate} />
@@ -158,9 +160,9 @@ export default function AboutSection() {
             {/* What's new popup toggle */}
             <div className="flex items-center justify-between gap-3 pt-3 border-t border-(--t-border)">
               <div className="min-w-0">
-                <p className="text-sm text-(--t-text-primary)">Show what's new after updates</p>
+                <p className="text-sm text-(--t-text-primary)">{t("settings.about.whatsNew.title")}</p>
                 <p className="text-xs mt-0.5 text-(--t-text-dim)">
-                  Open the changelog automatically on a new release
+                  {t("settings.about.whatsNew.desc")}
                 </p>
               </div>
               <Toggle checked={changelogPopup} onChange={setChangelogPopup} />
@@ -171,10 +173,10 @@ export default function AboutSection() {
       {/* Links */}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-          Links
+          {t("settings.about.linksTitle")}
         </h3>
         <div className="space-y-2">
-          {LINKS.map(({ icon, label, sub, href }) => (
+          {LINKS.map(({ icon, key, sub, href }) => (
             <a
               key={href}
               href={href}
@@ -184,7 +186,7 @@ export default function AboutSection() {
             >
               <Icon icon={icon} width={20} className="text-(--t-text-primary) shrink-0" />
               <div>
-                <p className="text-sm font-medium text-(--t-text-primary)">{label}</p>
+                <p className="text-sm font-medium text-(--t-text-primary)">{t(`settings.about.links.${key}`)}</p>
                 <p className="text-xs mt-0.5 text-(--t-text-dim)">{sub}</p>
               </div>
               <Icon icon="lucide:external-link" width={20} className="ml-auto text-(--t-text-dim)" />

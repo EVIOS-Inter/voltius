@@ -47,6 +47,180 @@
       "cancel": "Annuler",
       "resetToDefault": "Réinitialiser par défaut",
       "modifiedFromDefault": "Modifié par rapport à la valeur par défaut"
+    },
+    "account": {
+      "modeTitle": "Mode de compte",
+      "currentMode": "Mode actuel",
+      "mode": {
+        "localNoPassword": "Local (trousseau OS)",
+        "local": "Local (mot de passe maître)",
+        "server": "Compte cloud",
+        "unknown": "Inconnu"
+      },
+      "sessionSecurity": {
+        "title": "Sécurité de session",
+        "autoLockLabel": "Verrouillage automatique après inactivité",
+        "autoLockDesc": "Verrouille votre coffre-fort et demande votre mot de passe maître à l'expiration de la session.",
+        "noPasswordHint": "Activez un mot de passe maître pour utiliser le verrouillage automatique et le délai de session.",
+        "timeout": {
+          "never": "Jamais",
+          "5min": "5 minutes",
+          "15min": "15 minutes",
+          "30min": "30 minutes",
+          "1h": "1 heure",
+          "4h": "4 heures"
+        }
+      },
+      "email": "E-mail",
+      "displayName": {
+        "title": "Nom d'affichage",
+        "cannotBeEmpty": "Ne peut pas être vide",
+        "saving": "Enregistrement…",
+        "save": "Enregistrer"
+      },
+      "changeMasterPassword": {
+        "label": "Changer le mot de passe maître",
+        "sub": "Mettez à jour votre mot de passe sans rechiffrer votre coffre-fort"
+      },
+      "setMasterPassword": {
+        "label": "Définir un mot de passe maître",
+        "sub": "Protégez votre coffre-fort localement sans synchronisation cloud"
+      },
+      "lockVault": {
+        "label": "Verrouiller le coffre-fort",
+        "sub": "Verrouiller maintenant et exiger votre mot de passe maître"
+      },
+      "signOut": {
+        "label": "Se déconnecter du compte cloud",
+        "sub": "Efface le mot de passe en cache et les jetons de synchronisation"
+      },
+      "wipeData": {
+        "label": "Effacer toutes les données locales",
+        "sub": "Supprime définitivement toutes les connexions, clés, coffre-fort et entrées du trousseau"
+      },
+      "confirmWipe": {
+        "descPre": "Cela supprimera définitivement ",
+        "descBold": "toutes les données locales",
+        "descPost": " : connexions, clés SSH, identités, secrets du coffre-fort et entrées du trousseau système. Cette action est irréversible.",
+        "confirm": "Tout effacer"
+      },
+      "setPassword": {
+        "desc": "Choisissez un mot de passe maître. Vos données existantes seront rechiffrées.",
+        "newPlaceholder": "Nouveau mot de passe maître",
+        "confirmPlaceholder": "Confirmer le mot de passe",
+        "submit": "Définir le mot de passe"
+      },
+      "error": {
+        "minLength": "Au moins 4 caractères",
+        "mismatch": "Les mots de passe ne correspondent pas",
+        "updateFailed": "Échec de la mise à jour"
+      },
+      "success": {
+        "passwordSet": "Mot de passe maître défini. Votre coffre-fort est maintenant protégé par mot de passe."
+      },
+      "loading": "Traitement...",
+      "plan": {
+        "title": "Abonnement",
+        "badge": {
+          "business": "Business",
+          "teams": "Teams",
+          "proTrial": "Essai Pro — {{daysLeft}}j restants",
+          "pro": "Pro",
+          "free": "Gratuit"
+        },
+        "manageBilling": "Gérer la facturation →",
+        "subscription": {
+          "cancelled": "Se termine le {{date}}. Vous conservez l'accès jusqu'à cette date.",
+          "cancelledNoPeriod": "Se termine en fin de période. Vous conservez l'accès jusqu'alors.",
+          "renews": "Renouvellement le {{date}}.",
+          "active": "Votre abonnement est actif."
+        },
+        "seats": "Postes",
+        "seatsUsed": "{{used}} / {{total}} utilisés",
+        "upgradeToPro": "Passez à Pro pour débloquer la synchronisation cloud et plus encore",
+        "upgrade": "Mettre à niveau",
+        "upgradeToTeams": "Passez à Teams pour les coffres partagés et les invités illimités",
+        "teamsButton": "Teams →",
+        "viewAllPlans": "Voir tous les abonnements →",
+        "feature": {
+          "localVault": "Coffre-fort local",
+          "auditLogs": "Journaux d'audit",
+          "gistSync": "Synchronisation GitHub Gist",
+          "realtimeSync": "Synchronisation cloud en temps réel",
+          "unlimitedVaults": "Coffres-forts privés illimités",
+          "terminalSharing": "Partage de terminal (1 session · 1 invité)",
+          "teamVaults": "Coffres-forts d'équipe partagés",
+          "teamSharing": "Partage d'équipe (5 sessions · 10 invités)",
+          "customRoles": "Rôles personnalisés"
+        }
+      }
+    },
+    "about": {
+      "versionTitle": "Version",
+      "loading": "Chargement…",
+      "updatesTitle": "Mises à jour",
+      "checkForUpdate": "Vérifier les mises à jour",
+      "restartToUpdate": "Redémarrer pour mettre à jour · v{{version}}",
+      "status": {
+        "idle": "Pas encore vérifié",
+        "checking": "Vérification des mises à jour…",
+        "upToDate": "Vous êtes à jour",
+        "downloading": "Téléchargement de v{{version}} — {{progress}} %",
+        "ready": "v{{version}} prête à installer"
+      },
+      "autoDownload": {
+        "title": "Téléchargement automatique des mises à jour",
+        "desc": "Vérifier et télécharger les nouvelles versions en arrière-plan"
+      },
+      "whatsNew": {
+        "title": "Afficher les nouveautés après les mises à jour",
+        "desc": "Ouvrir le journal des modifications automatiquement lors d'une nouvelle version"
+      },
+      "linksTitle": "Liens",
+      "links": {
+        "github": "GitHub",
+        "documentation": "Documentation",
+        "x": "X",
+        "kofi": "Ko-Fi",
+        "contact": "Contact"
+      }
+    },
+    "sync": {
+      "voltiusCloud": "Voltius Cloud",
+      "active": {
+        "title": "Synchronisation cloud active",
+        "syncing": "Synchronisation en cours…",
+        "error": "Erreur : {{error}}",
+        "lastSync": "Dernière synchro : {{time}}",
+        "offline": "Hors ligne",
+        "idle": "Pas encore synchronisé",
+        "syncNow": "Synchroniser"
+      },
+      "requiresPro": {
+        "title": "Synchronisation cloud",
+        "sub": "Requiert un abonnement Pro",
+        "upgrade": "Mettre à niveau"
+      },
+      "notConnected": {
+        "title": "Compte cloud non connecté",
+        "sub": "Connectez-vous ou créez un compte cloud pour synchroniser vos appareils.",
+        "signIn": "Se connecter"
+      },
+      "gistTitle": "GitHub Gist (E2EE)",
+      "gist": {
+        "title": "Extension Gist Sync",
+        "sub": "Synchronisation chiffrée de bout en bout via GitHub Gist",
+        "configure": "Configurer →"
+      },
+      "prefsTitle": "Préférences de synchronisation",
+      "prefsFooter": "Les types désactivés ne déclenchent pas de synchronisation automatique lors de modifications. Les objets individuels peuvent également être exclus via leur panneau d'édition.",
+      "objectType": {
+        "connection": { "label": "Hôtes", "sub": "Connexions SSH" },
+        "identity": { "label": "Identités", "sub": "Noms d'utilisateur et informations d'identification" },
+        "key": { "label": "Clés SSH", "sub": "Paires de clés stockées dans le trousseau" },
+        "folder": { "label": "Dossiers", "sub": "Structure de dossiers pour organiser les objets" },
+        "port-forwarding-rule": { "label": "Transfert de ports", "sub": "Règles de tunnel enregistrées" }
+      }
     }
   }
 }

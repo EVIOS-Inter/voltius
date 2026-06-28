@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { getAccountMode, getCurrentUserEmail, fetchAndCacheDisplayName, updateDisplayName, setMasterPassword, logout, lockVaultSession } from "@/services/account";
 import { resetVault } from "@/services/vault";
 import { useSecurityStore } from "@/stores/securityStore";
@@ -12,13 +13,16 @@ import ChangeMasterPasswordModal from "./ChangeMasterPasswordModal";
 
 type AccountStep = "idle" | "set-password" | "loading" | "confirm-wipe";
 
-const SESSION_TIMEOUT_OPTIONS: Array<{ label: string; value: string }> = [
-  { label: "Never", value: "never" },
-  { label: "5 minutes", value: "5" },
-  { label: "15 minutes", value: "15" },
-  { label: "30 minutes", value: "30" },
-  { label: "1 hour", value: "60" },
-  { label: "4 hours", value: "240" },
+const PLAN_FEATURES = [
+  { id: "localVault",       free: true,  pro: true,  teams: true,  business: true  },
+  { id: "auditLogs",        free: true,  pro: true,  teams: true,  business: true  },
+  { id: "gistSync",         free: true,  pro: true,  teams: true,  business: true  },
+  { id: "realtimeSync",     free: false, pro: true,  teams: true,  business: true  },
+  { id: "unlimitedVaults",  free: false, pro: true,  teams: true,  business: true  },
+  { id: "terminalSharing",  free: false, pro: true,  teams: true,  business: true  },
+  { id: "teamVaults",       free: false, pro: false, teams: true,  business: true  },
+  { id: "teamSharing",      free: false, pro: false, teams: true,  business: true  },
+  { id: "customRoles",      free: false, pro: false, teams: false, business: true  },
 ];
 
 async function openCheckout(plan: "pro" | "teams") {
@@ -26,6 +30,7 @@ async function openCheckout(plan: "pro" | "teams") {
 }
 
 export default function AccountSection() {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<string | null>(null);
   const [step, setStep] = useState<AccountStep>("idle");
   const [password, setPassword] = useState("");
@@ -42,6 +47,15 @@ export default function AccountSection() {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const sessionTimeoutMinutes = useSecurityStore((s) => s.sessionTimeoutMinutes);
   const setSessionTimeoutMinutes = useSecurityStore((s) => s.setSessionTimeoutMinutes);
+
+  const SESSION_TIMEOUT_OPTIONS = [
+    { label: t("settings.account.sessionSecurity.timeout.never"), value: "never" },
+    { label: t("settings.account.sessionSecurity.timeout.5min"),  value: "5" },
+    { label: t("settings.account.sessionSecurity.timeout.15min"), value: "15" },
+    { label: t("settings.account.sessionSecurity.timeout.30min"), value: "30" },
+    { label: t("settings.account.sessionSecurity.timeout.1h"),    value: "60" },
+    { label: t("settings.account.sessionSecurity.timeout.4h"),    value: "240" },
+  ];
 
   useEffect(() => {
     getAccountMode().then(setMode).catch(() => setMode(null));
@@ -77,22 +91,22 @@ export default function AccountSection() {
   const handleSetPassword = async (e: FormEvent) => {
     e.preventDefault();
     if (password.length < 4) {
-      setError("At least 4 characters");
+      setError(t("settings.account.error.minLength"));
       return;
     }
     if (password !== confirm) {
-      setError("Passwords don't match");
+      setError(t("settings.account.error.mismatch"));
       return;
     }
-    await wrap(() => setMasterPassword(password), "Master password set. Your vault is now password-protected.");
+    await wrap(() => setMasterPassword(password), t("settings.account.success.passwordSet"));
     setPassword("");
     setConfirm("");
   };
 
   const modeLabel =
-    mode === "local-nopassword" ? "Local (OS keychain)" :
-    mode === "local" ? "Local (master password)" :
-    mode === "server" ? "Cloud account" : "Unknown";
+    mode === "local-nopassword" ? t("settings.account.mode.localNoPassword") :
+    mode === "local" ? t("settings.account.mode.local") :
+    mode === "server" ? t("settings.account.mode.server") : t("settings.account.mode.unknown");
 
   const modeIcon =
     mode === "local-nopassword" ? "lucide:key-round" :
@@ -105,12 +119,12 @@ export default function AccountSection() {
     <div className="p-6 max-w-lg space-y-4">
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-          Account Mode
+          {t("settings.account.modeTitle")}
         </h3>
         <div
           className="rounded-lg px-4 py-3 bg-(--t-bg-elevated) border border-(--t-border)"
         >
-          <p className="text-xs mb-1 text-(--t-text-dim)">Current mode</p>
+          <p className="text-xs mb-1 text-(--t-text-dim)">{t("settings.account.currentMode")}</p>
           <div className="flex items-center gap-2">
             <Icon icon={modeIcon} width={14} className="text-(--t-accent)" />
             <span className="text-sm font-medium text-(--t-text-primary)">{modeLabel}</span>
@@ -122,14 +136,14 @@ export default function AccountSection() {
 
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-          Session Security
+          {t("settings.account.sessionSecurity.title")}
         </h3>
         {canLockVault ? (
           <div
             className="rounded-lg px-4 py-3 space-y-2 bg-(--t-bg-elevated) border border-(--t-border)"
           >
             <label className="text-xs text-(--t-text-dim)">
-              Auto-lock vault after inactivity
+              {t("settings.account.sessionSecurity.autoLockLabel")}
             </label>
             <select
               value={timeoutSelectValue}
@@ -146,12 +160,12 @@ export default function AccountSection() {
               ))}
             </select>
             <p className="text-xs text-(--t-text-dim)">
-              Locks your vault and asks for your master password when your session expires.
+              {t("settings.account.sessionSecurity.autoLockDesc")}
             </p>
           </div>
         ) : (
           <p className="text-xs text-(--t-text-muted)">
-            Enable a master password to use auto-lock and session timeout.
+            {t("settings.account.sessionSecurity.noPasswordHint")}
           </p>
         )}
       </div>
@@ -164,7 +178,7 @@ export default function AccountSection() {
           {mode === "server" && currentEmail && (
             <ActionItem
               icon="lucide:mail"
-              label="Email"
+              label={t("settings.account.email")}
               sub={currentEmail}
               onClick={() => setShowEditEmail(true)}
             />
@@ -175,7 +189,7 @@ export default function AccountSection() {
                 className="flex flex-col gap-2 rounded-lg px-4 py-3"
                 style={{ background: "var(--t-bg-elevated)", border: "1px solid var(--t-border)" }}
               >
-                <p className="text-xs font-medium text-(--t-text-dim)">Display name</p>
+                <p className="text-xs font-medium text-(--t-text-dim)">{t("settings.account.displayName.title")}</p>
                 <input
                   autoFocus
                   type="text"
@@ -192,7 +206,7 @@ export default function AccountSection() {
                     style={{ background: "var(--t-bg-input)", color: "var(--t-text-muted)", border: "1px solid var(--t-border)" }}
                     onClick={() => { setEditingDisplayName(false); setDisplayNameError(""); }}
                   >
-                    Cancel
+                    {t("settings.shared.cancel")}
                   </button>
                   <button
                     disabled={displayNameLoading}
@@ -200,7 +214,7 @@ export default function AccountSection() {
                     style={{ background: "var(--t-accent)", color: "#fff" }}
                     onClick={async () => {
                       const trimmed = displayNameInput.trim();
-                      if (!trimmed) { setDisplayNameError("Cannot be empty"); return; }
+                      if (!trimmed) { setDisplayNameError(t("settings.account.displayName.cannotBeEmpty")); return; }
                       setDisplayNameLoading(true);
                       setDisplayNameError("");
                       try {
@@ -208,20 +222,20 @@ export default function AccountSection() {
                         setDisplayName(trimmed);
                         setEditingDisplayName(false);
                       } catch (e) {
-                        setDisplayNameError(e instanceof Error ? e.message : "Update failed");
+                        setDisplayNameError(e instanceof Error ? e.message : t("settings.account.error.updateFailed"));
                       } finally {
                         setDisplayNameLoading(false);
                       }
                     }}
                   >
-                    {displayNameLoading ? "Saving…" : "Save"}
+                    {displayNameLoading ? t("settings.account.displayName.saving") : t("settings.account.displayName.save")}
                   </button>
                 </div>
               </div>
             ) : (
               <ActionItem
                 icon="lucide:user"
-                label="Display name"
+                label={t("settings.account.displayName.title")}
                 sub={displayName ?? "—"}
                 onClick={() => {
                   setDisplayNameInput(displayName ?? "");
@@ -234,16 +248,16 @@ export default function AccountSection() {
           {mode === "server" && (
             <ActionItem
               icon="lucide:key-round"
-              label="Change master password"
-              sub="Update your password without re-encrypting your vault"
+              label={t("settings.account.changeMasterPassword.label")}
+              sub={t("settings.account.changeMasterPassword.sub")}
               onClick={() => setShowChangePassword(true)}
             />
           )}
           {mode === "local-nopassword" && (
             <ActionItem
               icon="lucide:lock"
-              label="Set a master password"
-              sub="Protect your vault locally without cloud sync"
+              label={t("settings.account.setMasterPassword.label")}
+              sub={t("settings.account.setMasterPassword.sub")}
               onClick={() => {
                 reset();
                 setStep("set-password");
@@ -253,8 +267,8 @@ export default function AccountSection() {
           {canLockVault && (
             <ActionItem
               icon="lucide:lock"
-              label="Lock vault"
-              sub="Lock now and require your master password"
+              label={t("settings.account.lockVault.label")}
+              sub={t("settings.account.lockVault.sub")}
               onClick={() => {
                 setError("");
                 lockVaultSession()
@@ -266,8 +280,8 @@ export default function AccountSection() {
           {mode === "server" && (
             <ActionItem
               icon="lucide:log-out"
-              label="Sign out of cloud account"
-              sub="Clears cached password and sync tokens"
+              label={t("settings.account.signOut.label")}
+              sub={t("settings.account.signOut.sub")}
               danger
               onClick={() => {
                 setError("");
@@ -279,8 +293,8 @@ export default function AccountSection() {
           )}
           <ActionItem
             icon="lucide:trash-2"
-            label="Wipe all local data"
-            sub="Permanently deletes all connections, keys, vault, and keychain entries"
+            label={t("settings.account.wipeData.label")}
+            sub={t("settings.account.wipeData.sub")}
             danger
             onClick={() => {
               reset();
@@ -307,14 +321,16 @@ export default function AccountSection() {
       {step === "confirm-wipe" && (
         <div className="space-y-3">
           <p className="text-xs text-(--t-text-muted)">
-            This will permanently delete <strong>all local data</strong>: connections, SSH keys, identities, vault secrets, and OS keychain entries. This cannot be undone.
+            {t("settings.account.confirmWipe.descPre")}
+            <strong>{t("settings.account.confirmWipe.descBold")}</strong>
+            {t("settings.account.confirmWipe.descPost")}
           </p>
           <div className="flex gap-2">
             <button
               className="flex-1 text-xs px-3 py-1.5 rounded-sm bg-(--t-bg-elevated) text-(--t-text-muted) hover:text-(--t-text-base) transition-colors"
               onClick={reset}
             >
-              Cancel
+              {t("settings.shared.cancel")}
             </button>
             <button
               className="flex-1 text-xs px-3 py-1.5 rounded-sm bg-(--t-status-error) text-white hover:opacity-80 transition-opacity font-medium"
@@ -328,7 +344,7 @@ export default function AccountSection() {
                   });
               }}
             >
-              Wipe everything
+              {t("settings.account.confirmWipe.confirm")}
             </button>
           </div>
         </div>
@@ -337,24 +353,29 @@ export default function AccountSection() {
       {step === "set-password" && (
         <form onSubmit={handleSetPassword} className="space-y-2">
           <p className="text-xs text-(--t-text-muted)">
-            Choose a master password. Your existing data will be re-encrypted.
+            {t("settings.account.setPassword.desc")}
           </p>
           <SettingsInput
             type="password"
-            placeholder="New master password"
+            placeholder={t("settings.account.setPassword.newPlaceholder")}
             value={password}
             onChange={setPassword}
             autoFocus
           />
-          <SettingsInput type="password" placeholder="Confirm password" value={confirm} onChange={setConfirm} />
-          <FormButtons onCancel={reset} submitLabel="Set password" />
+          <SettingsInput
+            type="password"
+            placeholder={t("settings.account.setPassword.confirmPlaceholder")}
+            value={confirm}
+            onChange={setConfirm}
+          />
+          <FormButtons onCancel={reset} submitLabel={t("settings.account.setPassword.submit")} />
         </form>
       )}
 
       {step === "loading" && (
         <div className="flex items-center gap-2 px-1">
           <Icon icon="lucide:loader-circle" width={14} className="animate-spin text-(--t-accent)" />
-          <span className="text-sm text-(--t-text-muted)">Working...</span>
+          <span className="text-sm text-(--t-text-muted)">{t("settings.account.loading")}</span>
         </div>
       )}
     </div>
@@ -363,24 +384,13 @@ export default function AccountSection() {
 
 // ─── Plans section ────────────────────────────────────────────────────────────
 
-const PLAN_FEATURES = [
-  { label: "Local vault", free: true, pro: true, teams: true, business: true },
-  { label: "Audit logs", free: true, pro: true, teams: true, business: true },
-  { label: "GitHub Gist sync", free: true, pro: true, teams: true, business: true },
-  { label: "Real-time cloud sync", free: false, pro: true, teams: true, business: true },
-  { label: "Unlimited private vaults", free: false, pro: true, teams: true, business: true },
-  { label: "Terminal sharing (1 session · 1 guest)", free: false, pro: true, teams: true, business: true },
-  { label: "Shared team vaults", free: false, pro: false, teams: true, business: true },
-  { label: "Team sharing (5 sessions · 10 guests)", free: false, pro: false, teams: true, business: true },
-  { label: "Custom roles", free: false, pro: false, teams: false, business: true },
-];
-
 function formatPlanDate(date: Date | null): string | null {
   if (!date) return null;
   return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(date);
 }
 
 function PlansSection() {
+  const { t } = useTranslation();
   const { tier, trialEndsAt, isTrialActive, isPro, isTeams, isBusiness, usedSeats, totalSeats, subscriptionStatus, subscriptionCancelled, renewsAt, endsAt } = useSubscriptionStore();
 
   const daysLeft = trialEndsAt
@@ -388,12 +398,12 @@ function PlansSection() {
     : 0;
 
   const badgeLabel =
-    isBusiness ? "Business" :
-    isTeams ? "Teams" :
-    isTrialActive ? `Pro Trial — ${daysLeft}d left` :
-    tier === "pro" ? "Pro" : "Free";
+    isBusiness ? t("settings.account.plan.badge.business") :
+    isTeams ? t("settings.account.plan.badge.teams") :
+    isTrialActive ? t("settings.account.plan.badge.proTrial", { daysLeft }) :
+    tier === "pro" ? t("settings.account.plan.badge.pro") : t("settings.account.plan.badge.free");
 
-  const isPaidPro = isPro && !isTrialActive; // on a real subscription (not trial)
+  const isPaidPro = isPro && !isTrialActive;
 
   const badgeColor = isPro ? "#f59e0b" : "var(--t-text-muted)";
   const renewalDate = formatPlanDate(renewsAt);
@@ -402,7 +412,7 @@ function PlansSection() {
   return (
     <div>
       <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-        Plan
+        {t("settings.account.plan.title")}
       </h3>
 
       <div className="rounded-lg px-4 py-3 bg-(--t-bg-elevated) border border-(--t-border) space-y-3">
@@ -421,7 +431,7 @@ function PlansSection() {
                 onClick={() => openPortal()}
                 className="text-xs text-(--t-text-dim) hover:text-(--t-text-primary) transition-colors"
               >
-                Manage billing →
+                {t("settings.account.plan.manageBilling")}
               </button>
             )}
           </div>
@@ -430,56 +440,60 @@ function PlansSection() {
         {isPaidPro && (
           <div className="rounded-md px-3 py-2 bg-(--t-bg-input) text-xs text-(--t-text-muted)">
             {subscriptionCancelled ? (
-              <span>Cancels on {cancellationDate ?? "the period end"}. You keep access until then.</span>
+              <span>
+                {cancellationDate
+                  ? t("settings.account.plan.subscription.cancelled", { date: cancellationDate })
+                  : t("settings.account.plan.subscription.cancelledNoPeriod")}
+              </span>
             ) : subscriptionStatus === "active" && renewalDate ? (
-              <span>Renews on {renewalDate}.</span>
+              <span>{t("settings.account.plan.subscription.renews", { date: renewalDate })}</span>
             ) : (
-              <span>Your subscription is active.</span>
+              <span>{t("settings.account.plan.subscription.active")}</span>
             )}
           </div>
         )}
 
         {isTeams && totalSeats != null && (
           <div className="flex items-center justify-between text-xs py-0.5">
-            <span style={{ color: "var(--t-text-secondary)" }}>Seats</span>
+            <span style={{ color: "var(--t-text-secondary)" }}>{t("settings.account.plan.seats")}</span>
             <span style={{ color: "var(--t-text-primary)", fontVariantNumeric: "tabular-nums" }}>
-              {usedSeats ?? "…"} / {totalSeats} used
+              {t("settings.account.plan.seatsUsed", { used: usedSeats ?? "…", total: totalSeats })}
             </span>
           </div>
         )}
 
         {!isPro && (
           <div className="flex items-center justify-between gap-3 rounded-md px-3 py-2 bg-(--t-bg-input)">
-            <p className="text-xs text-(--t-text-muted)">Upgrade to unlock cloud sync and more</p>
+            <p className="text-xs text-(--t-text-muted)">{t("settings.account.plan.upgradeToPro")}</p>
             <button
               onClick={() => openCheckout("pro")}
               className="text-xs px-2.5 py-1 rounded-md font-medium shrink-0 bg-(--t-accent) text-white hover:opacity-85 transition-opacity"
             >
-              Upgrade
+              {t("settings.account.plan.upgrade")}
             </button>
           </div>
         )}
 
         {isPro && !isTeams && (
           <div className="flex items-center justify-between gap-3 rounded-md px-3 py-2 bg-(--t-bg-input)">
-            <p className="text-xs text-(--t-text-muted)">Upgrade to Teams for shared vaults and unlimited guests</p>
+            <p className="text-xs text-(--t-text-muted)">{t("settings.account.plan.upgradeToTeams")}</p>
             <button
               onClick={() => openCheckout("teams")}
               className="text-xs px-2.5 py-1 rounded-md font-medium shrink-0 bg-(--t-bg-elevated) text-(--t-text-primary) hover:opacity-85 transition-opacity border border-(--t-border)"
             >
-              Teams →
+              {t("settings.account.plan.teamsButton")}
             </button>
           </div>
         )}
 
         {/* Feature comparison */}
         <div className="border-t border-(--t-border) pt-3 space-y-1.5">
-          {PLAN_FEATURES.map(({ label, free, pro, teams: t, business }) => {
-            const active = isBusiness ? business : isTeams ? t : isPro ? pro : free;
+          {PLAN_FEATURES.map(({ id, free, pro, teams: teamsFlag, business }) => {
+            const active = isBusiness ? business : isTeams ? teamsFlag : isPro ? pro : free;
             return (
-              <div key={label} className="flex items-center justify-between">
+              <div key={id} className="flex items-center justify-between">
                 <span className="text-xs" style={{ color: active ? "var(--t-text-primary)" : "var(--t-text-muted)" }}>
-                  {label}
+                  {t(`settings.account.plan.feature.${id}`)}
                 </span>
                 <Icon
                   icon={active ? "lucide:check" : "lucide:minus"}
@@ -495,7 +509,7 @@ function PlansSection() {
           onClick={() => openPortal()}
           className="text-xs w-full text-center text-(--t-text-dim) hover:text-(--t-text-primary) transition-colors pt-1"
         >
-          View all plans →
+          {t("settings.account.plan.viewAllPlans")}
         </button>
       </div>
     </div>

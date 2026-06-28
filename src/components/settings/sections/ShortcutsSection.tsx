@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import {
   useShortcutStore,
   formatShortcut,
@@ -12,34 +13,34 @@ import { DirtyDot, ResetButton } from "./shared";
 
 const BLOCKED_KEYS = new Set(["Escape", "Tab"]);
 
-type Group = { id: string; label: string; ids: string[] };
+type Group = { id: string; ids: string[] };
+type TranslateFn = (key: string, opts?: Record<string, unknown>) => string;
 
 const GROUPS: Group[] = [
-  { id: "global",     label: "Global",      ids: ["omni", "shortcuts", "themes"] },
-  { id: "tabs",       label: "Tabs",        ids: ["new-tab", "close-tab", "next-tab", "prev-tab"] },
-  { id: "navigation", label: "Navigation",  ids: ["sidebar", "filter"] },
-  { id: "editing",    label: "Editing",     ids: ["delete", "undo", "redo"] },
+  { id: "global",     ids: ["omni", "shortcuts", "themes"] },
+  { id: "tabs",       ids: ["new-tab", "close-tab", "next-tab", "prev-tab"] },
+  { id: "navigation", ids: ["sidebar", "filter"] },
+  { id: "editing",    ids: ["delete", "undo", "redo"] },
 ];
 
-const LABEL_OVERRIDES: Record<string, { label?: string; description?: string }> = {
-  shortcuts: { label: "Keyboard Shortcuts", description: "Open shortcut settings" },
-  themes:    { label: "Settings",           description: "Open settings" },
-};
+const LABEL_OVERRIDE_IDS = new Set(["shortcuts", "themes"]);
 
-function displayLabel(sc: Shortcut): string {
-  return LABEL_OVERRIDES[sc.id]?.label ?? sc.label;
+function displayLabel(sc: Shortcut, t: TranslateFn): string {
+  if (LABEL_OVERRIDE_IDS.has(sc.id)) return t(`settings.shortcuts.labelOverride.${sc.id}.label`);
+  return sc.label;
 }
-function displayDescription(sc: Shortcut): string {
-  return LABEL_OVERRIDES[sc.id]?.description ?? sc.description;
+function displayDescription(sc: Shortcut, t: TranslateFn): string {
+  if (LABEL_OVERRIDE_IDS.has(sc.id)) return t(`settings.shortcuts.labelOverride.${sc.id}.desc`);
+  return sc.description;
 }
 
-function matchesSearch(sc: Shortcut, q: string): boolean {
+function matchesSearch(sc: Shortcut, q: string, t: TranslateFn): boolean {
   if (!q) return true;
   const needle = q.toLowerCase().trim();
   if (!needle) return true;
   const haystack = [
-    displayLabel(sc),
-    displayDescription(sc),
+    displayLabel(sc, t),
+    displayDescription(sc, t),
     formatShortcut(sc),
     ...(getAliases(sc.id)?.map((a) => a.label) ?? []),
   ]
@@ -49,6 +50,7 @@ function matchesSearch(sc: Shortcut, q: string): boolean {
 }
 
 export default function ShortcutsSection() {
+  const { t } = useTranslation();
   const { shortcuts, setKey, reset, resetAll } = useShortcutStore();
   const [query, setQuery] = useState("");
   const [recording, setRecording] = useState<string | null>(null);
@@ -61,7 +63,7 @@ export default function ShortcutsSection() {
     const known = new Set(GROUPS.flatMap((g) => g.ids));
     const extras = shortcuts.filter((sc) => !known.has(sc.id)).map((sc) => sc.id);
     const groups: Group[] = extras.length
-      ? [...GROUPS, { id: "other", label: "Other", ids: extras }]
+      ? [...GROUPS, { id: "other", ids: extras }]
       : GROUPS;
 
     return groups
@@ -70,10 +72,10 @@ export default function ShortcutsSection() {
         items: g.ids
           .map((id) => byId.get(id))
           .filter((sc): sc is Shortcut => !!sc)
-          .filter((sc) => matchesSearch(sc, query)),
+          .filter((sc) => matchesSearch(sc, query, t)),
       }))
       .filter((g) => g.items.length > 0);
-  }, [shortcuts, query]);
+  }, [shortcuts, query, t]);
 
   const totalMatches = grouped.reduce((n, g) => n + g.items.length, 0);
 
@@ -149,7 +151,7 @@ export default function ShortcutsSection() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search shortcuts…"
+              placeholder={t("settings.shortcuts.searchPlaceholder")}
               className="form-input w-full pl-9 pr-8 py-2 rounded-lg text-sm outline-hidden bg-(--t-bg-input) border border-(--t-border) text-(--t-text-primary)"
             />
             {query && (
@@ -158,7 +160,7 @@ export default function ShortcutsSection() {
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-sm text-(--t-text-muted)"
                 onMouseEnter={(e) => { e.currentTarget.style.color = "var(--t-text-bright)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = "var(--t-text-muted)"; }}
-                title="Clear search"
+                title={t("settings.shortcuts.clearSearch")}
               >
                 <Icon icon="lucide:x" width={12} />
               </button>
@@ -175,9 +177,9 @@ export default function ShortcutsSection() {
               e.currentTarget.style.color = "var(--t-text-secondary)";
               e.currentTarget.style.background = "var(--t-bg-input)";
             }}
-            title="Reset all shortcuts to defaults"
+            title={t("settings.shortcuts.resetAllTitle")}
           >
-            Reset all
+            {t("settings.shortcuts.resetAll")}
           </button>
         </div>
         <div className="mt-2.5 flex items-center justify-between text-xs">
@@ -188,12 +190,12 @@ export default function ShortcutsSection() {
             }}
           >
             {recording
-              ? "Press a key combination… (Esc to cancel)"
-              : "Click a shortcut to rebind it."}
+              ? t("settings.shortcuts.statusRecording")
+              : t("settings.shortcuts.statusIdle")}
           </span>
           {query && (
             <span className="text-(--t-text-muted)">
-              {totalMatches} {totalMatches === 1 ? "result" : "results"}
+              {t("settings.shortcuts.result", { count: totalMatches })}
             </span>
           )}
         </div>
@@ -203,13 +205,13 @@ export default function ShortcutsSection() {
         {grouped.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-(--t-text-muted)">
             <Icon icon="lucide:search-x" width={32} />
-            <p className="text-sm">No shortcuts match "{query}"</p>
+            <p className="text-sm">{t("settings.shortcuts.noMatch", { query })}</p>
           </div>
         ) : (
           grouped.map((group) => (
             <div key={group.id}>
               <h3 className="text-[11px] font-bold uppercase tracking-widest mb-2 px-1 text-(--t-text-secondary)">
-                {group.label}
+                {t(`settings.shortcuts.group.${group.id}`)}
               </h3>
               <div
                 className="rounded-xl overflow-hidden border bg-(--t-bg-card)"
@@ -237,10 +239,10 @@ export default function ShortcutsSection() {
                     >
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-(--t-text-bright) truncate">
-                          {displayLabel(sc)}
+                          {displayLabel(sc, t)}
                         </p>
                         <p className="text-xs mt-0.5 text-(--t-text-muted) truncate">
-                          {displayDescription(sc)}
+                          {displayDescription(sc, t)}
                         </p>
                       </div>
 
@@ -287,15 +289,15 @@ export default function ShortcutsSection() {
                               e.currentTarget.style.color = "var(--t-text-primary)";
                             }
                           }}
-                          title={isRecording ? "Press a key combo or Esc to cancel" : "Click to rebind"}
+                          title={isRecording ? t("settings.shortcuts.bindingRecordingTitle") : t("settings.shortcuts.bindingIdleTitle")}
                         >
-                          {isRecording ? "Press key…" : isConflict ? "Conflict" : formatShortcut(sc)}
+                          {isRecording ? t("settings.shortcuts.pressKey") : isConflict ? t("settings.shortcuts.conflict") : formatShortcut(sc)}
                         </button>
 
                         {aliases.map((alias) => (
                           <span
                             key={alias.label}
-                            title="Fixed shortcut — always active"
+                            title={t("settings.shortcuts.aliasTitle")}
                             className="rounded-md text-[11px] font-mono leading-none text-(--t-text-muted)"
                             style={{
                               background: "var(--t-bg-base)",

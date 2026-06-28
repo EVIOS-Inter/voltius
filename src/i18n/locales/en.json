@@ -397,6 +397,84 @@
           "desc": "Automatically save file changes as you type"
         }
       }
+    },
+    "portForwarding": {
+      "automationTitle": "Automation",
+      "autoForward": {
+        "title": "Automatic port forwarding",
+        "desc": "Detected listening ports are forwarded automatically during SSH sessions"
+      },
+      "notifications": {
+        "title": "Forwarding notifications",
+        "desc": "Show a notification each time a port is auto-forwarded"
+      }
+    },
+    "hosts": {
+      "connectivityTitle": "Connectivity",
+      "reachability": {
+        "title": "Reachability check",
+        "desc": "Probes the SSH port and shows a status dot + latency on each host card. Can be disabled per host in the host's settings."
+      },
+      "pollInterval": {
+        "title": "Poll interval",
+        "desc": "Background check cadence for the hosts page."
+      },
+      "ms": "ms",
+      "activeInterval": {
+        "title": "Active session interval",
+        "desc": "Faster cadence used for the latency chip in the terminal status bar."
+      },
+      "keepalive": {
+        "title": "Keepalive",
+        "desc": "How quickly a session is declared lost when the server stops responding. {{detail}}. Can be overridden per host."
+      },
+      "persistentSessions": {
+        "title": "Persistent sessions",
+        "desc": "Keep your shell and running processes alive across disconnects by wrapping the remote shell in tmux (falls back to screen). Requires tmux or screen on the host. Can be overridden per host."
+      },
+      "terminalTitle": "Terminal",
+      "shellIntegration": {
+        "title": "Shell integration",
+        "desc": "Hooks the remote/local shell to report its working directory (OSC 7) for cwd-aware file panels. If a host's welcome banner or prompt looks wrong, disable it there. Can be disabled per host in the host's settings."
+      },
+      "teamPresenceTitle": "Team presence",
+      "teamPresence": {
+        "title": "Share which team-vault hosts you're using",
+        "desc": "When on, your avatar appears on a host card while you have a terminal open to it. Only teammates with access to the host see it."
+      }
+    },
+    "shortcuts": {
+      "searchPlaceholder": "Search shortcuts…",
+      "clearSearch": "Clear search",
+      "resetAll": "Reset all",
+      "resetAllTitle": "Reset all shortcuts to defaults",
+      "statusRecording": "Press a key combination… (Esc to cancel)",
+      "statusIdle": "Click a shortcut to rebind it.",
+      "result_one": "{{count}} result",
+      "result_other": "{{count}} results",
+      "noMatch": "No shortcuts match \"{{query}}\"",
+      "bindingRecordingTitle": "Press a key combo or Esc to cancel",
+      "bindingIdleTitle": "Click to rebind",
+      "pressKey": "Press key…",
+      "conflict": "Conflict",
+      "aliasTitle": "Fixed shortcut — always active",
+      "group": {
+        "global": "Global",
+        "tabs": "Tabs",
+        "navigation": "Navigation",
+        "editing": "Editing",
+        "other": "Other"
+      },
+      "labelOverride": {
+        "shortcuts": {
+          "label": "Keyboard Shortcuts",
+          "desc": "Open shortcut settings"
+        },
+        "themes": {
+          "label": "Settings",
+          "desc": "Open settings"
+        }
+      }
     }
   }
 }

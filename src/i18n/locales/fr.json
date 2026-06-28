@@ -397,6 +397,84 @@
           "desc": "Enregistre automatiquement les modifications du fichier pendant la frappe"
         }
       }
+    },
+    "portForwarding": {
+      "automationTitle": "Automatisation",
+      "autoForward": {
+        "title": "Transfert de ports automatique",
+        "desc": "Les ports en écoute détectés sont transférés automatiquement lors des sessions SSH"
+      },
+      "notifications": {
+        "title": "Notifications de transfert",
+        "desc": "Afficher une notification à chaque transfert automatique de port"
+      }
+    },
+    "hosts": {
+      "connectivityTitle": "Connectivité",
+      "reachability": {
+        "title": "Vérification de l'accessibilité",
+        "desc": "Sonde le port SSH et affiche un point de statut + la latence sur chaque carte d'hôte. Peut être désactivé par hôte dans les paramètres de l'hôte."
+      },
+      "pollInterval": {
+        "title": "Intervalle de sondage",
+        "desc": "Cadence de vérification en arrière-plan pour la page des hôtes."
+      },
+      "ms": "ms",
+      "activeInterval": {
+        "title": "Intervalle de session active",
+        "desc": "Cadence plus rapide utilisée pour la puce de latence dans la barre d'état du terminal."
+      },
+      "keepalive": {
+        "title": "Keepalive",
+        "desc": "Délai avant qu'une session soit considérée comme perdue lorsque le serveur cesse de répondre. {{detail}}. Peut être remplacé par hôte."
+      },
+      "persistentSessions": {
+        "title": "Sessions persistantes",
+        "desc": "Maintient votre shell et vos processus actifs lors des déconnexions en enveloppant le shell distant dans tmux (repli sur screen). Nécessite tmux ou screen sur l'hôte. Peut être remplacé par hôte."
+      },
+      "terminalTitle": "Terminal",
+      "shellIntegration": {
+        "title": "Intégration du shell",
+        "desc": "Accroche le shell distant/local pour signaler son répertoire de travail (OSC 7) pour les panneaux de fichiers sensibles au répertoire courant. Si la bannière d'accueil ou l'invite d'un hôte semble incorrecte, désactivez-la là-bas. Peut être désactivé par hôte dans les paramètres de l'hôte."
+      },
+      "teamPresenceTitle": "Présence d'équipe",
+      "teamPresence": {
+        "title": "Partager les hôtes du coffre-fort d'équipe que vous utilisez",
+        "desc": "Lorsqu'activé, votre avatar apparaît sur la carte d'un hôte pendant que vous avez un terminal ouvert dessus. Seuls les coéquipiers ayant accès à l'hôte le voient."
+      }
+    },
+    "shortcuts": {
+      "searchPlaceholder": "Rechercher des raccourcis…",
+      "clearSearch": "Effacer la recherche",
+      "resetAll": "Tout réinitialiser",
+      "resetAllTitle": "Réinitialiser tous les raccourcis par défaut",
+      "statusRecording": "Appuyez sur une combinaison de touches… (Échap pour annuler)",
+      "statusIdle": "Cliquez sur un raccourci pour le modifier.",
+      "result_one": "{{count}} résultat",
+      "result_other": "{{count}} résultats",
+      "noMatch": "Aucun raccourci ne correspond à « {{query}} »",
+      "bindingRecordingTitle": "Appuyez sur une combinaison ou Échap pour annuler",
+      "bindingIdleTitle": "Cliquer pour modifier",
+      "pressKey": "Appuyez sur une touche…",
+      "conflict": "Conflit",
+      "aliasTitle": "Raccourci fixe — toujours actif",
+      "group": {
+        "global": "Global",
+        "tabs": "Onglets",
+        "navigation": "Navigation",
+        "editing": "Édition",
+        "other": "Autre"
+      },
+      "labelOverride": {
+        "shortcuts": {
+          "label": "Raccourcis clavier",
+          "desc": "Ouvrir les paramètres des raccourcis"
+        },
+        "themes": {
+          "label": "Paramètres",
+          "desc": "Ouvrir les paramètres"
+        }
+      }
     }
   }
 }

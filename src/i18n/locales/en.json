@@ -221,6 +221,182 @@
         "folder": { "label": "Folders", "sub": "Folder structure for organizing objects" },
         "port-forwarding-rule": { "label": "Port Forwarding", "sub": "Saved tunnel rules" }
       }
+    },
+    "vaults": {
+      "title": "Vaults",
+      "newVault": "New vault",
+      "desc": "Organize your connections, identities, and keys. Invite members to share a vault.",
+      "vaultNamePlaceholder": "Vault name…",
+      "create": "Create",
+      "team": "Team",
+      "onlyYou": "Only you",
+      "back": "Vaults",
+      "importExport": {
+        "title": "Import / Export",
+        "desc": "Back up or restore your hosts, identities, and SSH key metadata as JSON or CSV."
+      },
+      "tabs": {
+        "general": "General",
+        "members": "Members",
+        "roles": "Roles"
+      },
+      "roles": {
+        "owner": "Owner",
+        "manager": "Manager",
+        "editor": "Editor",
+        "member": "Member",
+        "connect_only": "Connect-Only"
+      },
+      "members": {
+        "memberCount_one": "{{count}} member",
+        "memberCount_other": "{{count}} members",
+        "loading": "Loading…",
+        "pendingInvitations": "Pending invitations",
+        "pendingBadge": "Pending",
+        "revokeTitle": "Revoke invitation",
+        "revokingInvite": "Revoking invitation for {{name}}…",
+        "inviteRevoked": "Invitation revoked for {{name}}",
+        "inviteMember": "Invite member",
+        "searchOrEmailPlaceholder": "Search or enter email…",
+        "addBtn": "Add",
+        "inviteBtn": "Invite →",
+        "sendInviteLabel": "Send invite to ",
+        "noRole": "No role",
+        "youBadge": "you",
+        "youLabel": "You",
+        "clickToConfirm": "Click again to confirm",
+        "removeTitle": "Remove from vault",
+        "openInMembers": "Open in Members",
+        "onlineNow": "{{count}} online now",
+        "searchByEmailPlaceholder": "Search by email…",
+        "noUsersFound": "No users found",
+        "addAsMember": "Add as Member",
+        "adding": "Adding {{name}}…",
+        "added": "{{name}} added",
+        "inviting": "Inviting {{email}}…",
+        "invitationSent": "Invitation sent to {{email}}",
+        "failedToAdd": "Failed to add member",
+        "failed": "Failed",
+        "removingRole": "Removing {{role}} from {{name}}…",
+        "roleRemoved": "{{role}} removed from {{name}}",
+        "assigningRole": "Assigning {{role}} to {{name}}…",
+        "roleAssigned": "{{role}} assigned to {{name}}",
+        "removingMember": "Removing {{name}}…",
+        "memberRemoved": "{{name}} removed"
+      },
+      "upgrade": {
+        "requiresTeams": "Team Vaults require a Teams plan",
+        "upgradeDesc": "Invite members, assign roles, and share credentials securely with your team.",
+        "upgradeBtn": "Upgrade to Teams →",
+        "signInDesc": "Sign in to a cloud account to invite teammates to this vault.",
+        "signInBtn": "Sign in / Create account"
+      },
+      "general": {
+        "vaultNameLabel": "Vault name",
+        "save": "Save",
+        "infoLabel": "Info",
+        "teamWithCount_one": "Team · {{count}} member",
+        "teamWithCount_other": "Team · {{count}} members",
+        "teamLoading": "Team · …",
+        "private": "Private",
+        "cloudOnly": "Cloud only",
+        "cloudOnlyDesc": "This team exists only in the cloud and isn't linked to a local vault. Members and roles are still fully managed from the tabs above.",
+        "dangerZone": "Danger zone",
+        "makePrivate": {
+          "title": "Make private",
+          "desc": "Removes all members and converts this back to a personal vault.",
+          "confirmAll": "Remove all members and make private?",
+          "confirm_one": "Remove {{count}} member and make private?",
+          "confirm_other": "Remove {{count}} members and make private?",
+          "converting": "Converting…",
+          "confirmBtn": "Confirm",
+          "btn": "Make private"
+        },
+        "deleteVault": {
+          "title": "Delete vault",
+          "desc": "Permanently removes this vault and all its contents.",
+          "confirmDesc": "Are you sure? This cannot be undone.",
+          "confirmBtn": "Confirm delete",
+          "btn": "Delete vault"
+        },
+        "madePrivateToast_one": "Vault is now private. {{count}} member lost access.",
+        "madePrivateToast_other": "Vault is now private. {{count}} members lost access.",
+        "madePrivateToastEmpty": "Vault is now private."
+      }
+    },
+    "plugins": {
+      "tabs": {
+        "installed": "Installed ({{count}})",
+        "browse": "Browse"
+      },
+      "installed": {
+        "filterPlaceholder": "Filter plugins…",
+        "scanTitle": "Scan for local plugins",
+        "pluginSettingsTitle": "{{name}} Settings",
+        "pageNotFound": "Page not found.",
+        "noConfig": "No configurable settings.",
+        "bundledBadge": "Bundled",
+        "settingsTitle": "Plugin settings",
+        "reloadTitle": "Reload plugin",
+        "uninstallTitle": "Uninstall plugin",
+        "noMatch": "No plugins match your search.",
+        "noneInstalled": "No plugins installed.",
+        "sourceLocal": "Local",
+        "sourceUrl": "URL",
+        "sourceInstalled": "Installed"
+      },
+      "browse": {
+        "searchPlaceholder": "Search plugins…",
+        "refreshTitle": "Refresh catalog",
+        "manageSourcesTitle": "Manage sources",
+        "sourcesHeader": "Plugin Sources",
+        "addSource": "Add source",
+        "addSourcePlaceholder": "https://example.com/plugins.json",
+        "add": "Add",
+        "installedBadge": "Installed",
+        "byAuthor": "by {{author}} · v{{version}}",
+        "noCatalog": "No plugins in catalog.",
+        "noResults": "No results.",
+        "removing": "Removing…",
+        "uninstall": "Uninstall",
+        "installing": "Installing…",
+        "install": "Install"
+      }
+    },
+    "sftp": {
+      "downloads": {
+        "title": "Downloads",
+        "folderLabel": "Download folder",
+        "notSet": "Not set — chosen on first download",
+        "changeFolder": "Change folder"
+      },
+      "transfers": {
+        "title": "Transfers",
+        "tarAcceleration": {
+          "title": "Tar acceleration",
+          "descPre": "Pack directories into a single tar.gz before transfer — much faster for many small files. Requires ",
+          "descPost": " on both sides."
+        }
+      },
+      "filePanel": {
+        "title": "File Panel",
+        "autoRefresh": {
+          "title": "Auto-refresh",
+          "desc": "Silently re-fetches directory contents in the background"
+        },
+        "refreshInterval": {
+          "title": "Refresh interval",
+          "desc": "Minimum 0.5 s",
+          "unit": "s"
+        }
+      },
+      "editor": {
+        "title": "Editor",
+        "autoSave": {
+          "title": "Auto-save",
+          "desc": "Automatically save file changes as you type"
+        }
+      }
     }
   }
 }

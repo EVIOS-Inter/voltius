@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Toggle } from "@/components/shared/Toggle";
 import { Icon } from "@iconify/react";
 import { usePluginStore } from "@/stores/pluginStore";
@@ -31,6 +32,7 @@ function humanizeKey(key: string): string {
 }
 
 function PluginConfigForm({ manifest }: { manifest: PluginManifest }) {
+  const { t } = useTranslation();
   const config = manifest.contributes?.configuration ?? {};
   const keys = Object.keys(config);
   const [values, setValues] = useState<Record<string, unknown>>({});
@@ -58,7 +60,7 @@ function PluginConfigForm({ manifest }: { manifest: PluginManifest }) {
   }, [manifest.id]);
 
   if (keys.length === 0) {
-    return <p className="text-sm text-(--t-text-dim)">No configurable settings.</p>;
+    return <p className="text-sm text-(--t-text-dim)">{t("settings.plugins.installed.noConfig")}</p>;
   }
 
   return (
@@ -144,6 +146,7 @@ function PluginConfigForm({ manifest }: { manifest: PluginManifest }) {
 // ─── Installed tab ─────────────────────────────────────────────────────────
 
 function InstalledTab() {
+  const { t } = useTranslation();
   const settingsPages = usePluginStore((s) => s.settingsPages);
   const { setEnabled, isEnabled } = usePluginRegistryStore();
   const { installedMeta, uninstallPlugin, reloadPlugin, scanLocal } = useMarketplaceStore();
@@ -218,7 +221,7 @@ function InstalledTab() {
             <Icon icon="lucide:arrow-left" width={15} />
           </button>
           <span className="text-sm font-medium text-(--t-text-primary)">
-            {autoConfigManifest.name} Settings
+            {t("settings.plugins.installed.pluginSettingsTitle", { name: autoConfigManifest.name })}
           </span>
         </div>
         <div className="flex-1 overflow-y-auto p-6">
@@ -247,7 +250,7 @@ function InstalledTab() {
         </div>
         <div className="flex-1 overflow-y-auto p-6">
           {page ? <page.component /> : (
-            <p className="text-sm text-(--t-text-dim)">Page not found.</p>
+            <p className="text-sm text-(--t-text-dim)">{t("settings.plugins.installed.pageNotFound")}</p>
           )}
         </div>
       </div>
@@ -282,7 +285,7 @@ function InstalledTab() {
         <input
           ref={searchRef}
           type="text"
-          placeholder="Filter plugins…"
+          placeholder={t("settings.plugins.installed.filterPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full pl-8 pr-3 py-2 rounded-lg text-sm bg-(--t-bg-elevated) border border-(--t-border) text-(--t-text-primary) focus:outline-hidden focus:border-(--t-accent)"
@@ -294,7 +297,7 @@ function InstalledTab() {
           style={{ background: "var(--t-bg-elevated)" }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-primary)"; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-dim)"; }}
-          title="Scan for local plugins"
+          title={t("settings.plugins.installed.scanTitle")}
         >
           <Icon icon="lucide:refresh-cw" width={13} className={scanning ? "animate-spin" : ""} />
         </button>
@@ -323,7 +326,7 @@ function InstalledTab() {
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium truncate text-(--t-text-primary)">{manifest.name}</p>
                     <span className="text-xs px-1.5 py-0.5 rounded-sm shrink-0 bg-(--t-bg-elevated) text-(--t-text-dim) border border-(--t-border)">
-                      Bundled
+                      {t("settings.plugins.installed.bundledBadge")}
                     </span>
                   </div>
                   <p className="text-xs mt-0.5 truncate text-(--t-text-dim)">v{manifest.version} · {manifest.description}</p>
@@ -337,7 +340,7 @@ function InstalledTab() {
                     className="p-1.5 rounded-lg transition-colors shrink-0 text-(--t-text-dim)"
                     onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--t-bg-elevated)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-primary)"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-dim)"; }}
-                    title="Plugin settings"
+                    title={t("settings.plugins.installed.settingsTitle")}
                   >
                     <Icon icon="lucide:settings" width={15} />
                   </button>
@@ -378,7 +381,11 @@ function InstalledTab() {
                       {manifest?.name ?? meta.id}
                     </p>
                     <span className="text-xs px-1.5 py-0.5 rounded-sm shrink-0 bg-(--t-bg-elevated) text-(--t-text-dim) border border-(--t-border)">
-                      {meta.sourceId === "local" ? "Local" : meta.sourceId === "url" ? "URL" : "Installed"}
+                      {meta.sourceId === "local"
+                        ? t("settings.plugins.installed.sourceLocal")
+                        : meta.sourceId === "url"
+                          ? t("settings.plugins.installed.sourceUrl")
+                          : t("settings.plugins.installed.sourceInstalled")}
                     </span>
                     <span className="text-xs px-1.5 py-0.5 rounded-sm shrink-0 bg-(--t-bg-base) text-(--t-text-dim)">
                       v{meta.version}
@@ -394,7 +401,7 @@ function InstalledTab() {
                   className="p-1.5 rounded-lg transition-colors shrink-0 text-(--t-text-dim)"
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--t-bg-elevated)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-primary)"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-dim)"; }}
-                  title="Reload plugin"
+                  title={t("settings.plugins.installed.reloadTitle")}
                 >
                   <Icon icon="lucide:refresh-cw" width={14} className={isReloading ? "animate-spin" : ""} />
                 </button>
@@ -404,7 +411,7 @@ function InstalledTab() {
                   className="p-1.5 rounded-lg transition-colors shrink-0 text-(--t-text-dim)"
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "color-mix(in srgb, var(--t-status-error) 15%, transparent)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--t-status-error)"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-dim)"; }}
-                  title="Uninstall plugin"
+                  title={t("settings.plugins.installed.uninstallTitle")}
                 >
                   <Icon icon={isUninstalling ? "lucide:loader" : "lucide:trash-2"} width={14} className={isUninstalling ? "animate-spin" : ""} />
                 </button>
@@ -422,7 +429,9 @@ function InstalledTab() {
 
         {filteredBundled.length === 0 && filteredExternal.length === 0 && (
           <p className="text-sm text-center py-8 text-(--t-text-dim)">
-            {search ? "No plugins match your search." : "No plugins installed."}
+            {search
+              ? t("settings.plugins.installed.noMatch")
+              : t("settings.plugins.installed.noneInstalled")}
           </p>
         )}
       </div>
@@ -434,6 +443,7 @@ function InstalledTab() {
 // ─── Browse tab ────────────────────────────────────────────────────────────
 
 function BrowseTab() {
+  const { t } = useTranslation();
   const {
     catalog, catalogLoading, catalogError, fetchCatalog,
     sources, addSource, removeSource, toggleSource,
@@ -501,7 +511,7 @@ function BrowseTab() {
           >
             <Icon icon="lucide:arrow-left" width={15} />
           </button>
-          <span className="text-sm font-medium text-(--t-text-primary)">Plugin Sources</span>
+          <span className="text-sm font-medium text-(--t-text-primary)">{t("settings.plugins.browse.sourcesHeader")}</span>
         </div>
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           <div className="space-y-2">
@@ -527,11 +537,11 @@ function BrowseTab() {
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs font-medium text-(--t-text-dim)">Add source</p>
+            <p className="text-xs font-medium text-(--t-text-dim)">{t("settings.plugins.browse.addSource")}</p>
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="https://example.com/plugins.json"
+                placeholder={t("settings.plugins.browse.addSourcePlaceholder")}
                 value={newSourceUrl}
                 onChange={(e) => setNewSourceUrl(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") void handleAddSource(); }}
@@ -543,7 +553,7 @@ function BrowseTab() {
                 className="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
                 style={{ background: "var(--t-accent)", color: "var(--t-bg-base)", opacity: addingSource ? 0.6 : 1 }}
               >
-                {addingSource ? <Icon icon="lucide:loader" width={14} className="animate-spin" /> : "Add"}
+                {addingSource ? <Icon icon="lucide:loader" width={14} className="animate-spin" /> : t("settings.plugins.browse.add")}
               </button>
             </div>
             {addSourceError && (
@@ -564,7 +574,7 @@ function BrowseTab() {
             <input
               ref={searchRef}
               type="text"
-              placeholder="Search plugins…"
+              placeholder={t("settings.plugins.browse.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-8 pr-3 py-2 rounded-lg text-sm bg-(--t-bg-elevated) border border-(--t-border) text-(--t-text-primary) focus:outline-hidden focus:border-(--t-accent)"
@@ -575,7 +585,7 @@ function BrowseTab() {
             disabled={catalogLoading}
             className="p-2 rounded-lg text-(--t-text-dim) transition-colors border border-(--t-border)"
             style={{ background: "var(--t-bg-elevated)" }}
-            title="Refresh catalog"
+            title={t("settings.plugins.browse.refreshTitle")}
           >
             <Icon icon="lucide:refresh-cw" width={14} className={catalogLoading ? "animate-spin" : ""} />
           </button>
@@ -583,7 +593,7 @@ function BrowseTab() {
             onClick={() => setShowSources(true)}
             className="p-2 rounded-lg text-(--t-text-dim) transition-colors border border-(--t-border)"
             style={{ background: "var(--t-bg-elevated)" }}
-            title="Manage sources"
+            title={t("settings.plugins.browse.manageSourcesTitle")}
           >
             <Icon icon="lucide:settings-2" width={14} />
           </button>
@@ -621,7 +631,7 @@ function BrowseTab() {
 
         {!catalogLoading && filtered.length === 0 && (
           <p className="text-sm text-center py-8 text-(--t-text-dim)">
-            {catalog.length === 0 ? "No plugins in catalog." : "No results."}
+            {catalog.length === 0 ? t("settings.plugins.browse.noCatalog") : t("settings.plugins.browse.noResults")}
           </p>
         )}
 
@@ -645,13 +655,13 @@ function BrowseTab() {
                       </span>
                       {isInstalled && (
                         <span className="text-xs px-1.5 py-0.5 rounded-sm shrink-0" style={{ background: "color-mix(in srgb, var(--t-accent) 15%, transparent)", color: "var(--t-accent)" }}>
-                          Installed
+                          {t("settings.plugins.browse.installedBadge")}
                         </span>
                       )}
                     </div>
                     <p className="text-xs mt-0.5 text-(--t-text-dim)">{plugin.description}</p>
                     <p className="text-xs mt-1 text-(--t-text-dim)">
-                      by {plugin.author} · v{plugin.version}
+                      {t("settings.plugins.browse.byAuthor", { author: plugin.author, version: plugin.version })}
                     </p>
                     {plugin.tags.length > 0 && (
                       <div className="flex gap-1 mt-1.5 flex-wrap">
@@ -669,8 +679,8 @@ function BrowseTab() {
                       style={{ background: "color-mix(in srgb, var(--t-status-error) 15%, transparent)", color: "var(--t-status-error)", opacity: isUninstalling ? 0.6 : 1 }}
                     >
                       {isUninstalling
-                        ? <><Icon icon="lucide:loader" width={12} className="animate-spin" /> Removing…</>
-                        : <><Icon icon="lucide:trash-2" width={12} /> Uninstall</>
+                        ? <><Icon icon="lucide:loader" width={12} className="animate-spin" /> {t("settings.plugins.browse.removing")}</>
+                        : <><Icon icon="lucide:trash-2" width={12} /> {t("settings.plugins.browse.uninstall")}</>
                       }
                     </button>
                   ) : (
@@ -681,8 +691,8 @@ function BrowseTab() {
                       style={{ background: "var(--t-accent)", color: "var(--t-bg-base)", opacity: isInstalling ? 0.7 : 1 }}
                     >
                       {isInstalling
-                        ? <><Icon icon="lucide:loader" width={12} className="animate-spin" /> Installing…</>
-                        : <><Icon icon="lucide:download" width={12} /> Install</>
+                        ? <><Icon icon="lucide:loader" width={12} className="animate-spin" /> {t("settings.plugins.browse.installing")}</>
+                        : <><Icon icon="lucide:download" width={12} /> {t("settings.plugins.browse.install")}</>
                       }
                     </button>
                   )}
@@ -701,28 +711,31 @@ function BrowseTab() {
 type Tab = "installed" | "browse";
 
 export default function PluginsSection() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("installed");
   const installedMeta = useMarketplaceStore((s) => s.installedMeta);
   const isAndroid = useIsAndroid();
   const totalCount = visiblePlugins(BUNDLED_PLUGINS, isAndroid).length + installedMeta.length;
 
-  const tabLabel = (t: Tab) =>
-    t === "installed" ? `Installed (${totalCount})` : "Browse";
+  const tabLabel = (tabKey: Tab) =>
+    tabKey === "installed"
+      ? t("settings.plugins.tabs.installed", { count: totalCount })
+      : t("settings.plugins.tabs.browse");
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex px-6 pt-4 gap-1 shrink-0 border-b border-b-(--t-border)">
-        {(["installed", "browse"] as Tab[]).map((t) => (
+        {(["installed", "browse"] as Tab[]).map((tabKey) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={tabKey}
+            onClick={() => setTab(tabKey)}
             className="px-4 py-2 text-sm font-medium transition-colors rounded-t-lg -mb-px"
             style={{
-              color: tab === t ? "var(--t-text-primary)" : "var(--t-text-dim)",
-              borderBottom: tab === t ? "2px solid var(--t-accent)" : "2px solid transparent",
+              color: tab === tabKey ? "var(--t-text-primary)" : "var(--t-text-dim)",
+              borderBottom: tab === tabKey ? "2px solid var(--t-accent)" : "2px solid transparent",
             }}
           >
-            {tabLabel(t)}
+            {tabLabel(tabKey)}
           </button>
         ))}
       </div>

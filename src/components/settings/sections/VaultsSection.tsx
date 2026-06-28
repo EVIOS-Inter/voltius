@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { useVaultStore } from "@/stores/vaultStore";
 import { useVaultContents } from "@/hooks/useVaultContents";
@@ -147,6 +148,7 @@ function Avatar({ email, size = 28 }: { email: string; size?: number }) {
 }
 
 function RoleNameChip({ name, color: overrideColor, isBuiltin }: { name: string; color?: string | null; isBuiltin?: boolean }) {
+  const { t } = useTranslation();
   const m = ROLE_META[name];
   const color = overrideColor ?? m?.color ?? "var(--t-text-dim)";
   const bg = m?.bg ?? `${color}1a`;
@@ -157,16 +159,17 @@ function RoleNameChip({ name, color: overrideColor, isBuiltin }: { name: string;
         ? <Icon icon="lucide:lock" width={8} style={{ opacity: 0.6 }} />
         : <Icon icon="lucide:sparkles" width={8} style={{ opacity: 0.7 }} />
       }
-      {m?.label ?? name}
+      {m ? t(`settings.vaults.roles.${name.replace(/-/g, "_")}`) : name}
     </span>
   );
 }
 
 function MemberRoleBadges({ member, roles }: { member: TeamMember; roles: TeamRole[] }) {
+  const { t } = useTranslation();
   const assigned = roles
     .filter((r) => member.role_ids.includes(r.id))
     .sort((a, b) => a.position - b.position);
-  if (assigned.length === 0) return <span className="text-[10px]" style={{ color: "var(--t-text-dim)" }}>No role</span>;
+  if (assigned.length === 0) return <span className="text-[10px]" style={{ color: "var(--t-text-dim)" }}>{t("settings.vaults.members.noRole")}</span>;
   return (
     <div className="flex items-center gap-1 flex-wrap">
       {assigned.map((r) => (
@@ -191,6 +194,7 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
   canInvite: boolean;
   onMemberAdded?: () => void;
 }) {
+  const { t } = useTranslation();
   const addMemberById = useTeamStore((s) => s.addMemberById);
   const assignMemberRole = useTeamStore((s) => s.assignMemberRole);
   const { usedSeats, totalSeats, load: reloadSubscription } = useSubscriptionStore();
@@ -231,13 +235,13 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
   useEffect(() => {
     if (query.length < 2) { setResults([]); setOpen(false); return; }
     setSearching(true);
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       searchUsers(query)
         .then((r) => { setResults(r.filter((u) => !existingIds.has(u.user_id))); setOpen(true); })
         .catch(() => {})
         .finally(() => setSearching(false));
     }, 250);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [query, existingIds]);
 
   useEffect(() => {
@@ -258,8 +262,8 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
     setError(""); setSuccess("");
     try {
       await runTeamAction({
-        pending: `Adding ${user.display_name}...`,
-        success: `${user.display_name} added`,
+        pending: t("settings.vaults.members.adding", { name: user.display_name }),
+        success: t("settings.vaults.members.added", { name: user.display_name }),
         run: () => addMemberById(teamId, user.user_id),
       });
       for (const roleId of selectedRoleIds) {
@@ -288,12 +292,16 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
     try {
       const invitedEmail = query;
       const result = await runTeamAction({
-        pending: `Inviting ${invitedEmail}...`,
-        success: (r) => r.status === "invited" ? `Invitation sent to ${invitedEmail}` : `${invitedEmail} added`,
+        pending: t("settings.vaults.members.inviting", { email: invitedEmail }),
+        success: (r) => r.status === "invited"
+          ? t("settings.vaults.members.invitationSent", { email: invitedEmail })
+          : t("settings.vaults.members.added", { name: invitedEmail }),
         run: () => inviteByEmail(teamId, invitedEmail, primaryRoleName),
       });
       setQuery(""); setResults([]); setOpen(false);
-      setSuccess(result.status === "invited" ? `Invitation sent to ${invitedEmail}` : `${invitedEmail} added`);
+      setSuccess(result.status === "invited"
+        ? t("settings.vaults.members.invitationSent", { email: invitedEmail })
+        : t("settings.vaults.members.added", { name: invitedEmail }));
       await reloadSubscription();
       onMemberAdded?.();
     } catch (e) {
@@ -327,7 +335,7 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
       )}
       <div className="mt-4">
         <h4 className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--t-text-dim)" }}>
-          Invite member
+          {t("settings.vaults.members.inviteMember")}
         </h4>
 
         {/* Role chips */}
@@ -369,7 +377,7 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
             <input
               ref={inputRef}
               type="text"
-              placeholder="Search or enter email…"
+              placeholder={t("settings.vaults.members.searchOrEmailPlaceholder")}
               value={query}
               onChange={(e) => { setQuery(e.target.value); setSuccess(""); }}
               onFocus={() => { if (results.length > 0 || showEmailInviteOption) setOpen(true); }}
@@ -404,7 +412,7 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
                   {adding === user.user_id
                     ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                     : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
-                        Add
+                        {t("settings.vaults.members.addBtn")}
                       </span>
                   }
                 </button>
@@ -420,12 +428,12 @@ function InviteBar({ teamId, existingIds, roles, canInvite, onMemberAdded }: {
                 >
                   <Icon icon="lucide:mail" width={16} className="shrink-0" style={{ color: "var(--t-accent)" }} />
                   <span className="flex-1 text-sm">
-                    Send invite to <span className="font-medium">{query}</span>
+                    {t("settings.vaults.members.sendInviteLabel")}<span className="font-medium">{query}</span>
                   </span>
                   {sendingInvite
                     ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                     : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
-                        Invite →
+                        {t("settings.vaults.members.inviteBtn")}
                       </span>
                   }
                 </button>
@@ -449,6 +457,7 @@ function MemberRow({ member, isMe, myMember, teamId, roles }: {
   teamId: string;
   roles: TeamRole[];
 }) {
+  const { t } = useTranslation();
   const { assignMemberRole, removeMemberRole, removeMember } = useTeamStore();
   const [busy, setBusy] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -469,19 +478,19 @@ function MemberRow({ member, isMe, myMember, teamId, roles }: {
     try {
       if (hasRole) {
         await runTeamAction({
-          pending: `Removing ${role.name} from ${member.display_name}...`,
-          success: `${role.name} removed from ${member.display_name}`,
+          pending: t("settings.vaults.members.removingRole", { role: role.name, name: member.display_name }),
+          success: t("settings.vaults.members.roleRemoved", { role: role.name, name: member.display_name }),
           run: () => removeMemberRole(teamId, member.user_id, role.id),
         });
       } else {
         await runTeamAction({
-          pending: `Assigning ${role.name} to ${member.display_name}...`,
-          success: `${role.name} assigned to ${member.display_name}`,
+          pending: t("settings.vaults.members.assigningRole", { role: role.name, name: member.display_name }),
+          success: t("settings.vaults.members.roleAssigned", { role: role.name, name: member.display_name }),
           run: () => assignMemberRole(teamId, member.user_id, role.id),
         });
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed");
+      setError(e instanceof Error ? e.message : t("settings.vaults.members.failed"));
     } finally {
       setBusy(false);
     }
@@ -492,12 +501,12 @@ function MemberRow({ member, isMe, myMember, teamId, roles }: {
     setBusy(true); setError("");
     try {
       await runTeamAction({
-        pending: `Removing ${member.display_name}...`,
-        success: `${member.display_name} removed`,
+        pending: t("settings.vaults.members.removingMember", { name: member.display_name }),
+        success: t("settings.vaults.members.memberRemoved", { name: member.display_name }),
         run: () => removeMember(teamId, member.user_id),
       });
     }
-    catch (e) { setError(e instanceof Error ? e.message : "Failed"); setBusy(false); setConfirmRemove(false); }
+    catch (e) { setError(e instanceof Error ? e.message : t("settings.vaults.members.failed")); setBusy(false); setConfirmRemove(false); }
   };
 
   const displayRoles = roles
@@ -511,7 +520,7 @@ function MemberRow({ member, isMe, myMember, teamId, roles }: {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <p className="text-sm font-medium truncate" style={{ color: "var(--t-text-primary)" }}>{member.display_name}</p>
-            {isMe && <span className="text-[10px] px-1.5 py-0.5 rounded-sm" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>you</span>}
+            {isMe && <span className="text-[10px] px-1.5 py-0.5 rounded-sm" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>{t("settings.vaults.members.youBadge")}</span>}
           </div>
         </div>
 
@@ -543,7 +552,7 @@ function MemberRow({ member, isMe, myMember, teamId, roles }: {
         ) : (
           <div className="flex items-center gap-1 flex-wrap">
             {displayRoles.length === 0
-              ? <span className="text-[10px]" style={{ color: "var(--t-text-dim)" }}>No role</span>
+              ? <span className="text-[10px]" style={{ color: "var(--t-text-dim)" }}>{t("settings.vaults.members.noRole")}</span>
               : displayRoles.map((r) => <RoleNameChip key={r.id} name={r.name} color={r.color} isBuiltin={r.is_builtin} />)
             }
           </div>
@@ -558,7 +567,7 @@ function MemberRow({ member, isMe, myMember, teamId, roles }: {
             onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--t-status-error)")}
             onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = confirmRemove ? "var(--t-status-error)" : "var(--t-text-dim)")}
             onBlur={() => setConfirmRemove(false)}
-            title={confirmRemove ? "Click again to confirm" : "Remove from vault"}
+            title={confirmRemove ? t("settings.vaults.members.clickToConfirm") : t("settings.vaults.members.removeTitle")}
           >
             {busy
               ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin" />
@@ -575,6 +584,7 @@ function MemberRow({ member, isMe, myMember, teamId, roles }: {
 // ─── Team vault members panel ─────────────────────────────────────────────────
 
 export function TeamVaultPanel({ teamId, myUserId }: { teamId: string; myUserId: string }) {
+  const { t } = useTranslation();
   const { membersByTeam, loadMembers, rolesByTeam, loadRoles } = useTeamStore();
   const members = membersByTeam[teamId] ?? [];
   const roles = rolesByTeam[teamId] ?? [];
@@ -606,8 +616,8 @@ export function TeamVaultPanel({ teamId, myUserId }: { teamId: string; myUserId:
     const invite = pendingInvites.find((i) => i.id === invId);
     try {
       await runTeamAction({
-        pending: `Revoking invitation for ${invite?.display_name ?? "member"}...`,
-        success: `Invitation revoked for ${invite?.display_name ?? "member"}`,
+        pending: t("settings.vaults.members.revokingInvite", { name: invite?.display_name ?? "" }),
+        success: t("settings.vaults.members.inviteRevoked", { name: invite?.display_name ?? "" }),
         run: () => revokePendingInvitation(teamId, invId),
       });
       setPendingInvites((prev) => prev.filter((i) => i.id !== invId));
@@ -622,14 +632,14 @@ export function TeamVaultPanel({ teamId, myUserId }: { teamId: string; myUserId:
     <div>
       <div className="flex items-center gap-2 mb-3">
         <span className="text-xs px-2 py-0.5 rounded-sm" style={{ background: "var(--t-bg-elevated)", color: "var(--t-text-dim)" }}>
-          {members.length} member{members.length !== 1 ? "s" : ""}
+          {t("settings.vaults.members.memberCount", { count: members.length })}
         </span>
         {myMember && <MemberRoleBadges member={myMember} roles={roles} />}
       </div>
 
       <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--t-border)" }}>
         {members.length === 0
-          ? <p className="px-4 py-3 text-xs" style={{ color: "var(--t-text-dim)" }}>Loading…</p>
+          ? <p className="px-4 py-3 text-xs" style={{ color: "var(--t-text-dim)" }}>{t("settings.vaults.members.loading")}</p>
           : members.map((m) => (
             <MemberRow
               key={m.user_id}
@@ -646,7 +656,7 @@ export function TeamVaultPanel({ teamId, myUserId }: { teamId: string; myUserId:
       {pendingInvites.length > 0 && (
         <div className="mt-4">
           <h4 className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--t-text-dim)" }}>
-            Pending invitations
+            {t("settings.vaults.members.pendingInvitations")}
           </h4>
           <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--t-border)" }}>
             {pendingInvites.map((inv) => (
@@ -656,11 +666,11 @@ export function TeamVaultPanel({ teamId, myUserId }: { teamId: string; myUserId:
                   <p className="text-sm truncate" style={{ color: "var(--t-text-primary)" }}>{inv.display_name}</p>
                 </div>
                 <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>
-                  Pending
+                  {t("settings.vaults.members.pendingBadge")}
                 </span>
                 <RoleNameChip name={inv.role} isBuiltin={true} />
                 <button
-                  title="Revoke invitation"
+                  title={t("settings.vaults.members.revokeTitle")}
                   disabled={revokingId === inv.id}
                   onClick={() => void handleRevoke(inv.id)}
                   className="ml-1 rounded-sm p-0.5 transition-opacity"
@@ -691,6 +701,7 @@ export function TeamVaultPanel({ teamId, myUserId }: { teamId: string; myUserId:
 // ─── Team vault members summary (lightweight, links to Members tab) ───────────
 
 function TeamMembersSummary({ teamId }: { teamId: string }) {
+  const { t } = useTranslation();
   const { membersByTeam, loadMembers, rolesByTeam, loadRoles } = useTeamStore();
   const setActiveNav = useUIStore((s) => s.setActiveNav);
   const setSettingsOpen = useUIStore((s) => s.setSettingsOpen);
@@ -721,11 +732,11 @@ function TeamMembersSummary({ teamId }: { teamId: string }) {
       >
         <div className="flex-1">
           <p className="text-sm font-semibold" style={{ color: "var(--t-text-primary)" }}>
-            {members.length} member{members.length !== 1 ? "s" : ""}
+            {t("settings.vaults.members.memberCount", { count: members.length })}
           </p>
           {onlineCount > 0 && (
             <p className="text-xs mt-0.5" style={{ color: "var(--t-text-dim)" }}>
-              {onlineCount} online now
+              {t("settings.vaults.members.onlineNow", { count: onlineCount })}
             </p>
           )}
         </div>
@@ -756,7 +767,7 @@ function TeamMembersSummary({ teamId }: { teamId: string }) {
       {roles.length > 0 && (
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--t-text-dim)" }}>
-            Roles
+            {t("settings.vaults.tabs.roles")}
           </p>
           <div className="flex flex-wrap gap-2">
             {roles.filter((r) => !r.is_builtin || r.name !== "owner").map((r) => {
@@ -791,7 +802,7 @@ function TeamMembersSummary({ teamId }: { teamId: string }) {
         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "color-mix(in srgb, var(--t-accent) 10%, transparent)"; }}
       >
         <Icon icon="lucide:users" width={14} />
-        Open in Members
+        {t("settings.vaults.members.openInMembers")}
         <Icon icon="lucide:arrow-right" width={13} />
       </button>
     </div>
@@ -801,6 +812,7 @@ function TeamMembersSummary({ teamId }: { teamId: string }) {
 // ─── Private vault members panel ──────────────────────────────────────────────
 
 function UpgradeToTeamsCTA() {
+  const { t } = useTranslation();
   const openCheckout = async () => {
     await openBillingCheckout("teams");
   };
@@ -811,9 +823,9 @@ function UpgradeToTeamsCTA() {
         <Icon icon="lucide:users-round" width={22} style={{ color: "var(--t-accent)" }} />
       </div>
       <div>
-        <p className="text-sm font-medium mb-1" style={{ color: "var(--t-text-primary)" }}>Team Vaults require a Teams plan</p>
+        <p className="text-sm font-medium mb-1" style={{ color: "var(--t-text-primary)" }}>{t("settings.vaults.upgrade.requiresTeams")}</p>
         <p className="text-xs max-w-xs" style={{ color: "var(--t-text-dim)" }}>
-          Invite members, assign roles, and share credentials securely with your team.
+          {t("settings.vaults.upgrade.upgradeDesc")}
         </p>
       </div>
       <button
@@ -821,7 +833,7 @@ function UpgradeToTeamsCTA() {
         className="px-4 py-2 rounded-lg text-sm font-medium text-white"
         style={{ background: "var(--t-accent)" }}
       >
-        Upgrade to Teams →
+        {t("settings.vaults.upgrade.upgradeBtn")}
       </button>
     </div>
   );
@@ -832,6 +844,7 @@ export function PrivateVaultMembersPanel({
 }: {
   vaultId: string; vaultName: string; myUserId: string; onTeamCreated: (teamId: string) => void;
 }) {
+  const { t } = useTranslation();
   const { isTeams, accountMode } = useSubscriptionStore();
   const openCloudAuth = useUIStore((s) => s.openCloudAuth);
   const { createTeam, loadRoles, addMemberById, assignMemberRole } = useTeamStore();
@@ -849,13 +862,13 @@ export function PrivateVaultMembersPanel({
   useEffect(() => {
     if (query.length < 2) { setResults([]); setOpen(false); return; }
     setSearching(true);
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       searchUsers(query)
         .then((r) => { setResults(r); setOpen(true); })
         .catch(() => {})
         .finally(() => setSearching(false));
     }, 250);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [query]);
 
   useEffect(() => {
@@ -889,7 +902,7 @@ export function PrivateVaultMembersPanel({
       setQuery(""); setResults([]); setOpen(false);
       onTeamCreated(team.id);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to add member");
+      setError(e instanceof Error ? e.message : t("settings.vaults.members.failedToAdd"));
     } finally {
       setAdding(null);
     }
@@ -900,14 +913,14 @@ export function PrivateVaultMembersPanel({
       <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
         <Icon icon="lucide:cloud" width={28} style={{ color: "var(--t-text-dim)" }} />
         <p className="text-sm" style={{ color: "var(--t-text-dim)" }}>
-          Sign in to a cloud account to invite teammates to this vault.
+          {t("settings.vaults.upgrade.signInDesc")}
         </p>
         <button
           onClick={() => openCloudAuth("signin")}
           className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-opacity hover:opacity-90"
           style={{ background: "var(--t-accent)" }}
         >
-          Sign in / Create account
+          {t("settings.vaults.upgrade.signInBtn")}
         </button>
       </div>
     );
@@ -920,7 +933,7 @@ export function PrivateVaultMembersPanel({
       <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
         <Icon icon="lucide:users-round" width={28} style={{ color: "var(--t-text-dim)" }} />
         <p className="text-sm" style={{ color: "var(--t-text-dim)" }}>
-          Sign in to a cloud account to invite teammates to this vault.
+          {t("settings.vaults.upgrade.signInDesc")}
         </p>
       </div>
     );
@@ -933,8 +946,8 @@ export function PrivateVaultMembersPanel({
           <Avatar email={myUserId} size={30} />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <p className="text-sm font-medium" style={{ color: "var(--t-text-primary)" }}>You</p>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-sm" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>you</span>
+              <p className="text-sm font-medium" style={{ color: "var(--t-text-primary)" }}>{t("settings.vaults.members.youLabel")}</p>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-sm" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>{t("settings.vaults.members.youBadge")}</span>
             </div>
           </div>
           <RoleNameChip name="owner" isBuiltin={true} />
@@ -942,7 +955,7 @@ export function PrivateVaultMembersPanel({
       </div>
 
       <h4 className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--t-text-dim)" }}>
-        Invite member
+        {t("settings.vaults.members.inviteMember")}
       </h4>
       <div className="relative">
           <div
@@ -956,7 +969,7 @@ export function PrivateVaultMembersPanel({
             <input
               ref={inputRef}
               type="text"
-              placeholder="Search by email…"
+              placeholder={t("settings.vaults.members.searchByEmailPlaceholder")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => { if (results.length > 0) setOpen(true); }}
@@ -977,7 +990,7 @@ export function PrivateVaultMembersPanel({
               style={{ background: "var(--t-bg-card)", boxShadow: "var(--t-ring), var(--t-elev-2)" }}
             >
               {results.length === 0
-                ? <p className="px-4 py-3 text-xs" style={{ color: "var(--t-text-dim)" }}>No users found</p>
+                ? <p className="px-4 py-3 text-xs" style={{ color: "var(--t-text-dim)" }}>{t("settings.vaults.members.noUsersFound")}</p>
                 : results.map((user) => (
                   <button
                     key={user.user_id}
@@ -993,7 +1006,7 @@ export function PrivateVaultMembersPanel({
                     {adding === user.user_id
                       ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                       : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
-                          Add as Member
+                          {t("settings.vaults.members.addAsMember")}
                         </span>
                     }
                   </button>
@@ -1024,6 +1037,7 @@ function VaultGeneralTab({
   onBack: () => void;
   onRenamed: (name: string) => void;
 }) {
+  const { t } = useTranslation();
   const { renameVault, removeVault, setVaultTeamId } = useVaultStore();
   const { membersByTeam, teams, rolesByTeam } = useTeamStore();
   const counts = useVaultContents(detail.vaultId ?? undefined);
@@ -1041,7 +1055,7 @@ function VaultGeneralTab({
 
   const isOwner = (() => {
     if (!detail.teamId) return false;
-    const myRoleIds = teams.find((t) => t.id === detail.teamId)?.role_ids ?? [];
+    const myRoleIds = teams.find((team) => team.id === detail.teamId)?.role_ids ?? [];
     const roles = rolesByTeam[detail.teamId] ?? [];
     return myRoleIds.some((rid) => {
       const r = roles.find((role) => role.id === rid);
@@ -1154,7 +1168,9 @@ function VaultGeneralTab({
       const memberN = membersByTeam[teamId]?.length ?? 0;
       useNotificationStore.getState().addToast({
         pluginId: "system", pluginName: "Voltius", type: "toast",
-        message: `Vault is now private. ${memberN > 1 ? `${memberN - 1} member${memberN - 1 !== 1 ? "s" : ""} lost access.` : ""}`,
+        message: memberN > 1
+          ? t("settings.vaults.general.madePrivateToast", { count: memberN - 1 })
+          : t("settings.vaults.general.madePrivateToastEmpty"),
         severity: "info", duration: 3000,
       });
 
@@ -1171,7 +1187,7 @@ function VaultGeneralTab({
     <div className="space-y-6">
       <div>
         <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "var(--t-text-dim)" }}>
-          Vault name
+          {t("settings.vaults.general.vaultNameLabel")}
         </label>
         {canRename ? (
           <form onSubmit={handleRename} className="flex gap-2">
@@ -1188,7 +1204,7 @@ function VaultGeneralTab({
               className="px-3 py-2 rounded-lg text-sm font-medium text-white shrink-0"
               style={{ background: "var(--t-accent)", opacity: !name.trim() || name.trim() === detail.name ? 0.5 : 1 }}
             >
-              Save
+              {t("settings.vaults.general.save")}
             </button>
           </form>
         ) : (
@@ -1198,7 +1214,7 @@ function VaultGeneralTab({
 
       <div>
         <label className="block text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--t-text-dim)" }}>
-          Info
+          {t("settings.vaults.general.infoLabel")}
         </label>
         <div className="flex flex-wrap gap-3">
           <div
@@ -1207,8 +1223,10 @@ function VaultGeneralTab({
           >
             <Icon icon={isTeam ? "lucide:users-round" : "lucide:user-round"} width={12} />
             {isTeam
-              ? `Team · ${memberCount !== null ? `${memberCount} member${memberCount !== 1 ? "s" : ""}` : "…"}`
-              : "Private"
+              ? (memberCount !== null
+                  ? t("settings.vaults.general.teamWithCount", { count: memberCount })
+                  : t("settings.vaults.general.teamLoading"))
+              : t("settings.vaults.general.private")
             }
           </div>
 
@@ -1229,14 +1247,14 @@ function VaultGeneralTab({
               style={{ background: "var(--t-bg-elevated)", border: "1px solid var(--t-border)", color: "var(--t-text-dim)" }}
             >
               <Icon icon="lucide:cloud" width={12} />
-              Cloud only
+              {t("settings.vaults.general.cloudOnly")}
             </div>
           )}
         </div>
 
         {detail.kind === "cloud" && (
           <p className="text-xs mt-3" style={{ color: "var(--t-text-dim)" }}>
-            This team exists only in the cloud and isn't linked to a local vault. Members and roles are still fully managed from the tabs above.
+            {t("settings.vaults.general.cloudOnlyDesc")}
           </p>
         )}
       </div>
@@ -1244,17 +1262,19 @@ function VaultGeneralTab({
       {(canDelete || canMakePrivate) && (
         <div>
           <h4 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--t-text-dim)" }}>
-            Danger zone
+            {t("settings.vaults.general.dangerZone")}
           </h4>
           <div className="space-y-3">
             {canMakePrivate && (
               <div className="rounded-xl p-4 flex items-center justify-between gap-4" style={{ border: "1px solid rgba(245,158,11,0.35)" }}>
                 <div>
-                  <p className="text-sm font-medium mb-0.5" style={{ color: "var(--t-text-primary)" }}>Make private</p>
+                  <p className="text-sm font-medium mb-0.5" style={{ color: "var(--t-text-primary)" }}>{t("settings.vaults.general.makePrivate.title")}</p>
                   <p className="text-xs" style={{ color: "var(--t-text-dim)" }}>
                     {confirmMakePrivate
-                      ? `Remove ${memberCount !== null && memberCount > 1 ? memberCount - 1 : "all"} member${(memberCount ?? 0) > 2 ? "s" : ""} and make private?`
-                      : "Removes all members and converts this back to a personal vault."}
+                      ? (memberCount !== null && memberCount > 1
+                          ? t("settings.vaults.general.makePrivate.confirm", { count: memberCount - 1 })
+                          : t("settings.vaults.general.makePrivate.confirmAll"))
+                      : t("settings.vaults.general.makePrivate.desc")}
                   </p>
                 </div>
                 <button
@@ -1269,16 +1289,22 @@ function VaultGeneralTab({
                     opacity: makingPrivate ? 0.6 : 1,
                   }}
                 >
-                  {makingPrivate ? "Converting…" : confirmMakePrivate ? "Confirm" : "Make private"}
+                  {makingPrivate
+                    ? t("settings.vaults.general.makePrivate.converting")
+                    : confirmMakePrivate
+                      ? t("settings.vaults.general.makePrivate.confirmBtn")
+                      : t("settings.vaults.general.makePrivate.btn")}
                 </button>
               </div>
             )}
             {canDelete && (
               <div className="rounded-xl p-4 flex items-center justify-between gap-4" style={{ border: "1px solid rgba(var(--t-status-error-rgb, 239,68,68), 0.3)" }}>
                 <div>
-                  <p className="text-sm font-medium mb-0.5" style={{ color: "var(--t-text-primary)" }}>Delete vault</p>
+                  <p className="text-sm font-medium mb-0.5" style={{ color: "var(--t-text-primary)" }}>{t("settings.vaults.general.deleteVault.title")}</p>
                   <p className="text-xs" style={{ color: "var(--t-text-dim)" }}>
-                    {confirmDelete ? "Are you sure? This cannot be undone." : "Permanently removes this vault and all its contents."}
+                    {confirmDelete
+                      ? t("settings.vaults.general.deleteVault.confirmDesc")
+                      : t("settings.vaults.general.deleteVault.desc")}
                   </p>
                 </div>
                 <button
@@ -1291,7 +1317,9 @@ function VaultGeneralTab({
                     border: "1px solid var(--t-status-error)",
                   }}
                 >
-                  {confirmDelete ? "Confirm delete" : "Delete vault"}
+                  {confirmDelete
+                    ? t("settings.vaults.general.deleteVault.confirmBtn")
+                    : t("settings.vaults.general.deleteVault.btn")}
                 </button>
               </div>
             )}
@@ -1326,6 +1354,7 @@ interface VaultDetail {
 // ─── Main section ─────────────────────────────────────────────────────────────
 
 export default function VaultsSection() {
+  const { t } = useTranslation();
   const { vaults, addVault } = useVaultStore();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const vaultsContributions = useUIContributions("settings.vaults");
@@ -1382,7 +1411,7 @@ export default function VaultsSection() {
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-dim)"; }}
           >
             <Icon icon="lucide:chevron-left" width={14} />
-            Vaults
+            {t("settings.vaults.back")}
           </button>
           <Icon icon="lucide:chevron-right" width={12} style={{ color: "var(--t-text-dim)" }} />
           <span className="text-xs font-medium" style={{ color: "var(--t-text-primary)" }}>{detail.name}</span>
@@ -1400,7 +1429,7 @@ export default function VaultsSection() {
                 marginBottom: "-1px",
               }}
             >
-              {tab}
+              {t(`settings.vaults.tabs.${tab.toLowerCase()}`)}
             </button>
           ))}
         </div>
@@ -1434,17 +1463,17 @@ export default function VaultsSection() {
   }
 
   const linkedTeamIds = new Set(vaults.map((v) => v.teamId).filter(Boolean));
-  const standaloneTeams = teams.filter((t) => !linkedTeamIds.has(t.id));
+  const standaloneTeams = teams.filter((team) => !linkedTeamIds.has(team.id));
   const allItems: VaultItem[] = [
     ...vaults.map((v): VaultItem => ({ kind: "local", vault: v })),
-    ...standaloneTeams.map((t): VaultItem => ({ kind: "cloud", teamId: t.id, name: t.name })),
+    ...standaloneTeams.map((team): VaultItem => ({ kind: "cloud", teamId: team.id, name: team.name })),
   ];
 
   return (
     <div className="p-6 space-y-8">
       <div>
         <div className="flex items-center justify-between mb-1">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">Vaults</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{t("settings.vaults.title")}</h3>
           <button
             onClick={() => {
               if (!isPro && vaults.length >= 1) {
@@ -1458,17 +1487,17 @@ export default function VaultsSection() {
             style={{ color: "var(--t-text-dim)", background: showCreate ? "var(--t-bg-elevated)" : "transparent", border: "1px solid var(--t-border)" }}
           >
             <Icon icon="lucide:plus" width={11} />
-            New vault
+            {t("settings.vaults.newVault")}
           </button>
         </div>
-        <p className="text-xs mb-4 text-(--t-text-muted)">Organize your connections, identities, and keys. Invite members to share a vault.</p>
+        <p className="text-xs mb-4 text-(--t-text-muted)">{t("settings.vaults.desc")}</p>
 
         {showCreate && (
           <form onSubmit={handleCreateVault} className="flex gap-2 mb-4">
             <input
               autoFocus
               type="text"
-              placeholder="Vault name…"
+              placeholder={t("settings.vaults.vaultNamePlaceholder")}
               value={newVaultName}
               onChange={(e) => setNewVaultName(e.target.value)}
               className="form-input flex-1 px-3 py-2 rounded-lg text-sm outline-hidden"
@@ -1480,7 +1509,7 @@ export default function VaultsSection() {
               className="px-3 py-2 rounded-lg text-sm font-medium text-white"
               style={{ background: "var(--t-accent)", opacity: !newVaultName.trim() ? 0.6 : 1 }}
             >
-              Create
+              {t("settings.vaults.create")}
             </button>
             <button
               type="button"
@@ -1488,7 +1517,7 @@ export default function VaultsSection() {
               className="px-3 py-2 rounded-lg text-sm"
               style={{ background: "var(--t-bg-elevated)", color: "var(--t-text-muted)" }}
             >
-              Cancel
+              {t("settings.shared.cancel")}
             </button>
           </form>
         )}
@@ -1533,7 +1562,7 @@ export default function VaultsSection() {
 
                 <div className="flex items-center gap-1 shrink-0" style={{ color: "var(--t-text-dim)" }}>
                   <Icon icon={isTeam ? "lucide:users-round" : "lucide:user-round"} width={12} />
-                  <span className="text-xs">{isTeam ? "Team" : "Only you"}</span>
+                  <span className="text-xs">{isTeam ? t("settings.vaults.team") : t("settings.vaults.onlyYou")}</span>
                 </div>
 
                 <Icon icon="lucide:chevron-right" width={13} className="shrink-0" style={{ color: "var(--t-text-dim)" }} />
@@ -1545,9 +1574,9 @@ export default function VaultsSection() {
 
       {vaultsContributions.length > 0 && (
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-widest mb-1 text-(--t-text-dim)">Import / Export</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest mb-1 text-(--t-text-dim)">{t("settings.vaults.importExport.title")}</h3>
           <p className="text-xs mb-4 text-(--t-text-muted)">
-            Back up or restore your hosts, identities, and SSH key metadata as JSON or CSV.
+            {t("settings.vaults.importExport.desc")}
           </p>
           <div className="flex gap-3">
             {vaultsContributions.map((action) => (

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DEFAULT_AUTO_REFRESH_INTERVAL_MS, useSftpSettingsStore } from "@/stores/sftpSettingsStore";
 import { TOGGLE_DEFS, useToggle } from "@/stores/toggleSettingsStore";
 import { Toggle } from "@/components/shared/Toggle";
@@ -7,6 +8,7 @@ import { useIsAndroid } from "@/utils/platform";
 import { downloadDirGet, downloadDirPick, type DownloadDirInfo } from "@/services/downloads";
 
 export default function SFTPSection() {
+  const { t } = useTranslation();
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useToggle("sftp-autorefresh");
   const [tarTransferEnabled, setTarTransferEnabled] = useToggle("sftp-tar");
   const autoRefreshIntervalMs = useSftpSettingsStore((s) => s.autoRefreshIntervalMs);
@@ -37,21 +39,21 @@ export default function SFTPSection() {
         {isAndroid && (
           <div>
             <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-              Downloads
+              {t("settings.sftp.downloads.title")}
             </h3>
             <div className="rounded-lg bg-(--t-bg-elevated) border border-(--t-border)">
               <div className="flex items-center justify-between px-4 py-3 gap-4">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-(--t-text-primary)">Download folder</p>
+                  <p className="text-sm font-medium text-(--t-text-primary)">{t("settings.sftp.downloads.folderLabel")}</p>
                   <p className="text-xs mt-0.5 text-(--t-text-dim) truncate">
-                    {downloadDir?.displayName ?? downloadDir?.uri ?? "Not set — chosen on first download"}
+                    {downloadDir?.displayName ?? downloadDir?.uri ?? t("settings.sftp.downloads.notSet")}
                   </p>
                 </div>
                 <button
                   onClick={() => void changeDownloadDir()}
                   className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium bg-(--t-bg-input) border border-(--t-border) text-(--t-text-primary) active:bg-(--t-bg-card-hover)"
                 >
-                  Change folder
+                  {t("settings.sftp.downloads.changeFolder")}
                 </button>
               </div>
             </div>
@@ -59,16 +61,17 @@ export default function SFTPSection() {
         )}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-          Transfers
+          {t("settings.sftp.transfers.title")}
         </h3>
 
         <div className="rounded-lg bg-(--t-bg-elevated) border border-(--t-border)">
           <div className="group flex items-center justify-between px-4 py-3 gap-4">
             <div>
-              <p className="text-sm font-medium text-(--t-text-primary)">Tar acceleration</p>
+              <p className="text-sm font-medium text-(--t-text-primary)">{t("settings.sftp.transfers.tarAcceleration.title")}</p>
               <p className="text-xs mt-0.5 text-(--t-text-dim)">
-                Pack directories into a single tar.gz before transfer — much faster for many small files.
-                Requires <code className="font-mono">tar</code> on both sides.
+                {t("settings.sftp.transfers.tarAcceleration.descPre")}
+                <code className="font-mono">tar</code>
+                {t("settings.sftp.transfers.tarAcceleration.descPost")}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -84,7 +87,7 @@ export default function SFTPSection() {
 
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-          File Panel
+          {t("settings.sftp.filePanel.title")}
         </h3>
 
         <div
@@ -92,9 +95,9 @@ export default function SFTPSection() {
         >
           <div className="group flex items-center justify-between px-4 py-3 gap-4">
             <div>
-              <p className="text-sm font-medium text-(--t-text-primary)">Auto-refresh</p>
+              <p className="text-sm font-medium text-(--t-text-primary)">{t("settings.sftp.filePanel.autoRefresh.title")}</p>
               <p className="text-xs mt-0.5 text-(--t-text-dim)">
-                Silently re-fetches directory contents in the background
+                {t("settings.sftp.filePanel.autoRefresh.desc")}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -109,10 +112,10 @@ export default function SFTPSection() {
           <div className="group flex items-center justify-between px-4 py-3 gap-4">
             <div>
               <p className="text-sm font-medium text-(--t-text-primary)" style={{ opacity: autoRefreshEnabled ? 1 : 0.45 }}>
-                Refresh interval
+                {t("settings.sftp.filePanel.refreshInterval.title")}
               </p>
               <p className="text-xs mt-0.5 text-(--t-text-dim)" style={{ opacity: autoRefreshEnabled ? 1 : 0.45 }}>
-                Minimum 0.5 s
+                {t("settings.sftp.filePanel.refreshInterval.desc")}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -130,7 +133,7 @@ export default function SFTPSection() {
                 className="form-input w-20 px-2 py-1 rounded-lg text-sm text-right outline-hidden bg-(--t-bg-input) border border-(--t-border) text-(--t-text-primary)"
                 style={{ opacity: autoRefreshEnabled ? 1 : 0.45 }}
               />
-              <span className="text-xs text-(--t-text-dim)">s</span>
+              <span className="text-xs text-(--t-text-dim)">{t("settings.sftp.filePanel.refreshInterval.unit")}</span>
             </div>
           </div>
         </div>
@@ -138,15 +141,15 @@ export default function SFTPSection() {
 
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-          Editor
+          {t("settings.sftp.editor.title")}
         </h3>
 
         <div className="rounded-lg bg-(--t-bg-elevated) border border-(--t-border)">
           <div className="group flex items-center justify-between px-4 py-3 gap-4">
             <div>
-              <p className="text-sm font-medium text-(--t-text-primary)">Auto-save</p>
+              <p className="text-sm font-medium text-(--t-text-primary)">{t("settings.sftp.editor.autoSave.title")}</p>
               <p className="text-xs mt-0.5 text-(--t-text-dim)">
-                Automatically save file changes as you type
+                {t("settings.sftp.editor.autoSave.desc")}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">

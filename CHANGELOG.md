@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-06-28
+
+### Added
+
+- Port forwarding panel overhaul — inline quick-forward row to create ad-hoc
+  tunnels, save ad-hoc/auto tunnels as named rules with inline rename, copy
+  localhost:port from active tunnel rows, an active-tunnel count badge on the
+  ports rail icon, and a panel header with active count and section labels
+- Auto port-forwarding is now shared across all terminals of the same host
+  instead of being set up per-terminal
+- Mobile terminal gestures — swipe-to-scroll, long-press text selection with a
+  copy/paste toolbar, blank-area paste, and double-tap for Tab
+- OSC 52 clipboard support, with a shared copy/paste helper across the terminal
+- Per-connection toggle for legacy SSH algorithms, for connecting to old devices
+- SFTP "follow cwd" now works through tmux and screen by polling the multiplexer
+
+### Fixed
+
+- New-session host status dot now reflects true reachability
+- Pane close button closes the session instead of just detaching it
+- Mobile terminal toolbar fixes — Copy now works, the toolbar is positioned
+  correctly and closes on teardown, and swipe-scroll no longer triggers a stray
+  tap
+
 ## [0.6.0] - 2026-06-25
 
 ### Added

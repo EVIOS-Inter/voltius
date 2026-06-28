@@ -2,7 +2,7 @@ import { useSessionStore } from "@/stores/sessionStore";
 import { reconnectWithBackoff } from "@/stores/reconnectBackoff";
 import { handleSessionClosed } from "@/stores/reconnectBackoffCore";
 import { HostAwareTerminalView, SessionConnectionOverlay } from "@/components/terminal/SessionView";
-import MobileTerminalTapLayer from "./MobileTerminalTapLayer";
+import MobileTerminalGestures from "./MobileTerminalGestures";
 import type { TerminalSession } from "@/types";
 
 /** Mobile-only wrapper: renders the shared terminal compact inside a hard-clipped box. */
@@ -36,7 +36,7 @@ export default function MobileSessionView({ session, active }: { session: Termin
           })
         }
       />
-      {session.status === "connected" && <MobileTerminalTapLayer sessionId={session.id} active={active} />}
+      {session.status === "connected" && <MobileTerminalGestures sessionId={session.id} active={active} />}
     </div>
   );
 }

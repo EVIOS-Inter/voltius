@@ -111,6 +111,11 @@ export function DockerPanel() {
   const [sysPruneMsg, setSysPruneMsg] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const logsContainerNameRef = useRef<string>("");
+  // fetchForView is memoized without selectedStackName in its deps, so the
+  // polling interval's closure would otherwise read a stale value and never
+  // refetch the expanded stack's services. A ref keeps it current.
+  const selectedStackNameRef = useRef(state.selectedStackName);
+  selectedStackNameRef.current = state.selectedStackName;
 
   const isRemote = activeSession?.type === "ssh";
   const sessionId = activeSession?.id ?? "";
@@ -152,8 +157,9 @@ export function DockerPanel() {
           case "stacks": {
             const stacks = await dockerListStacks(sessionId, isRemote, localShell);
             dispatch({ type: "SET_STACKS", stacks });
-            if (state.selectedStackName) {
-              const services = await dockerListStackServices(sessionId, isRemote, localShell, state.selectedStackName);
+            const selectedStackName = selectedStackNameRef.current;
+            if (selectedStackName) {
+              const services = await dockerListStackServices(sessionId, isRemote, localShell, selectedStackName);
               dispatch({ type: "SET_STACK_SERVICES", services });
             }
             break;

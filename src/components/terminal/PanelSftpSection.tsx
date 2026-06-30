@@ -13,9 +13,12 @@ import { tarUsable } from "@/components/filetransfer/tarSupport";
 import {
   pickLocalPath, pickLocalPaths,
   sftpDownload, sftpDownloadDir, sftpDownloadDirTar, sftpDownloadBatchTar,
+  sftpRename, sftpDelete, sftpExists, fsRename, fsDelete, fsExists,
 } from "@/services/sftp";
 import { FilePane } from "@/components/filetransfer/FilePane";
 import { TransferQueue } from "@/components/filetransfer/TransferQueue";
+import { runIntraPaneMove } from "@/components/filetransfer/moveService";
+import { InternalDragGhost } from "@/components/filetransfer/InternalDragGhost";
 import { triggerOsDrop, triggerUpload } from "@/components/filetransfer/osDropPipeline";
 import { hitTestDropTarget, setExternalDragHover, clearExternalDragHover } from "@/components/filetransfer/internalDrag";
 import type { FileEntry, VisibleCols } from "@/components/filetransfer/SFTPTypes";
@@ -35,6 +38,7 @@ export default function PanelSftpSection() {
   const clearCompleted = useTransferQueueStore((s) => s.clearCompleted);
   const cancelTransfer = useTransferQueueStore((s) => s.cancelTransfer);
   const cancelAll = useTransferQueueStore((s) => s.cancelAll);
+  const setPending = useTransferQueueStore((s) => s.setPending);
 
   const [selected, setSelected] = useState<FileEntry[]>([]);
   const [refreshTick, setRefreshTick] = useState(0);
@@ -175,6 +179,20 @@ export default function PanelSftpSection() {
   }, [panelState, runTransfer]);
   const handleDownload = useCallback(() => { void downloadFiles(selected); }, [downloadFiles, selected]);
 
+  const moveWithin = useCallback(async (files: FileEntry[], targetDir: string) => {
+    if (panelState?.tag !== "connected") return;
+    const isLocal = panelState.isLocal;
+    const sftpId = panelState.sftpId;
+    await runIntraPaneMove(files, targetDir, {
+      exists: (p) => isLocal ? fsExists(p) : sftpExists(sftpId!, p),
+      del:    (p) => isLocal ? fsDelete(p) : sftpDelete(sftpId!, p),
+      rename: (from, to) => isLocal ? fsRename(from, to) : sftpRename(sftpId!, from, to),
+      setPending,
+      onRefresh: () => setRefreshTick((n) => n + 1),
+      onError: (m) => alert(m),
+    });
+  }, [panelState, setPending]);
+
   // ── Editor escalation ───────────────────────────────────────────────────────
   const panelHostLabel =
     !session ? "remote"
@@ -291,6 +309,7 @@ export default function PanelSftpSection() {
             onRegisterMenuOpener={(opener) => setMenuOpener(() => opener)}
             onRegisterViewMenuOpener={(opener) => setViewMenuOpener(() => opener)}
             onEdit={handleEdit}
+            onMoveWithin={(files, targetFolder) => void moveWithin(files, targetFolder)}
           />
         )}
       </div>
@@ -303,6 +322,7 @@ export default function PanelSftpSection() {
           <TransferQueue transfers={transfers} onClear={clearCompleted} onCancel={cancelTransfer} onCancelAll={cancelAll} collapsible />
         </div>
       )}
+      <InternalDragGhost />
     </div>
   );
 }

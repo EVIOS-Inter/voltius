@@ -10,8 +10,10 @@ import {
   sftpUploadBatchTar, sftpDownloadBatchTar, sftpTransferBatchTar,
   sftpTransfer, sftpTransferDir,
   sftpExists, fsExists, fsHomeDir, fsCopy, wslHomeDir,
+  sftpRename, sftpDelete, fsRename, fsDelete,
   pickLocalPath, pickLocalPaths,
 } from "@/services/sftp";
+import { runIntraPaneMove } from "./moveService";
 import { hitTestDropTarget, setExternalDragHover, clearExternalDragHover } from "./internalDrag";
 import { triggerUpload } from "./osDropPipeline";
 import { tarUsable } from "./tarSupport";
@@ -304,6 +306,22 @@ export default function SFTPPage() {
     });
   }, [leftPhase, rightPhase, leftHost, rightHost]);
 
+  const moveWithin = useCallback(async (files: FileEntry[], targetDir: string, side: "left" | "right") => {
+    const phase = side === "left" ? leftPhase : rightPhase;
+    const host  = side === "left" ? leftHost  : rightHost;
+    if (phase.tag !== "connected") return;
+    const isLocal = host?.kind === "local";
+    const sftpId = phase.sftpId;
+    await runIntraPaneMove(files, targetDir, {
+      exists: (p) => isLocal ? fsExists(p) : sftpExists(sftpId!, p),
+      del:    (p) => isLocal ? fsDelete(p) : sftpDelete(sftpId!, p),
+      rename: (from, to) => isLocal ? fsRename(from, to) : sftpRename(sftpId!, from, to),
+      setPending,
+      onRefresh: side === "left" ? () => setLeftRefresh((n) => n + 1) : () => setRightRefresh((n) => n + 1),
+      onError: (m) => alert(m),
+    });
+  }, [leftPhase, rightPhase, leftHost, rightHost, setPending]);
+
   // Tauri's drag-drop event delivers OS file paths once the user releases over
   // the webview. Position is in physical pixels; elementFromPoint wants CSS
   // pixels, so we scale by devicePixelRatio for hit-testing.
@@ -465,6 +483,7 @@ export default function SFTPPage() {
             selected={leftSelected}
             onUpload={() => void uploadToSide("left")}
             onDownloadFiles={leftHost?.kind === "local" ? undefined : (files) => void downloadFromSide("left", files)}
+            onMoveWithin={(files, targetFolder) => void moveWithin(files, targetFolder, "left")}
           />
         </div>
 
@@ -492,6 +511,7 @@ export default function SFTPPage() {
             selected={rightSelected}
             onUpload={() => void uploadToSide("right")}
             onDownloadFiles={rightHost?.kind === "local" ? undefined : (files) => void downloadFromSide("right", files)}
+            onMoveWithin={(files, targetFolder) => void moveWithin(files, targetFolder, "right")}
           />
         </div>
       </div>

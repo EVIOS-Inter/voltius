@@ -37,7 +37,7 @@ export function SidePane({
   host, phase, refreshTick,
   onPick, onNavigate, onSelect, onRefresh, onChangeHost, side, onDropFiles,
   onTransferToTarget, canTransferToTarget, onOpenInTerminal,
-  selected = [], onUpload, onDownloadFiles,
+  selected = [], onUpload, onDownloadFiles, onMoveWithin,
 }: {
   host: HostChoice | null;
   phase: SidePhase;
@@ -58,6 +58,7 @@ export function SidePane({
   onUpload?: () => void;
   /** Download the given remote files to a chosen local folder (remote panes only). */
   onDownloadFiles?: (files: FileEntry[]) => void;
+  onMoveWithin?: (files: FileEntry[], targetFolder: string) => void;
 }) {
   const hostLabel =
     host == null ? null
@@ -331,6 +332,7 @@ export function SidePane({
             onOpenInTerminal={onOpenInTerminal}
             onPanelUpload={onUpload}
             onPanelDownload={onDownloadFiles}
+            onMoveWithin={onMoveWithin}
           />
         )}
       </div>

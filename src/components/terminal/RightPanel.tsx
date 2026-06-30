@@ -10,7 +10,7 @@ import PanelSftpSection from "@/components/terminal/PanelSftpSection";
 import { useThemeStore } from "@/stores/themeStore";
 import { BUILT_IN_THEMES } from "@/themes/presets";
 import type { AppTheme } from "@/themes/types";
-import { useActiveTunnelCount } from "@/hooks/useActiveTunnelCount";
+import { useCurrentSessionTunnelCount } from "@/hooks/useCurrentSessionTunnelCount";
 
 const PANEL_WIDTH = 300;
 const TRANSITION = "width 180ms cubic-bezier(0.4, 0, 0.2, 1)";
@@ -154,7 +154,7 @@ function PanelContent() {
   const rightPanelSection = useUIStore((s) => s.rightPanelSection);
   const toggleRightPanel = useUIStore((s) => s.toggleRightPanel);
   const pluginSections = usePluginStore((s) => s.rightPanelSections);
-  const tunnelCount = useActiveTunnelCount();
+  const tunnelCount = useCurrentSessionTunnelCount();
 
   const allSections = useMemo(() => [
     ...BUILTIN_SECTIONS,

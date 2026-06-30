@@ -501,6 +501,10 @@ impl PortForwardManager {
         }
 
         let entry = state.tunnels.remove(pos);
+        // Stop the accept loop + bridges and free the local listener. Removing
+        // the entry is not enough: its `_cancel` token is cloned into the loop,
+        // and a CancellationToken does NOT cancel on drop.
+        cancel_entry(&entry);
         drop(sessions);
 
         // Best-effort remote forward cancellation (after releasing lock).
@@ -526,8 +530,13 @@ impl PortForwardManager {
             if let Some(cancel) = state.poller_cancel {
                 cancel.cancel();
             }
-            // Clear remote route registrations (SSH session is gone, so no cancel_tcpip_forward).
             for entry in &state.tunnels {
+                // Stop the accept loop + bridges and free the local listener.
+                // A CancellationToken does NOT cancel on drop, so dropping the
+                // TunnelEntry would leak the bound port — the stale listener then
+                // squats the port and the next auto-detect bind lands elsewhere.
+                cancel_entry(entry);
+                // Clear remote route registrations (SSH session is gone, so no cancel_tcpip_forward).
                 if let Some(rc) = &entry.remote_cleanup {
                     let _ = rc
                         .routes
@@ -536,7 +545,6 @@ impl PortForwardManager {
                         .remove(&(rc.bind_host.clone(), rc.remote_port));
                 }
             }
-            // TunnelEntry._cancel fields dropped here → all bridges stop
         }
         drop(sessions);
 
@@ -829,4 +837,107 @@ fn snapshot_tunnel(entry: &TunnelEntry) -> ActiveTunnel {
     let mut t = entry.tunnel.clone();
     t.bytes_transferred = entry.bytes.load(Ordering::Relaxed);
     t
+}
+
+/// Stop a tunnel's accept loop + bridges, freeing its local listener.
+///
+/// `create_tunnel` clones this token into the accept loop (and every bridge),
+/// so the listener stays bound for as long as any clone lives. A
+/// `CancellationToken` is NOT cancelled by being dropped — only `.cancel()`
+/// does that — so removing/dropping a `TunnelEntry` does not stop anything.
+/// Callers tearing tunnels down MUST cancel explicitly.
+fn cancel_entry(entry: &TunnelEntry) {
+    entry._cancel.cancel();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::Duration;
+    use tokio::net::TcpListener;
+
+    /// Build a TunnelEntry whose `_cancel` token guards a real accept loop bound
+    /// to `port`, mirroring `create_tunnel`: the loop holds a *clone* of the
+    /// token, the entry holds the original.
+    async fn entry_guarding(port_listener: TcpListener) -> TunnelEntry {
+        let cancel = CancellationToken::new();
+        let loop_cancel = cancel.clone();
+        tokio::spawn(async move {
+            loop {
+                tokio::select! {
+                    _ = loop_cancel.cancelled() => break,
+                    _ = port_listener.accept() => {}
+                }
+            }
+            // port_listener dropped here → port freed
+        });
+        TunnelEntry {
+            tunnel: ActiveTunnel {
+                id: "t".into(),
+                tunnel_type: TunnelType::Local,
+                local_port: 0,
+                remote_port: 0,
+                remote_host: "127.0.0.1".into(),
+                bind_host: None,
+                target_host: None,
+                origin: TunnelOrigin::Auto,
+                state: TunnelState::Active,
+                bytes_transferred: 0,
+            },
+            _cancel: cancel,
+            bytes: Arc::new(AtomicU64::new(0)),
+            remote_cleanup: None,
+        }
+    }
+
+    async fn port_is_free(port: u16) -> bool {
+        for _ in 0..50 {
+            if TcpListener::bind(("127.0.0.1", port)).await.is_ok() {
+                return true;
+            }
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
+        false
+    }
+
+    /// Regression: tearing a tunnel down must free its local port. Before the
+    /// fix `teardown_key`/`close_tunnel` relied on dropping `_cancel`, which does
+    /// not cancel the token, so the listener leaked and stayed bound — after a
+    /// reconnect the auto-detect rebind then landed on a different port and the
+    /// original `localhost:PORT` kept hitting the dead listener.
+    #[tokio::test]
+    async fn cancel_entry_frees_the_local_listener() {
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let port = listener.local_addr().unwrap().port();
+        let entry = entry_guarding(listener).await;
+
+        // Sanity: the port is held while the accept loop runs.
+        assert!(
+            TcpListener::bind(("127.0.0.1", port)).await.is_err(),
+            "port should be bound while the tunnel is live"
+        );
+
+        cancel_entry(&entry);
+
+        assert!(
+            port_is_free(port).await,
+            "cancel_entry must stop the accept loop and free the local port"
+        );
+    }
+
+    /// Pins the gotcha the fix exists for: dropping the entry (and its `_cancel`)
+    /// does NOT free the port, because the accept loop holds its own clone.
+    #[tokio::test]
+    async fn dropping_entry_does_not_free_the_listener() {
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let port = listener.local_addr().unwrap().port();
+        let entry = entry_guarding(listener).await;
+
+        drop(entry);
+
+        assert!(
+            !port_is_free(port).await,
+            "dropping the entry must NOT free the port — only an explicit cancel does"
+        );
+    }
 }

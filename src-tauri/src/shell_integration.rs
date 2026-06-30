@@ -33,10 +33,12 @@ pub fn prepare_local(shell: &str, session_id: &str) -> std::io::Result<Option<Lo
             std::fs::write(&rc_path, BASH_RC)?;
             Ok(Some(LocalIntegration {
                 program: shell.to_string(),
+                // GNU bash requires long options before short options;
+                // `bash -i --rcfile FILE` errors with "--: invalid option".
                 args: vec![
-                    "-i".into(),
                     "--rcfile".into(),
                     rc_path.to_string_lossy().into_owned(),
+                    "-i".into(),
                 ],
                 env: vec![],
                 tempfiles: vec![rc_path],
@@ -823,5 +825,34 @@ mod tests {
 
         cleanup(&integration.tempfiles);
         assert!(!zdotdir.exists(), "cleanup must remove temp dir");
+    }
+
+    #[test]
+    fn prepare_local_bash_passes_long_option_before_short() {
+        // GNU bash rejects a `--long` option that appears after a short option
+        // (`bash -i --rcfile FILE` => "bash: --: invalid option"). The rcfile
+        // long option must come before `-i`.
+        let session_id = format!("test-bashrc-{}", std::process::id());
+        let integration = prepare_local("/usr/bin/bash", &session_id)
+            .expect("prepare_local failed")
+            .expect("expected Some(LocalIntegration) for bash");
+
+        let rcfile_pos = integration
+            .args
+            .iter()
+            .position(|a| a == "--rcfile")
+            .expect("--rcfile arg missing");
+        let i_pos = integration
+            .args
+            .iter()
+            .position(|a| a == "-i")
+            .expect("-i arg missing");
+        assert!(
+            rcfile_pos < i_pos,
+            "--rcfile must precede -i, got args: {:?}",
+            integration.args
+        );
+
+        cleanup(&integration.tempfiles);
     }
 }

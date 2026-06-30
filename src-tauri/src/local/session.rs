@@ -18,6 +18,18 @@ pub struct LocalSessionManager {
     sessions: Arc<sync::Mutex<HashMap<String, LocalSession>>>,
 }
 
+/// Boot the default WSL distro synchronously so an interactive session doesn't
+/// race its cold start. Runs hidden (no console window) and ignores failures.
+#[cfg(windows)]
+fn prewarm_wsl(wsl_path: &str) {
+    use std::os::windows::process::CommandExt;
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+    let _ = std::process::Command::new(wsl_path)
+        .args(["--", "true"])
+        .creation_flags(CREATE_NO_WINDOW)
+        .output();
+}
+
 impl LocalSessionManager {
     pub fn new() -> Self {
         Self {
@@ -55,6 +67,25 @@ impl LocalSessionManager {
                 std::env::var("SHELL").unwrap_or_else(|_| "/bin/bash".to_string())
             }
         });
+
+        // A Stopped WSL distro cold-boots on its first invocation; the
+        // interactive `</dev/tty` attach can race that boot and hang with a
+        // blank terminal. Pre-warm the default distro with a throwaway command
+        // (the equivalent of a manual `wsl -- true`) so the PTY session below
+        // attaches to an already-running distro. Best-effort: a failure here is
+        // surfaced by the real launch instead.
+        #[cfg(windows)]
+        {
+            let is_wsl = std::path::Path::new(&shell)
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .map(|s| s.eq_ignore_ascii_case("wsl"))
+                .unwrap_or(false);
+            if is_wsl {
+                let wsl = shell.clone();
+                let _ = tokio::task::spawn_blocking(move || prewarm_wsl(&wsl)).await;
+            }
+        }
 
         // Optional invisible OSC 7 injection via per-shell rcfile + custom
         // args. Falls back silently if the rcfile can't be written.

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-06-30
+
+### Added
+
+- SFTP intra-pane drag-to-move — drag files within a pane, including onto
+  parent and breadcrumb drop targets, in both the terminal SFTP panel and
+  fullscreen panes
+
+### Fixed
+
+- Ports tab badge counts the current host instead of all sessions
+- Port-forward tunnels are cancelled on teardown so the local listener is freed
+- WSL distro is pre-warmed so cold-start sessions don't hang
+- Git Bash launches correctly (the `--rcfile` argument is passed before `-i`)
+- Docker stack services refresh on poll and after actions
+- Dropped a redundant SFTP panel drag ghost
+
 ## [0.7.1] - 2026-06-28
 
 ### Fixed

@@ -46,6 +46,21 @@ export interface UpsertTeamSecret {
   ciphertext: string;
 }
 
+/**
+ * Error thrown by {@link fetchTeamApi} carrying machine-readable classification
+ * data alongside the (translated, user-facing) message. Callers must classify
+ * on `status`/`offline` rather than matching translated message text, which
+ * breaks under non-English locales.
+ */
+export type TeamObjectApiError = Error & { status?: number; offline?: boolean };
+
+function apiError(message: string, opts?: { status?: number; offline?: boolean }): TeamObjectApiError {
+  const err = new Error(message) as TeamObjectApiError;
+  if (opts?.status !== undefined) err.status = opts.status;
+  if (opts?.offline) err.offline = true;
+  return err;
+}
+
 async function getServerUrl(): Promise<string | null> {
   return invoke<string | null>("keychain_get", { key: "server_url" });
 }
@@ -83,7 +98,7 @@ async function tryRefreshJwt(): Promise<string | null> {
 
 async function fetchTeamApi(path: string, init: RequestInit): Promise<Response> {
   const serverUrl = await getServerUrl();
-  if (!serverUrl) throw new Error(i18n.t("common.error.notConnectedToServer"));
+  if (!serverUrl) throw apiError(i18n.t("common.error.notConnectedToServer"), { offline: true });
 
   let jwt = await getJwt();
   if (!jwt || isJwtExpiredOrExpiring(jwt)) jwt = await tryRefreshJwt();
@@ -100,11 +115,11 @@ async function fetchTeamApi(path: string, init: RequestInit): Promise<Response> 
     if (!newJwt) throw new Error(i18n.t("common.error.sessionExpired"));
     res = await appFetch(`${serverUrl}${path}`, { ...init, headers: makeHeaders(newJwt) });
   }
-  if (res.status === 403) throw new Error(i18n.t("common.error.noPermissionTeamVaultOp"));
-  if (res.status === 402) throw new Error(i18n.t("common.error.teamVaultRequiresSubscription"));
+  if (res.status === 403) throw apiError(i18n.t("common.error.noPermissionTeamVaultOp"), { status: res.status });
+  if (res.status === 402) throw apiError(i18n.t("common.error.teamVaultRequiresSubscription"), { status: res.status });
   if (res.status === 429) {
     const retryAfter = parseInt(res.headers.get("Retry-After") ?? "60", 10);
-    throw new Error(i18n.t("common.error.rateLimited", { seconds: retryAfter }));
+    throw apiError(i18n.t("common.error.rateLimited", { seconds: retryAfter }), { status: res.status });
   }
   return res;
 }

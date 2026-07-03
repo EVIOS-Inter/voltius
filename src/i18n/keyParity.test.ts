@@ -1,6 +1,4 @@
 import { describe, it, expect } from "vitest";
-import en from "./locales/en.json";
-import fr from "./locales/fr.json";
 
 function flatten(obj: Record<string, unknown>, prefix = ""): string[] {
   return Object.entries(obj).flatMap(([k, v]) => {
@@ -11,11 +9,22 @@ function flatten(obj: Record<string, unknown>, prefix = ""): string[] {
       : [key];
   });
 }
+function load(glob: Record<string, { default: Record<string, unknown> }>) {
+  const out: Record<string, unknown> = {};
+  for (const mod of Object.values(glob)) {
+    for (const [k, v] of Object.entries(mod.default)) {
+      out[k] = { ...(out[k] as object), ...(v as object) };
+    }
+  }
+  return out;
+}
+const en = load(import.meta.glob("./locales/en/*.json", { eager: true }) as never);
+const fr = load(import.meta.glob("./locales/fr/*.json", { eager: true }) as never);
 
 describe("locale key parity", () => {
   it("every French key exists in English (no drift)", () => {
-    const enKeys = new Set(flatten(en as Record<string, unknown>));
-    const orphaned = flatten(fr as Record<string, unknown>).filter((k) => !enKeys.has(k));
+    const enKeys = new Set(flatten(en));
+    const orphaned = flatten(fr).filter((k) => !enKeys.has(k));
     expect(orphaned).toEqual([]);
   });
 });

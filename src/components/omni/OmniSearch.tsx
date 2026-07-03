@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { useAllConnections } from "@/hooks/useAllConnections";
@@ -59,13 +60,15 @@ type OmniItem =
 
 type Category = "all" | "snippets" | "marketplace" | "settings" | "join";
 
-const CATEGORY_BADGES: { category: Category; prefix: string; label: string }[] = [
-  { category: "all",         prefix: "",      label: "All" },
-  { category: "join",        prefix: "join ", label: "join> Sessions" },
-  { category: "snippets",    prefix: "> ",    label: "> Snippets" },
-  { category: "marketplace", prefix: "m> ",   label: "m> Marketplace" },
-  { category: "settings",    prefix: "@ ",    label: "@ Settings" },
-];
+function getCategoryBadges(t: (key: string) => string): { category: Category; prefix: string; label: string }[] {
+  return [
+    { category: "all",         prefix: "",      label: t("omni.categoryBadges.all") },
+    { category: "join",        prefix: "join ", label: t("omni.categoryBadges.join") },
+    { category: "snippets",    prefix: "> ",    label: t("omni.categoryBadges.snippets") },
+    { category: "marketplace", prefix: "m> ",   label: t("omni.categoryBadges.marketplace") },
+    { category: "settings",    prefix: "@ ",    label: t("omni.categoryBadges.settings") },
+  ];
+}
 
 function detectCategory(raw: string): { category: Category; query: string } {
   if (raw.startsWith("m> "))   return { category: "marketplace", query: raw.slice(3) };
@@ -97,6 +100,7 @@ function VaultBadge({ vaultId, vaults, teams }: { vaultId: string | undefined; v
 }
 
 export default function OmniSearch({ onClose }: OmniSearchProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -124,6 +128,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
   const settingsPagesMap = usePluginStore((s) => s.settingsPages);
   const locale = useLocaleStore((s) => s.locale);
   const nav = useMemo(() => getSettingsNav(), [locale]);
+  const categoryBadges = useMemo(() => getCategoryBadges(t), [locale, t]);
 
   const settingsItems = useMemo<OmniItem[]>(() => {
     const base = nav.map((n): OmniItem => ({
@@ -131,17 +136,17 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
       id: `open-settings:${n.id}`,
       label: n.label,
       icon: n.icon,
-      description: "Settings",
+      description: t("omni.settingsDescription"),
     }));
     const pluginPages = [...settingsPagesMap.values()].map((p): OmniItem => ({
       kind: "action",
       id: `open-settings:plugin:${p.id}`,
       label: p.label,
       icon: p.icon,
-      description: "Plugin Settings",
+      description: t("omni.pluginSettingsDescription"),
     }));
     return [...base, ...pluginPages];
-  }, [nav, settingsPagesMap]);
+  }, [nav, settingsPagesMap, t]);
   const setActiveNav = useUIStore((s) => s.setActiveNav);
   const setSidebarOpen = useUIStore((s) => s.setSidebarOpen);
   const openSettings = useUIStore((s) => s.openSettings);
@@ -630,7 +635,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
               className="p-1.5 rounded-md transition-colors text-(--t-text-dim)"
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--t-bg-elevated)"; e.currentTarget.style.color = "var(--t-text-primary)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--t-text-dim)"; }}
-              title="Edit host"
+              title={t("omni.editHost")}
             >
               <Icon icon="lucide:pencil" width={13} />
             </button>
@@ -639,7 +644,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
               className="p-1.5 rounded-md transition-colors text-(--t-text-dim)"
               onMouseEnter={(e) => { e.currentTarget.style.background = "#3D1515"; e.currentTarget.style.color = "#F87171"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--t-text-dim)"; }}
-              title="Delete host"
+              title={t("omni.deleteHost")}
             >
               <Icon icon="lucide:trash-2" width={13} />
             </button>
@@ -835,7 +840,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
             </span>
           </div>
           <span className="text-xs shrink-0 text-(--t-text-dim)">
-            {session.participant_count} {session.participant_count === 1 ? "person" : "people"}
+            {t("omni.participantCount", { count: session.participant_count })}
           </span>
           <span
             className="text-xs shrink-0 px-1.5 py-0.5 rounded-sm font-medium"
@@ -844,7 +849,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
               color: alreadyIn ? "var(--t-accent)" : "var(--t-text-dim)",
             }}
           >
-            {alreadyIn ? "Resume" : "Join"}
+            {alreadyIn ? t("omni.resume") : t("omni.join")}
           </span>
         </button>
       );
@@ -867,10 +872,10 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
           <div className="flex-1 min-w-0">
             <span className="text-sm font-medium"
               style={{ color: isSelected ? "var(--t-accent)" : "var(--t-text-primary)" }}>
-              Join by invite code...
+              {t("omni.joinCodePrompt.title")}
             </span>
             <p className="text-xs mt-0.5 text-(--t-text-dim)">
-              Paste your invite code here to join a private session
+              {t("omni.joinCodePrompt.subtitle")}
             </p>
           </div>
         </button>
@@ -894,7 +899,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
           <div className="flex-1 min-w-0">
             <span className="text-sm font-medium"
               style={{ color: isSelected ? "var(--t-accent)" : "var(--t-text-primary)" }}>
-              Join by invite code
+              {t("omni.joinCodeEntered.title")}
             </span>
             <p className="text-xs mt-0.5 font-mono truncate text-(--t-text-dim)">
               {item.code}
@@ -906,7 +911,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
     if (item.kind === "local-shell") {
       const shell = item.shell;
-      const label = shell ? shellLabel(shell.name) : "Local shell";
+      const label = shell ? shellLabel(shell.name) : t("omni.localShellDefault");
       const showPath = !!shell && shellNeedsPath.has(label);
       return (
         <button
@@ -932,10 +937,10 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
       const intent = item.intent;
       const { title, subtitle, icon } =
         intent.kind === "ssh"
-          ? { title: `Connect to ${intent.user}@${intent.host}`, subtitle: `Port ${intent.port} — SSH`, icon: "lucide:arrow-right" }
+          ? { title: t("omni.quickConnect.connectTo", { user: intent.user, host: intent.host }), subtitle: t("omni.quickConnect.portSsh", { port: intent.port }), icon: "lucide:arrow-right" }
           : intent.kind === "serial"
-          ? { title: "Serial connection", subtitle: intent.port ?? "Configure port & baud", icon: "lucide:ethernet-port" }
-          : { title: intent.shell ? `Local shell (${intent.shell})` : "Local shell", subtitle: "Open a local terminal", icon: "lucide:square-terminal" };
+          ? { title: t("omni.quickConnect.serialConnection"), subtitle: intent.port ?? t("omni.quickConnect.configurePortAndBaud"), icon: "lucide:ethernet-port" }
+          : { title: intent.shell ? t("omni.quickConnect.localShellNamed", { shell: intent.shell }) : t("omni.quickConnect.localShell"), subtitle: t("omni.quickConnect.openLocalTerminal"), icon: "lucide:square-terminal" };
       return (
         <button
           key="quick-connect"
@@ -1000,7 +1005,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search hosts, keys, identities & commands..."
+            placeholder={t("omni.searchPlaceholder")}
             className="flex-1 bg-transparent text-sm outline-hidden placeholder-opacity-40 text-(--t-text-primary)"
           />
           <span className="text-xs px-1.5 py-0.5 rounded-lg font-mono bg-(--t-bg-base) text-(--t-text-muted) border border-(--t-border-hover)">
@@ -1010,7 +1015,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
         {/* Category badges */}
         <div className="flex items-center gap-1.5 px-4 py-2 border-b border-b-(--t-border)">
-          {CATEGORY_BADGES.map((badge) => {
+          {categoryBadges.map((badge) => {
             const isActive = category === badge.category;
             return (
               <button
@@ -1038,7 +1043,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
             <>
               {sectionBoundaries.quickConnectCount > 0 && (
                 <>
-                  {sectionHeader("Quick Connect", false)}
+                  {sectionHeader(t("omni.sections.quickConnect"), false)}
                   {items.slice(sectionBoundaries.quickConnectStart, sectionBoundaries.quickConnectStart + sectionBoundaries.quickConnectCount)
                     .map((item) => renderItem(item, runningIdx++))}
                 </>
@@ -1046,7 +1051,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
               {sectionBoundaries.activeCount > 0 && (
                 <>
-                  {sectionHeader("Active connections", sectionBoundaries.quickConnectCount > 0)}
+                  {sectionHeader(t("omni.sections.activeConnections"), sectionBoundaries.quickConnectCount > 0)}
                   {items.slice(sectionBoundaries.activeStart, sectionBoundaries.activeStart + sectionBoundaries.activeCount)
                     .map((item) => renderItem(item, runningIdx++))}
                 </>
@@ -1054,7 +1059,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
               {sectionBoundaries.teamSessionCount > 0 && (
                 <>
-                  {sectionHeader("Team Sessions", sectionBoundaries.quickConnectCount > 0 || sectionBoundaries.activeCount > 0)}
+                  {sectionHeader(t("omni.sections.teamSessions"), sectionBoundaries.quickConnectCount > 0 || sectionBoundaries.activeCount > 0)}
                   {items.slice(sectionBoundaries.teamSessionStart, sectionBoundaries.teamSessionStart + sectionBoundaries.teamSessionCount)
                     .map((item) => renderItem(item, runningIdx++))}
                 </>
@@ -1062,7 +1067,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
               {sectionBoundaries.recentCount > 0 && (
                 <>
-                  {sectionHeader("Recent", sectionBoundaries.quickConnectCount > 0 || sectionBoundaries.activeCount > 0)}
+                  {sectionHeader(t("omni.sections.recent"), sectionBoundaries.quickConnectCount > 0 || sectionBoundaries.activeCount > 0)}
                   {items.slice(sectionBoundaries.recentStart, sectionBoundaries.recentStart + sectionBoundaries.recentCount)
                     .map((item) => renderItem(item, runningIdx++))}
                 </>
@@ -1070,7 +1075,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
               {sectionBoundaries.hostCount > 0 && (
                 <>
-                  {sectionHeader("Hosts", hasAbove(sectionBoundaries.quickConnectCount, sectionBoundaries.activeCount, sectionBoundaries.recentCount))}
+                  {sectionHeader(t("omni.sections.hosts"), hasAbove(sectionBoundaries.quickConnectCount, sectionBoundaries.activeCount, sectionBoundaries.recentCount))}
                   {items.slice(sectionBoundaries.hostStart, sectionBoundaries.hostStart + sectionBoundaries.hostCount)
                     .map((item) => renderItem(item, runningIdx++))}
                 </>
@@ -1078,7 +1083,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
               {sectionBoundaries.localCount > 0 && (
                 <>
-                  {sectionHeader("Local", hasAbove(sectionBoundaries.quickConnectCount, sectionBoundaries.activeCount, sectionBoundaries.recentCount, sectionBoundaries.hostCount))}
+                  {sectionHeader(t("omni.sections.local"), hasAbove(sectionBoundaries.quickConnectCount, sectionBoundaries.activeCount, sectionBoundaries.recentCount, sectionBoundaries.hostCount))}
                   {items.slice(sectionBoundaries.localStart, sectionBoundaries.localStart + sectionBoundaries.localCount)
                     .map((item) => renderItem(item, runningIdx++))}
                 </>
@@ -1086,7 +1091,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
               {(sectionBoundaries.keyCount > 0 || sectionBoundaries.identityCount > 0) && (
                 <>
-                  {sectionHeader("Keychain", hasAbove(sectionBoundaries.quickConnectCount, sectionBoundaries.activeCount, sectionBoundaries.recentCount, sectionBoundaries.hostCount, sectionBoundaries.localCount))}
+                  {sectionHeader(t("omni.sections.keychain"), hasAbove(sectionBoundaries.quickConnectCount, sectionBoundaries.activeCount, sectionBoundaries.recentCount, sectionBoundaries.hostCount, sectionBoundaries.localCount))}
                   {items.slice(sectionBoundaries.keyStart, sectionBoundaries.keyStart + sectionBoundaries.keyCount)
                     .map((item) => renderItem(item, runningIdx++))}
                   {items.slice(sectionBoundaries.identityStart, sectionBoundaries.identityStart + sectionBoundaries.identityCount)
@@ -1096,7 +1101,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
               {sectionBoundaries.snippetCount > 0 && (
                 <>
-                  {sectionHeader("Snippets", runningIdx > 0)}
+                  {sectionHeader(t("omni.sections.snippets"), runningIdx > 0)}
                   {items.slice(sectionBoundaries.snippetStart, sectionBoundaries.snippetStart + sectionBoundaries.snippetCount)
                     .map((item) => renderItem(item, runningIdx++))}
                 </>
@@ -1104,7 +1109,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
               {sectionBoundaries.actionCount > 0 && (
                 <>
-                  {sectionHeader("Actions", runningIdx > 0)}
+                  {sectionHeader(t("omni.sections.actions"), runningIdx > 0)}
                   {items.slice(sectionBoundaries.actionStart, sectionBoundaries.actionStart + sectionBoundaries.actionCount)
                     .map((item) => renderItem(item, runningIdx++))}
                 </>
@@ -1112,7 +1117,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
               {sectionBoundaries.toggleCount > 0 && (
                 <>
-                  {sectionHeader("Quick Settings", runningIdx > 0)}
+                  {sectionHeader(t("omni.sections.quickSettings"), runningIdx > 0)}
                   {items.slice(sectionBoundaries.toggleStart, sectionBoundaries.toggleStart + sectionBoundaries.toggleCount)
                     .map((item) => renderItem(item, runningIdx++))}
                 </>
@@ -1120,7 +1125,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
 
               {sectionBoundaries.settingsCount > 0 && (
                 <>
-                  {sectionHeader("Settings", runningIdx > 0)}
+                  {sectionHeader(t("omni.sections.settings"), runningIdx > 0)}
                   {items.slice(sectionBoundaries.settingsStart, sectionBoundaries.settingsStart + sectionBoundaries.settingsCount)
                     .map((item) => renderItem(item, runningIdx++))}
                 </>
@@ -1128,19 +1133,19 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
             </>
           ) : (
             <>
-              {category === "settings" && sectionHeader("Settings", false)}
-              {category === "join" && items[0]?.kind === "join-code" && sectionHeader("Join by invite code", false)}
-              {category === "join" && items[0]?.kind !== "join-code" && sectionHeader("Team Sessions", false)}
+              {category === "settings" && sectionHeader(t("omni.sections.settings"), false)}
+              {category === "join" && items[0]?.kind === "join-code" && sectionHeader(t("omni.sections.joinByInviteCode"), false)}
+              {category === "join" && items[0]?.kind !== "join-code" && sectionHeader(t("omni.sections.teamSessions"), false)}
               {items.map((item) => renderItem(item, runningIdx++))}
             </>
           )}
 
           {items.length === 0 && (
             <p className="px-4 py-6 text-sm text-center text-(--t-text-dim)">
-              {category === "snippets" ? "No snippets yet" :
-               category === "marketplace" ? "Marketplace coming soon" :
-               category === "join" ? (q ? `No sessions match "${q}"` : "No active team sessions") :
-               `No results for "${q || query}"`}
+              {category === "snippets" ? t("omni.emptyState.noSnippets") :
+               category === "marketplace" ? t("omni.emptyState.marketplaceComingSoon") :
+               category === "join" ? (q ? t("omni.emptyState.noSessionsMatch", { query: q }) : t("omni.emptyState.noActiveTeamSessions")) :
+               t("omni.emptyState.noResultsFor", { query: q || query })}
             </p>
           )}
         </div>

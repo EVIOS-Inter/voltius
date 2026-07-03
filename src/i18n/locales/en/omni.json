@@ -1,0 +1,58 @@
+{
+  "omni": {
+    "searchPlaceholder": "Search hosts, keys, identities & commands...",
+    "categoryBadges": {
+      "all": "All",
+      "join": "join> Sessions",
+      "snippets": "> Snippets",
+      "marketplace": "m> Marketplace",
+      "settings": "@ Settings"
+    },
+    "sections": {
+      "quickConnect": "Quick Connect",
+      "activeConnections": "Active connections",
+      "teamSessions": "Team Sessions",
+      "recent": "Recent",
+      "hosts": "Hosts",
+      "local": "Local",
+      "keychain": "Keychain",
+      "snippets": "Snippets",
+      "actions": "Actions",
+      "quickSettings": "Quick Settings",
+      "settings": "Settings",
+      "joinByInviteCode": "Join by invite code"
+    },
+    "settingsDescription": "Settings",
+    "pluginSettingsDescription": "Plugin Settings",
+    "editHost": "Edit host",
+    "deleteHost": "Delete host",
+    "resume": "Resume",
+    "join": "Join",
+    "participantCount_one": "{{count}} person",
+    "participantCount_other": "{{count}} people",
+    "joinCodePrompt": {
+      "title": "Join by invite code...",
+      "subtitle": "Paste your invite code here to join a private session"
+    },
+    "joinCodeEntered": {
+      "title": "Join by invite code"
+    },
+    "quickConnect": {
+      "connectTo": "Connect to {{user}}@{{host}}",
+      "portSsh": "Port {{port}} — SSH",
+      "serialConnection": "Serial connection",
+      "configurePortAndBaud": "Configure port & baud",
+      "localShellNamed": "Local shell ({{shell}})",
+      "localShell": "Local shell",
+      "openLocalTerminal": "Open a local terminal"
+    },
+    "localShellDefault": "Local shell",
+    "emptyState": {
+      "noSnippets": "No snippets yet",
+      "marketplaceComingSoon": "Marketplace coming soon",
+      "noSessionsMatch": "No sessions match \"{{query}}\"",
+      "noActiveTeamSessions": "No active team sessions",
+      "noResultsFor": "No results for \"{{query}}\""
+    }
+  }
+}

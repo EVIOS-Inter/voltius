@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import type { JumpHost } from "@/types";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { ConnectionAvatar } from "@/components/shared/ConnectionAvatar";
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function JumpHostsPanel({ jumpHosts, onChange, onBack }: Props) {
+  const { t } = useTranslation();
   const { connections } = useConnectionStore();
   const [showPicker, setShowPicker] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -91,21 +93,21 @@ export default function JumpHostsPanel({ jumpHosts, onChange, onBack }: Props) {
             </span>
           </button>
           <Icon icon="lucide:waypoints" width={14} className="text-(--t-text-dim)" />
-          <h2 className="text-sm font-semibold flex-1 text-(--t-text-primary)">Hosts Chaining</h2>
+          <h2 className="text-sm font-semibold flex-1 text-(--t-text-primary)">{t("connections.common.hostsChaining")}</h2>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
           {jumpHosts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
               <Icon icon="lucide:waypoints" width={32} className="text-(--t-text-dim) opacity-40" />
-              <p className="text-xs text-(--t-text-dim)">No jump hosts configured</p>
+              <p className="text-xs text-(--t-text-dim)">{t("connections.jumpHostsPanel.emptyTitle")}</p>
               <p className="text-xs text-(--t-text-dim) opacity-70">
-                Add hosts to connect through before the final destination
+                {t("connections.jumpHostsPanel.emptySubtitle")}
               </p>
             </div>
           ) : (
             <p className="text-xs text-(--t-text-dim) pb-1">
-              Hold and drag to reorder · Connected in order before reaching the final host
+              {t("connections.jumpHostsPanel.hint")}
             </p>
           )}
 
@@ -135,7 +137,7 @@ export default function JumpHostsPanel({ jumpHosts, onChange, onBack }: Props) {
                 <div
                   onMouseDown={() => handleDragStart(jh.id)}
                   className="text-(--t-text-dim) hover:text-(--t-text-primary) transition-colors shrink-0 cursor-grab active:cursor-grabbing"
-                  aria-label="Drag to reorder"
+                  aria-label={t("connections.jumpHostsPanel.dragToReorderAriaLabel")}
                 >
                   <Icon icon="lucide:grip-vertical" width={14} />
                 </div>
@@ -166,7 +168,7 @@ export default function JumpHostsPanel({ jumpHosts, onChange, onBack }: Props) {
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={() => removeJumpHost(jh.id)}
                   className="text-(--t-text-dim) hover:text-red-400 transition-colors shrink-0"
-                  aria-label="Remove jump host"
+                  aria-label={t("connections.jumpHostsPanel.removeAriaLabel")}
                 >
                   <Icon icon="lucide:x" width={14} />
                 </button>
@@ -180,7 +182,7 @@ export default function JumpHostsPanel({ jumpHosts, onChange, onBack }: Props) {
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-dashed border-(--t-border) text-xs text-(--t-text-dim) hover:text-(--t-text-primary) hover:border-(--t-border-hover) transition-colors"
           >
             <Icon icon="lucide:plus" width={13} />
-            Add Jump Host
+            {t("connections.jumpHostsPanel.addButton")}
           </button>
         </div>
       </div>

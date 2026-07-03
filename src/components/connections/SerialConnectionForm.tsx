@@ -1,5 +1,6 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import type { Connection, ConnectionFormData, VaultOption } from "@/types";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useFolderStore } from "@/stores/folderStore";
@@ -54,6 +55,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
   { initial, onSubmit, onClose, onDuplicate, onConnect, onDelete, canEdit },
   ref,
 ) {
+  const { t } = useTranslation();
   const [name, setName] = useState(initial?.name ?? "");
   const [serialPort, setSerialPort] = useState(initial?.serial_port ?? "");
   const [baud, setBaud] = useState<number>(initial?.serial_baud ?? 115200);
@@ -159,9 +161,9 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
 
   const panelItems = initial
     ? [
-        ...(onConnect ? [{ label: "Connect", icon: "lucide:terminal", onClick: () => onConnect() }] : []),
-        ...(onDuplicate ? [{ label: "Duplicate", icon: "lucide:copy", onClick: () => onDuplicate(), divider: true as const }] : []),
-        ...(canEdit && onDelete ? [{ label: "Delete", icon: "lucide:trash-2", onClick: () => onDelete(), danger: true as const, divider: true as const }] : []),
+        ...(onConnect ? [{ label: t("common.action.connect"), icon: "lucide:terminal", onClick: () => onConnect() }] : []),
+        ...(onDuplicate ? [{ label: t("connections.serialForm.duplicate"), icon: "lucide:copy", onClick: () => onDuplicate(), divider: true as const }] : []),
+        ...(canEdit && onDelete ? [{ label: t("common.action.delete"), icon: "lucide:trash-2", onClick: () => onDelete(), danger: true as const, divider: true as const }] : []),
       ]
     : [];
 
@@ -169,7 +171,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
     <PanelShell>
       <PanelHeader
         icon={initial ? "lucide:pencil" : "lucide:ethernet-port"}
-        title={initial ? "Edit Serial Host" : "New Serial Host"}
+        title={initial ? t("connections.serialForm.titleEdit") : t("connections.serialForm.titleNew")}
         subtitle={<VaultPicker vaultId={vaultId} onChange={(id) => { vaultPickerTouched.current = true; setVaultId(id); markDirty(); }} />}
         onClose={handleClose}
         saveState={initial ? saveState : undefined}
@@ -190,19 +192,19 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
       <div className="flex flex-col flex-1 overflow-y-auto">
         <div className="flex-1 px-4 py-4 space-y-3">
 
-          <FormSection label="General">
+          <FormSection label={t("connections.common.general")}>
             <div>
-              <label className={formLabelClass} style={formLabelStyle}>Label</label>
+              <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.labelField")}</label>
               <input
                 className={formInputClass}
                 style={formInputStyle}
                 value={name}
                 onChange={(e) => { markDirty(); setName(e.target.value); }}
-                placeholder="My Device (optional)"
+                placeholder={t("connections.serialForm.namePlaceholder")}
               />
             </div>
             <div>
-              <label className={formLabelClass} style={formLabelStyle}>Tags</label>
+              <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.tags")}</label>
               <TagSelector
                 value={tags}
                 vaultId={vaultId}
@@ -210,7 +212,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
               />
             </div>
             <div>
-              <label className={formLabelClass} style={formLabelStyle}>Folder</label>
+              <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.folder")}</label>
               <FolderSelector
                 value={folderId}
                 folders={folders}
@@ -225,10 +227,10 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
             </div>
           </FormSection>
 
-          <FormSection label="Serial Port">
+          <FormSection label={t("connections.serialForm.sectionSerialPort")}>
             <div>
               <label className={formLabelClass} style={formLabelStyle}>
-                Port <span className="text-(--t-accent)">*</span>
+                {t("connections.common.port")} <span className="text-(--t-accent)">*</span>
               </label>
               <PortInput
                 value={serialPort}
@@ -238,7 +240,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
             </div>
 
             <div>
-              <label className={formLabelClass} style={formLabelStyle}>Baud Rate</label>
+              <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.baudRate")}</label>
               {!useCustomBaud ? (
                 <div className="flex gap-2">
                   <FormSelect
@@ -252,7 +254,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
                     className="text-xs text-(--t-text-dim) hover:text-(--t-text-primary) px-2 transition-colors whitespace-nowrap"
                     onClick={() => { setUseCustomBaud(true); setCustomBaud(String(baud)); }}
                   >
-                    Custom
+                    {t("connections.serialForm.customBaudButton")}
                   </button>
                 </div>
               ) : (
@@ -269,7 +271,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
                     className="text-xs text-(--t-text-dim) hover:text-(--t-text-primary) px-2 transition-colors whitespace-nowrap"
                     onClick={() => { setUseCustomBaud(false); setBaud(115200); }}
                   >
-                    Preset
+                    {t("connections.serialForm.presetBaudButton")}
                   </button>
                 </div>
               )}
@@ -280,7 +282,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
               onClick={() => setShowAdvanced((v) => !v)}
               className="flex items-center gap-1.5 text-xs text-(--t-text-dim) hover:text-(--t-text-primary) transition-colors w-full pt-1"
             >
-              <span>Advanced</span>
+              <span>{t("connections.common.advanced")}</span>
               {!showAdvanced && (preCommand || postCommand || terminalEncoding || dataBits !== 8 || parity !== "none" || stopBits !== 1 || flowControl !== "none") && (
                 <span className="ml-0.5 w-1.5 h-1.5 rounded-full bg-(--t-accent)" />
               )}
@@ -293,7 +295,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
               <div className="overflow-hidden">
                 <div className="space-y-3 mt-3">
                   <div>
-                    <label className={formLabelClass} style={formLabelStyle}>Data Bits</label>
+                    <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.dataBits")}</label>
                     <Pills
                       options={[
                         { value: "5", label: "5" },
@@ -307,7 +309,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
                   </div>
 
                   <div>
-                    <label className={formLabelClass} style={formLabelStyle}>Stop Bits</label>
+                    <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.stopBits")}</label>
                     <Pills
                       options={[
                         { value: "1", label: "1" },
@@ -319,12 +321,12 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
                   </div>
 
                   <div>
-                    <label className={formLabelClass} style={formLabelStyle}>Parity</label>
+                    <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.parity")}</label>
                     <Pills
                       options={[
-                        { value: "none", label: "None" },
-                        { value: "even", label: "Even" },
-                        { value: "odd", label: "Odd" },
+                        { value: "none", label: t("common.state.none") },
+                        { value: "even", label: t("connections.common.even") },
+                        { value: "odd", label: t("connections.common.odd") },
                       ]}
                       value={parity}
                       onChange={(v) => { markDirty(); setParity(v); }}
@@ -332,12 +334,12 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
                   </div>
 
                   <div>
-                    <label className={formLabelClass} style={formLabelStyle}>Flow Control</label>
+                    <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.flowControl")}</label>
                     <Pills
                       options={[
-                        { value: "none", label: "None" },
-                        { value: "xon-xoff", label: "XON/XOFF" },
-                        { value: "rts-cts", label: "RTS/CTS" },
+                        { value: "none", label: t("common.state.none") },
+                        { value: "xon-xoff", label: t("connections.common.xonXoff") },
+                        { value: "rts-cts", label: t("connections.common.rtsCts") },
                       ]}
                       value={flowControl}
                       onChange={(v) => { markDirty(); setFlowControl(v); }}
@@ -351,7 +353,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
                       style={formInputStyle}
                       value={preCommand}
                       onChange={(e) => { markDirty(); setPreCommand(e.target.value); }}
-                      placeholder="Pre Command"
+                      placeholder={t("connections.common.preCommandPlaceholder")}
                     />
                   </div>
                   <div className="relative">
@@ -361,7 +363,7 @@ const SerialConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Se
                       style={formInputStyle}
                       value={postCommand}
                       onChange={(e) => { markDirty(); setPostCommand(e.target.value); }}
-                      placeholder="Post Command"
+                      placeholder={t("connections.common.postCommandPlaceholder")}
                     />
                   </div>
                   <EncodingSelector

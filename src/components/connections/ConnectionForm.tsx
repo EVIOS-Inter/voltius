@@ -1,5 +1,6 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import type { Connection, ConnectionFormData, AuthType, VaultOption, JumpHost, EnvVar } from "@/types";
 import { KEEPALIVE_PRESETS, type KeepalivePreset } from "@/utils/keepalive";
 import { useIdentityStore } from "@/stores/identityStore";
@@ -75,6 +76,7 @@ export interface ConnectionFormHandle {
 }
 
 const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function ConnectionForm({ initial, onSubmit, onClose, onDuplicate, onConnect, onDelete, vaults, canEdit, hideChrome, onMoveToVault, onCopyToVault }, ref) {
+  const { t } = useTranslation();
   const [name, setName] = useState(initial?.name ?? "");
   const [host, setHost] = useState(initial?.host ?? "");
   const [port, setPort] = useState<number | "">(initial?.port ?? 22);
@@ -287,15 +289,15 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
   const visibleIcon = icon || distro;
 
   const keepaliveOptions = useMemo(() => [
-    { value: "", label: `Inherit (${KEEPALIVE_PRESETS[globalKeepalive].label})` },
+    { value: "", label: t("connections.form.inheritKeepalive", { label: KEEPALIVE_PRESETS[globalKeepalive].label }) },
     ...(Object.keys(KEEPALIVE_PRESETS) as KeepalivePreset[]).map((p) => ({ value: p, label: KEEPALIVE_PRESETS[p].label })),
-  ], [globalKeepalive]);
+  ], [globalKeepalive, t]);
 
   const persistOptions = useMemo(() => [
-    { value: "", label: `Inherit (${globalPersist ? "On" : "Off"})` },
-    { value: "on", label: "On" },
-    { value: "off", label: "Off" },
-  ], [globalPersist]);
+    { value: "", label: t("connections.form.inheritPersist", { state: globalPersist ? t("connections.common.on") : t("connections.common.off") }) },
+    { value: "on", label: t("connections.common.on") },
+    { value: "off", label: t("connections.common.off") },
+  ], [globalPersist, t]);
 
   const applyIcon = useCallback((nextIcon: string) => {
     setIcon(nextIcon);
@@ -389,7 +391,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
       {!hideChrome && (
         <PanelHeader
           icon={initial ? "lucide:pencil" : "lucide:plus"}
-          title={initial ? "Edit Host" : "New Host"}
+          title={initial ? t("connections.form.titleEdit") : t("connections.form.titleNew")}
           subtitle={<VaultPicker vaultId={vaultId} onChange={(id) => { vaultPickerTouched.current = true; setVaultId(id); markDirty(); }} />}
           onClose={handleClose}
           saveState={initial ? saveState : undefined}
@@ -411,17 +413,17 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
       <div className="flex flex-col flex-1 overflow-y-auto">
         <div className="flex-1 px-4 py-4 space-y-3">
 
-          <FormSection label="General">
+          <FormSection label={t("connections.common.general")}>
             <div>
-              <label className={formLabelClass} style={formLabelStyle}>Label</label>
+              <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.labelField")}</label>
               <div ref={iconRowRef} className="relative flex gap-2.5">
                 <button
                   type="button"
                   onClick={() => setShowDistroPicker((v) => !v)}
                   className="w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0 transition-all hover:brightness-110"
                   style={glossyTileStyle(visibleIcon ? getConnectionIconColor(visibleIcon) : "var(--t-bg-card-avatar)")}
-                  title={visibleIcon ? `Change icon (${getConnectionIconLabel(visibleIcon)})` : "Change icon"}
-                  aria-label="Change connection icon"
+                  title={visibleIcon ? t("connections.form.changeIconWithLabel", { label: getConnectionIconLabel(visibleIcon) }) : t("connections.form.changeIcon")}
+                  aria-label={t("connections.form.changeIconAriaLabel")}
                 >
                   <Icon icon={visibleIcon ? getConnectionIcon(visibleIcon) : "lucide:server"} width={18} />
                 </button>
@@ -430,7 +432,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                   style={formInputStyle}
                   value={name}
                   onChange={(e) => { markDirty(); setName(e.target.value); }}
-                  placeholder="My Server (optional)"
+                  placeholder={t("connections.form.namePlaceholder")}
                 />
                 <DistroIconPicker
                   open={showDistroPicker}
@@ -446,7 +448,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
               </div>
             </div>
             <div>
-              <label className={formLabelClass} style={formLabelStyle}>Tags</label>
+              <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.tags")}</label>
               <TagSelector
                 value={tags}
                 vaultId={vaultId}
@@ -455,7 +457,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
             </div>
 
             <div>
-              <label className={formLabelClass} style={formLabelStyle}>Folder</label>
+              <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.folder")}</label>
               <FolderSelector
                 value={folderId}
                 folders={folders}
@@ -470,12 +472,12 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
             </div>
           </FormSection>
 
-          <FormSection label="Connection">
+          <FormSection label={t("connections.form.sectionConnection")}>
             <div>
-              <label className={formLabelClass} style={formLabelStyle}>Protocol</label>
+              <label className={formLabelClass} style={formLabelStyle}>{t("connections.form.protocol")}</label>
               <FormSelect
                 value={protocol}
-                options={[{ value: "ssh", label: "SSH / SFTP" }, { value: "ftp", label: "FTP" }]}
+                options={[{ value: "ssh", label: t("connections.form.protocolSsh") }, { value: "ftp", label: t("connections.form.protocolFtp") }]}
                 onChange={(v) => {
                   markDirty();
                   const next = v as "ssh" | "ftp";
@@ -486,17 +488,17 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
             </div>
             <div className="flex gap-2.5">
               <div className="flex-1">
-                <label className={formLabelClass} style={formLabelStyle}>Host / IP <span className="text-(--t-accent)">*</span></label>
+                <label className={formLabelClass} style={formLabelStyle}>{t("connections.form.hostIp")} <span className="text-(--t-accent)">*</span></label>
                 <input
                   className={formInputClass}
                   style={formInputStyle}
                   value={host}
                   onChange={(e) => { markDirty(); setHost(e.target.value); }}
-                  placeholder="192.168.1.1"
+                  placeholder={t("connections.form.hostPlaceholder")}
                 />
               </div>
               <div className="w-20">
-                <label className={formLabelClass} style={formLabelStyle}>Port <span className="text-(--t-accent)">*</span></label>
+                <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.port")} <span className="text-(--t-accent)">*</span></label>
                 <input
                   className={formInputClass}
                   style={{ ...formInputStyle, MozAppearance: "textfield" }}
@@ -516,7 +518,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
               onClick={() => setShowAdvanced((v) => !v)}
               className="flex items-center gap-1.5 text-xs text-(--t-text-dim) hover:text-(--t-text-primary) transition-colors w-full pt-1"
             >
-              <span>Advanced</span>
+              <span>{t("connections.common.advanced")}</span>
               {!showAdvanced && (jumpHosts.length > 0 || envVars.length > 0 || preCommand || postCommand || terminalEncoding || agentForwarding || legacyAlgorithms || pingDisabled || shellIntegrationDisabled !== undefined || keepalivePreset) && (
                 <span className="ml-0.5 w-1.5 h-1.5 rounded-full bg-(--t-accent)" />
               )}
@@ -534,7 +536,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                   className="flex items-center gap-1.5 text-xs text-(--t-text-dim) hover:text-(--t-text-primary) transition-colors w-full py-1"
                 >
                   <Icon icon="lucide:waypoints" width={13} />
-                  <span>Hosts Chaining</span>
+                  <span>{t("connections.common.hostsChaining")}</span>
                   {jumpHosts.length > 0 && (
                     <span className="ml-0.5 px-1.5 py-0.5 rounded-full bg-(--t-accent) text-(--t-bg-card) text-[10px] font-bold leading-none">
                       {jumpHosts.length}
@@ -548,7 +550,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                   className="flex items-center gap-1.5 text-xs text-(--t-text-dim) hover:text-(--t-text-primary) transition-colors w-full py-1"
                 >
                   <Icon icon="lucide:file-terminal" width={13} />
-                  <span>Environment Variables</span>
+                  <span>{t("connections.common.environmentVariables")}</span>
                   {envVars.length > 0 && (
                     <span className="ml-0.5 px-1.5 py-0.5 rounded-full bg-(--t-accent) text-(--t-bg-card) text-[10px] font-bold leading-none">
                       {envVars.length}
@@ -563,7 +565,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                     style={formInputStyle}
                     value={preCommand}
                     onChange={(e) => { markDirty(); setPreCommand(e.target.value); }}
-                    placeholder="Pre Command"
+                    placeholder={t("connections.common.preCommandPlaceholder")}
                   />
                 </div>
                 <div className="relative">
@@ -573,7 +575,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                     style={formInputStyle}
                     value={postCommand}
                     onChange={(e) => { markDirty(); setPostCommand(e.target.value); }}
-                    placeholder="Post Command"
+                    placeholder={t("connections.common.postCommandPlaceholder")}
                   />
                 </div>
                 <EncodingSelector
@@ -582,7 +584,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                 />
                 <div className="flex items-center gap-1.5 text-xs text-(--t-text-dim) w-full py-1">
                   <Icon icon="lucide:key-round" width={13} />
-                  <span>Agent Forwarding</span>
+                  <span>{t("connections.form.agentForwarding")}</span>
                   <span className="ml-auto">
                     <Toggle
                       checked={agentForwarding}
@@ -592,10 +594,10 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                 </div>
                 <div
                   className="flex items-center gap-1.5 text-xs text-(--t-text-dim) w-full py-1"
-                  title="Allow weak legacy algorithms (diffie-hellman-group1-sha1, 3des-cbc, hmac-sha1, …) for old devices such as legacy Cisco IOS. Strong algorithms are still preferred. Only enable for hosts that require it."
+                  title={t("connections.form.legacyAlgorithmsTooltip")}
                 >
                   <Icon icon="lucide:shield-alert" width={13} />
-                  <span>Legacy Algorithms</span>
+                  <span>{t("connections.form.legacyAlgorithms")}</span>
                   <span className="ml-auto">
                     <Toggle
                       checked={legacyAlgorithms}
@@ -605,14 +607,14 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                 </div>
                 <div className="group flex items-center gap-1.5 text-xs text-(--t-text-dim) w-full py-1">
                   <Icon icon="lucide:terminal" width={13} />
-                  <span>Shell Integration</span>
+                  <span>{t("connections.form.shellIntegration")}</span>
                   <div className="ml-auto flex items-center gap-2">
                     {shellIntegrationDisabled !== undefined && (
                       <ResetButton onReset={() => { markDirty(); setShellIntegrationDisabled(undefined); }} />
                     )}
                     {shellIntegrationDisabled !== undefined && <DirtyDot />}
                     <span
-                      title={shellIntegrationDisabled === undefined ? `Following global (${globalShellIntegration ? "On" : "Off"})` : "Overriding global for this host"}
+                      title={shellIntegrationDisabled === undefined ? t("connections.form.followingGlobal", { state: globalShellIntegration ? t("connections.common.on") : t("connections.common.off") }) : t("connections.form.overridingGlobalHost")}
                     >
                       <Toggle
                         checked={resolveDisableOverride(shellIntegrationDisabled, globalShellIntegration)}
@@ -623,7 +625,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-(--t-text-dim) w-full py-1">
                   <Icon icon="lucide:heart-pulse" width={13} />
-                  <span>Keepalive</span>
+                  <span>{t("connections.form.keepalive")}</span>
                   <FormSelect
                     className="ml-auto w-36"
                     value={keepalivePreset}
@@ -633,7 +635,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-(--t-text-dim) w-full py-1">
                   <Icon icon="lucide:layers" width={13} />
-                  <span>Persistent session</span>
+                  <span>{t("connections.form.persistentSession")}</span>
                   <FormSelect
                     className="ml-auto w-36"
                     value={persistSession}
@@ -648,10 +650,10 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
             </>)}
           </FormSection>
 
-          <FormSection label={isFtp ? "Credentials" : "Identity"}>
+          <FormSection label={isFtp ? t("connections.form.sectionCredentials") : t("connections.form.sectionIdentity")}>
             {!isFtp && (
             <div>
-              <label className={formLabelClass} style={formLabelStyle}>Keychain Identity</label>
+              <label className={formLabelClass} style={formLabelStyle}>{t("connections.form.keychainIdentity")}</label>
               <IdentitySelector
                 value={identityId}
                 identities={relevantIdentities}
@@ -665,7 +667,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
               <>
                 <div>
                   <label className={formLabelClass} style={formLabelStyle}>
-                    Username
+                    {t("connections.common.username")}
                   </label>
                   <input
                     className={formInputClass}
@@ -677,7 +679,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                 </div>
 
                 <div>
-                  <label className={formLabelClass} style={formLabelStyle}>Password</label>
+                  <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.password")}</label>
                   <SecretInput
                     value={password}
                     onChange={(v) => { markDirty(); passwordDirty.current = true; setPassword(v); }}
@@ -690,21 +692,21 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                 {isFtp && (
                   <div className="flex items-center gap-1.5 text-xs text-(--t-text-dim) w-full py-1">
                     <Icon icon="lucide:shield" width={13} />
-                    <span>Explicit FTPS (AUTH TLS)</span>
+                    <span>{t("connections.form.ftpsToggle")}</span>
                     <span className="ml-auto"><Toggle checked={ftpSecure} onChange={(v) => { markDirty(); setFtpSecure(v); }} /></span>
                   </div>
                 )}
                 {isFtp && (
                   <div className="flex items-center gap-1.5 text-xs text-(--t-text-dim) w-full py-1">
                     <Icon icon="lucide:user-x" width={13} />
-                    <span>Anonymous login</span>
+                    <span>{t("connections.form.anonymousLogin")}</span>
                     <span className="ml-auto"><Toggle checked={username === "anonymous"} onChange={(v) => { markDirty(); setUsername(v ? "anonymous" : ""); }} /></span>
                   </div>
                 )}
 
                 {!isFtp && (
                 <div>
-                  <label className={formLabelClass} style={formLabelStyle}>Private Key</label>
+                  <label className={formLabelClass} style={formLabelStyle}>{t("connections.common.privateKey")}</label>
                   <KeySelector
                     value={keyId}
                     keys={relevantKeys}
@@ -722,7 +724,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                       />
                       <div className="mt-2">
                         <label className={formLabelClass} style={formLabelStyle}>
-                          Passphrase <span className="text-(--t-text-dim) font-normal">(optional)</span>
+                          {t("connections.form.passphrase")} <span className="text-(--t-text-dim) font-normal">{t("connections.form.optional")}</span>
                         </label>
                         <div className="relative">
                           <input
@@ -731,7 +733,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                             style={formInputStyle}
                             value={passphrase}
                             onChange={(e) => { markDirty(); passphraseDirty.current = true; setPassphrase(e.target.value); }}
-                            placeholder="Key passphrase"
+                            placeholder={t("connections.form.keyPassphrasePlaceholder")}
                             autoComplete="new-password"
                           />
                           <button
@@ -763,7 +765,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
                     {selectedIdentity.username}
                   </p>
                   <p className="text-xs text-(--t-text-dim)">
-                    {selectedIdentity.key_id ? "SSH Key" : "Password"}
+                    {selectedIdentity.key_id ? t("connections.common.sshKey") : t("connections.common.password")}
                   </p>
                 </div>
               </div>

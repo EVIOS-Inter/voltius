@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { PickerSurface } from "@/components/shared/PickerSurface";
 import { filterIconOptions, getConnectionIcon, getConnectionIconColor, getConnectionIconLabel, glossyTileStyle } from "@/utils/icons";
 import { formInputClass, formInputStyle } from "@/components/shared/Panel";
@@ -30,11 +31,12 @@ export function DistroIconPicker({
   /** Whether the detect button should be enabled (host + username filled). */
   canDetect: boolean;
 }) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const results = filterIconOptions(search);
 
   return (
-    <PickerSurface open={open} onClose={onClose} anchorRef={anchorRef} title="Icon">
+    <PickerSurface open={open} onClose={onClose} anchorRef={anchorRef} title={t("connections.distroIconPicker.title")}>
       <div className="p-1.5 space-y-3">
         <div className="relative">
           <Icon
@@ -47,7 +49,7 @@ export function DistroIconPicker({
             style={formInputStyle}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search icon"
+            placeholder={t("connections.distroIconPicker.searchPlaceholder")}
             autoFocus
           />
         </div>
@@ -104,7 +106,7 @@ export function DistroIconPicker({
             width={13}
             className={detectingDistro ? "animate-spin" : undefined}
           />
-          Auto-detect OS
+          {t("connections.distroIconPicker.autoDetectOs")}
         </button>
         {distroError && (
           <p className="text-[11px] text-red-400 leading-snug">{distroError}</p>

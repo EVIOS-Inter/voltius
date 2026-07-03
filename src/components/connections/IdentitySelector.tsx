@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import type { Identity } from "@/types";
 import { PickerSurface } from "@/components/shared/PickerSurface";
 
@@ -11,11 +12,12 @@ interface Props {
 }
 
 export default function IdentitySelector({ value, identities, onChange, onGoToKeychain }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const selected = identities.find((i) => i.id === value) ?? null;
-  const displayLabel = selected ? (selected.name ?? selected.username) : "No identity — inline credentials";
+  const displayLabel = selected ? (selected.name ?? selected.username) : t("connections.identitySelector.noIdentityInline");
 
   return (
     <div>
@@ -49,7 +51,7 @@ export default function IdentitySelector({ value, identities, onChange, onGoToKe
         </span>
       </button>
 
-      <PickerSurface open={open} onClose={() => setOpen(false)} anchorRef={buttonRef} title="Identity">
+      <PickerSurface open={open} onClose={() => setOpen(false)} anchorRef={buttonRef} title={t("connections.identitySelector.title")}>
         {/* No identity option */}
         <button
           type="button"
@@ -66,7 +68,7 @@ export default function IdentitySelector({ value, identities, onChange, onGoToKe
           }}
         >
           <Icon icon="lucide:user-x" width={13} className="shrink-0" />
-          <span className="flex-1 text-left">No identity — inline credentials</span>
+          <span className="flex-1 text-left">{t("connections.identitySelector.noIdentityInline")}</span>
           {value === null && (
             <span className="[&_path]:stroke-[2.5]">
               <Icon icon="lucide:check" width={13} />
@@ -106,7 +108,7 @@ export default function IdentitySelector({ value, identities, onChange, onGoToKe
               )}
             </div>
             <span className="text-xs shrink-0 text-(--t-text-dim)">
-              {identity.key_id ? "key" : "pwd"}
+              {identity.key_id ? t("connections.identitySelector.badgeKey") : t("connections.identitySelector.badgePwd")}
             </span>
             {value === identity.id && (
               <span className="[&_path]:stroke-[2.5]">
@@ -134,7 +136,7 @@ export default function IdentitySelector({ value, identities, onChange, onGoToKe
           }}
         >
           <Icon icon="lucide:key-round" width={13} />
-          <span className="flex-1 text-left">Manage in Keychain</span>
+          <span className="flex-1 text-left">{t("connections.common.manageInKeychain")}</span>
           <Icon icon="lucide:arrow-right" width={13} />
         </button>
       </PickerSurface>

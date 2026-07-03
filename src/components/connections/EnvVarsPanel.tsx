@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import type { EnvVar } from "@/types";
 import { formInputClass, formInputStyle } from "@/components/shared/Panel";
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function EnvVarsPanel({ envVars, onChange, onBack }: Props) {
+  const { t } = useTranslation();
   const addVar = () => {
     onChange([...envVars, { id: crypto.randomUUID(), key: "", value: "" }]);
   };
@@ -34,21 +36,21 @@ export default function EnvVarsPanel({ envVars, onChange, onBack }: Props) {
           </span>
         </button>
         <Icon icon="lucide:file-terminal" width={14} className="text-(--t-text-dim)" />
-        <h2 className="text-sm font-semibold flex-1 text-(--t-text-primary)">Environment Variables</h2>
+        <h2 className="text-sm font-semibold flex-1 text-(--t-text-primary)">{t("connections.common.environmentVariables")}</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
         {envVars.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
             <Icon icon="lucide:file-terminal" width={32} className="text-(--t-text-dim) opacity-40" />
-            <p className="text-xs text-(--t-text-dim)">No environment variables</p>
+            <p className="text-xs text-(--t-text-dim)">{t("connections.envVarsPanel.emptyTitle")}</p>
             <p className="text-xs text-(--t-text-dim) opacity-70">
-              Variables will be set when connecting to this host
+              {t("connections.envVarsPanel.emptySubtitle")}
             </p>
           </div>
         ) : (
           <p className="text-xs text-(--t-text-dim) pb-1">
-            Variables set in the remote session environment
+            {t("connections.envVarsPanel.hint")}
           </p>
         )}
 
@@ -62,7 +64,7 @@ export default function EnvVarsPanel({ envVars, onChange, onBack }: Props) {
               style={formInputStyle}
               value={ev.key}
               onChange={(e) => updateVar(ev.id, "key", e.target.value)}
-              placeholder="KEY"
+              placeholder={t("connections.envVarsPanel.keyPlaceholder")}
               spellCheck={false}
             />
             <span className="text-xs text-(--t-text-dim) shrink-0">=</span>
@@ -71,14 +73,14 @@ export default function EnvVarsPanel({ envVars, onChange, onBack }: Props) {
               style={formInputStyle}
               value={ev.value}
               onChange={(e) => updateVar(ev.id, "value", e.target.value)}
-              placeholder="value"
+              placeholder={t("connections.envVarsPanel.valuePlaceholder")}
               spellCheck={false}
             />
             <button
               type="button"
               onClick={() => removeVar(ev.id)}
               className="text-(--t-text-dim) hover:text-red-400 transition-colors shrink-0"
-              aria-label="Remove variable"
+              aria-label={t("connections.envVarsPanel.removeAriaLabel")}
             >
               <Icon icon="lucide:x" width={14} />
             </button>
@@ -91,7 +93,7 @@ export default function EnvVarsPanel({ envVars, onChange, onBack }: Props) {
           className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-dashed border-(--t-border) text-xs text-(--t-text-dim) hover:text-(--t-text-primary) hover:border-(--t-border-hover) transition-colors"
         >
           <Icon icon="lucide:plus" width={13} />
-          Add Variable
+          {t("connections.envVarsPanel.addButton")}
         </button>
       </div>
     </div>

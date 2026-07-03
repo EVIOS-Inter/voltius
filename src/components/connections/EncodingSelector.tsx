@@ -1,68 +1,26 @@
 import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { PickerSurface } from "@/components/shared/PickerSurface";
 
-const ENCODING_GROUPS: { label: string; options: { value: string; label: string }[] }[] = [
-  { label: "Unicode", options: [
-    { value: "utf-16le", label: "UTF-16 LE" },
-    { value: "utf-16be", label: "UTF-16 BE" },
-  ]},
-  { label: "Western European", options: [
-    { value: "iso-8859-1", label: "ISO-8859-1 (Latin-1)" },
-    { value: "iso-8859-15", label: "ISO-8859-15 (Latin-9)" },
-    { value: "windows-1252", label: "Windows-1252" },
-  ]},
-  { label: "Central European", options: [
-    { value: "iso-8859-2", label: "ISO-8859-2 (Latin-2)" },
-    { value: "windows-1250", label: "Windows-1250" },
-  ]},
-  { label: "Cyrillic", options: [
-    { value: "iso-8859-5", label: "ISO-8859-5" },
-    { value: "koi8-r", label: "KOI8-R" },
-    { value: "koi8-u", label: "KOI8-U" },
-    { value: "windows-1251", label: "Windows-1251" },
-    { value: "ibm866", label: "IBM866" },
-  ]},
-  { label: "Greek", options: [
-    { value: "iso-8859-7", label: "ISO-8859-7" },
-    { value: "windows-1253", label: "Windows-1253" },
-  ]},
-  { label: "Hebrew", options: [
-    { value: "iso-8859-8", label: "ISO-8859-8" },
-    { value: "windows-1255", label: "Windows-1255" },
-  ]},
-  { label: "Arabic", options: [
-    { value: "iso-8859-6", label: "ISO-8859-6" },
-    { value: "windows-1256", label: "Windows-1256" },
-  ]},
-  { label: "Turkish", options: [
-    { value: "iso-8859-9", label: "ISO-8859-9" },
-    { value: "windows-1254", label: "Windows-1254" },
-  ]},
-  { label: "Baltic", options: [
-    { value: "iso-8859-13", label: "ISO-8859-13" },
-    { value: "windows-1257", label: "Windows-1257" },
-  ]},
-  { label: "Vietnamese", options: [
-    { value: "windows-1258", label: "Windows-1258" },
-  ]},
-  { label: "Chinese Simplified", options: [
-    { value: "gbk", label: "GBK / GB2312" },
-    { value: "gb18030", label: "GB18030" },
-  ]},
-  { label: "Chinese Traditional", options: [
-    { value: "big5", label: "Big5" },
-  ]},
-  { label: "Japanese", options: [
-    { value: "shift-jis", label: "Shift-JIS" },
-    { value: "euc-jp", label: "EUC-JP" },
-  ]},
-  { label: "Korean", options: [
-    { value: "euc-kr", label: "EUC-KR" },
-  ]},
+const ENCODING_GROUPS: { groupKey: string; options: string[] }[] = [
+  { groupKey: "unicode", options: ["utf-16le", "utf-16be"] },
+  { groupKey: "westernEuropean", options: ["iso-8859-1", "iso-8859-15", "windows-1252"] },
+  { groupKey: "centralEuropean", options: ["iso-8859-2", "windows-1250"] },
+  { groupKey: "cyrillic", options: ["iso-8859-5", "koi8-r", "koi8-u", "windows-1251", "ibm866"] },
+  { groupKey: "greek", options: ["iso-8859-7", "windows-1253"] },
+  { groupKey: "hebrew", options: ["iso-8859-8", "windows-1255"] },
+  { groupKey: "arabic", options: ["iso-8859-6", "windows-1256"] },
+  { groupKey: "turkish", options: ["iso-8859-9", "windows-1254"] },
+  { groupKey: "baltic", options: ["iso-8859-13", "windows-1257"] },
+  { groupKey: "vietnamese", options: ["windows-1258"] },
+  { groupKey: "chineseSimplified", options: ["gbk", "gb18030"] },
+  { groupKey: "chineseTraditional", options: ["big5"] },
+  { groupKey: "japanese", options: ["shift-jis", "euc-jp"] },
+  { groupKey: "korean", options: ["euc-kr"] },
 ];
 
-const ALL_OPTIONS = ENCODING_GROUPS.flatMap((g) => g.options);
+const ALL_OPTION_VALUES = ENCODING_GROUPS.flatMap((g) => g.options);
 
 interface Props {
   value: string;
@@ -70,10 +28,14 @@ interface Props {
 }
 
 export default function EncodingSelector({ value, onChange }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const selectedLabel = value ? (ALL_OPTIONS.find((o) => o.value === value)?.label ?? value) : "UTF-8 (default)";
+  const optionLabel = (val: string) => t(`connections.encodingSelector.options.${val}`);
+  const selectedLabel = value
+    ? (ALL_OPTION_VALUES.includes(value) ? optionLabel(value) : value)
+    : t("connections.encodingSelector.utf8Default");
 
   return (
     <div>
@@ -100,28 +62,28 @@ export default function EncodingSelector({ value, onChange }: Props) {
         </span>
       </button>
 
-      <PickerSurface open={open} onClose={() => setOpen(false)} anchorRef={buttonRef} title="Encoding">
+      <PickerSurface open={open} onClose={() => setOpen(false)} anchorRef={buttonRef} title={t("connections.encodingSelector.title")}>
         {/* UTF-8 default */}
         <OptionButton
           icon="lucide:binary"
-          label="UTF-8 (default)"
+          label={t("connections.encodingSelector.utf8Default")}
           selected={!value}
           onClick={() => { onChange(""); setOpen(false); }}
         />
 
         {ENCODING_GROUPS.map((group) => (
-          <div key={group.label}>
+          <div key={group.groupKey}>
             <div className="my-1 border-t border-t-(--t-bg-card-hover)" />
             <p className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-(--t-text-dim)">
-              {group.label}
+              {t(`connections.encodingSelector.groups.${group.groupKey}`)}
             </p>
             {group.options.map((opt) => (
               <OptionButton
-                key={opt.value}
+                key={opt}
                 icon="lucide:binary"
-                label={opt.label}
-                selected={value === opt.value}
-                onClick={() => { onChange(opt.value); setOpen(false); }}
+                label={optionLabel(opt)}
+                selected={value === opt}
+                onClick={() => { onChange(opt); setOpen(false); }}
               />
             ))}
           </div>

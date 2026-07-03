@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import type { SshKey } from "@/types";
 import { PickerSurface } from "@/components/shared/PickerSurface";
 
@@ -11,11 +12,12 @@ interface Props {
 }
 
 export default function KeySelector({ value, keys, onChange, onGoToKeychain }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const selected = keys.find((k) => k.id === value) ?? null;
-  const displayLabel = selected ? (selected.name ?? "Unnamed Key") : "Inline private key";
+  const displayLabel = selected ? (selected.name ?? t("connections.keySelector.unnamedKey")) : t("connections.keySelector.inlinePrivateKey");
 
   return (
     <div>
@@ -52,7 +54,7 @@ export default function KeySelector({ value, keys, onChange, onGoToKeychain }: P
         </span>
       </button>
 
-      <PickerSurface open={open} onClose={() => setOpen(false)} anchorRef={buttonRef} title="SSH Key">
+      <PickerSurface open={open} onClose={() => setOpen(false)} anchorRef={buttonRef} title={t("connections.common.sshKey")}>
         <button
           type="button"
           onClick={() => { onChange(null); setOpen(false); }}
@@ -62,7 +64,7 @@ export default function KeySelector({ value, keys, onChange, onGoToKeychain }: P
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
         >
           <Icon icon="lucide:file-key" width={13} className="shrink-0" />
-          <span className="flex-1 text-left">Inline private key</span>
+          <span className="flex-1 text-left">{t("connections.keySelector.inlinePrivateKey")}</span>
           {value === null && (
             <span className="[&_path]:stroke-[2.5]">
               <Icon icon="lucide:check" width={13} />
@@ -85,7 +87,7 @@ export default function KeySelector({ value, keys, onChange, onGoToKeychain }: P
           >
             <Icon icon="lucide:key" width={13} className="shrink-0" />
             <div className="flex-1 text-left min-w-0">
-              <p className="truncate text-(--t-text-primary)">{key.name ?? "Unnamed Key"}</p>
+              <p className="truncate text-(--t-text-primary)">{key.name ?? t("connections.keySelector.unnamedKey")}</p>
             </div>
             {key.key_type && (
               <span className="text-[10px] shrink-0 text-(--t-text-dim)">{key.key_type}</span>
@@ -113,7 +115,7 @@ export default function KeySelector({ value, keys, onChange, onGoToKeychain }: P
           }}
         >
           <Icon icon="lucide:key-round" width={13} />
-          <span className="flex-1 text-left">Manage in Keychain</span>
+          <span className="flex-1 text-left">{t("connections.common.manageInKeychain")}</span>
           <Icon icon="lucide:arrow-right" width={13} />
         </button>
       </PickerSurface>

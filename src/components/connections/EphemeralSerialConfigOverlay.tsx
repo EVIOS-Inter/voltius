@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import type { SerialConnectParams } from "@/types";
 import { serialListPorts } from "@/services/serial";
 import { Pills } from "@/components/shared/Pills";
@@ -19,6 +20,7 @@ export function EphemeralSerialConfigOverlay({
   onConnect: (params: SerialConnectParams) => void;
   onDismiss?: () => void;
 }) {
+  const { t } = useTranslation();
   const [port, setPort] = useState(initialPort ?? "");
   const [baud, setBaud] = useState(115200);
   const [dataBits, setDataBits] = useState(8);
@@ -39,12 +41,12 @@ export function EphemeralSerialConfigOverlay({
           <Icon icon="lucide:ethernet-port" width={22} className="text-accent" />
         </div>
         <div>
-          <p className="text-text-primary font-medium text-base leading-tight">Serial Connection</p>
-          <p className="text-text-muted text-xs mt-1">Configure the port before connecting</p>
+          <p className="text-text-primary font-medium text-base leading-tight">{t("connections.serialConfigOverlay.title")}</p>
+          <p className="text-text-muted text-xs mt-1">{t("connections.serialConfigOverlay.subtitle")}</p>
         </div>
         <div className="w-full space-y-3 text-left">
           <div>
-            <label className="text-xs text-(--t-text-dim) mb-1 block">Port</label>
+            <label className="text-xs text-(--t-text-dim) mb-1 block">{t("connections.common.port")}</label>
             <PortInput
               value={port}
               ports={availablePorts}
@@ -53,7 +55,7 @@ export function EphemeralSerialConfigOverlay({
             />
           </div>
           <div>
-            <label className="text-xs text-(--t-text-dim) mb-1 block">Baud Rate</label>
+            <label className="text-xs text-(--t-text-dim) mb-1 block">{t("connections.common.baudRate")}</label>
             <FormSelect
               value={String(baud)}
               options={BAUD_RATE_PRESETS.map((r) => ({ value: String(r), label: r.toLocaleString() }))}
@@ -66,12 +68,12 @@ export function EphemeralSerialConfigOverlay({
             className="flex items-center gap-1.5 text-xs text-(--t-text-dim) hover:text-(--t-text-primary) transition-colors"
           >
             <Icon icon={showAdvanced ? "lucide:chevron-up" : "lucide:chevron-down"} width={12} />
-            Advanced
+            {t("connections.common.advanced")}
           </button>
           {showAdvanced && (
             <>
               <div>
-                <label className="text-xs text-(--t-text-dim) mb-1 block">Data Bits</label>
+                <label className="text-xs text-(--t-text-dim) mb-1 block">{t("connections.common.dataBits")}</label>
                 <Pills
                   options={[{ value: "5", label: "5" }, { value: "6", label: "6" }, { value: "7", label: "7" }, { value: "8", label: "8" }]}
                   value={String(dataBits)}
@@ -79,7 +81,7 @@ export function EphemeralSerialConfigOverlay({
                 />
               </div>
               <div>
-                <label className="text-xs text-(--t-text-dim) mb-1 block">Stop Bits</label>
+                <label className="text-xs text-(--t-text-dim) mb-1 block">{t("connections.common.stopBits")}</label>
                 <Pills
                   options={[{ value: "1", label: "1" }, { value: "2", label: "2" }]}
                   value={String(stopBits)}
@@ -87,17 +89,17 @@ export function EphemeralSerialConfigOverlay({
                 />
               </div>
               <div>
-                <label className="text-xs text-(--t-text-dim) mb-1 block">Parity</label>
+                <label className="text-xs text-(--t-text-dim) mb-1 block">{t("connections.common.parity")}</label>
                 <Pills
-                  options={[{ value: "none", label: "None" }, { value: "even", label: "Even" }, { value: "odd", label: "Odd" }]}
+                  options={[{ value: "none", label: t("common.state.none") }, { value: "even", label: t("connections.common.even") }, { value: "odd", label: t("connections.common.odd") }]}
                   value={parity}
                   onChange={setParity}
                 />
               </div>
               <div>
-                <label className="text-xs text-(--t-text-dim) mb-1 block">Flow Control</label>
+                <label className="text-xs text-(--t-text-dim) mb-1 block">{t("connections.common.flowControl")}</label>
                 <Pills
-                  options={[{ value: "none", label: "None" }, { value: "xon-xoff", label: "XON/XOFF" }, { value: "rts-cts", label: "RTS/CTS" }]}
+                  options={[{ value: "none", label: t("common.state.none") }, { value: "xon-xoff", label: t("connections.common.xonXoff") }, { value: "rts-cts", label: t("connections.common.rtsCts") }]}
                   value={flowControl}
                   onChange={setFlowControl}
                 />
@@ -111,11 +113,11 @@ export function EphemeralSerialConfigOverlay({
             onClick={() => onConnect({ sessionId, port: port.trim(), baud, dataBits, parity, stopBits, flowControl })}
             className="btn btn-primary w-full px-4 py-2 rounded-lg text-sm font-medium disabled:cursor-not-allowed"
           >
-            Connect
+            {t("common.action.connect")}
           </button>
           {onDismiss && (
             <button onClick={onDismiss} className="w-full px-4 py-2 rounded-lg text-sm text-text-muted hover:text-text-primary transition-colors">
-              Cancel
+              {t("common.action.cancel")}
             </button>
           )}
         </div>

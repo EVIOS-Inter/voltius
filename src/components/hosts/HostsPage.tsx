@@ -324,7 +324,8 @@ export default function HostsPage() {
   const handleDuplicate = async (conn: Connection) => {
     try {
       const newConn = await saveConnection({
-        name: conn.name ? t("hosts.page.copyOf", { name: conn.name }) : undefined,
+        // default name kept in English until all creation sites are localized together (see i18n issue #14)
+        name: conn.name ? `${conn.name} (copy)` : undefined,
         connection_type: conn.connection_type,
         host: conn.host,
         port: conn.port,
@@ -533,7 +534,7 @@ export default function HostsPage() {
       operation: "move",
       targetVaultName,
       items: [
-        ...(keyNeedsMove ? [{ type: "key" as const, label: key.name ?? t("hosts.page.unnamedKey") }] : []),
+        ...(keyNeedsMove ? [{ type: "key" as const, label: key.name ?? "Unnamed key" /* default name kept in English until all creation sites are localized together (see i18n issue #14) */ }] : []),
         ...(identityNeedsMove ? [{ type: "identity" as const, label: identity.name || identity.username }] : []),
       ],
       execute: async () => {
@@ -570,7 +571,7 @@ export default function HostsPage() {
       operation: "copy",
       targetVaultName,
       items: [
-        ...(keyNeedsCopy ? [{ type: "key" as const, label: key.name ?? t("hosts.page.unnamedKey") }] : []),
+        ...(keyNeedsCopy ? [{ type: "key" as const, label: key.name ?? "Unnamed key" /* default name kept in English until all creation sites are localized together (see i18n issue #14) */ }] : []),
         ...(identityNeedsCopy ? [{ type: "identity" as const, label: identity.name || identity.username }] : []),
       ],
       execute: async () => {
@@ -598,7 +599,8 @@ export default function HostsPage() {
 
           const destHasConnName = conn.name && connections.some((c) => (c.vault_id ?? "personal") === vaultId && c.name === conn.name);
           const newConn = await saveConnection({
-            name: conn.name ? (destHasConnName ? t("hosts.page.copyOf", { name: conn.name }) : conn.name) : undefined,
+            // default name kept in English until all creation sites are localized together (see i18n issue #14)
+            name: conn.name ? (destHasConnName ? `${conn.name} (copy)` : conn.name) : undefined,
             host: conn.host, port: conn.port, username: conn.username,
             auth_type: conn.auth_type, tags: [...conn.tags],
             identity_id: newIdentityId, key_id: conn.key_id, folder_id: conn.folder_id,
@@ -661,7 +663,7 @@ export default function HostsPage() {
 
     const cascadeItems = [
       ...allConns.map((c) => ({ type: "connection" as const, label: c.name ?? c.host })),
-      ...[...keyMap.values()].map((k) => ({ type: "key" as const, label: k.name ?? t("hosts.page.unnamedKey") })),
+      ...[...keyMap.values()].map((k) => ({ type: "key" as const, label: k.name ?? "Unnamed key" /* default name kept in English until all creation sites are localized together (see i18n issue #14) */ })),
       ...[...identityMap.values()].map((i) => ({ type: "identity" as const, label: i.name || i.username })),
     ];
 
@@ -707,7 +709,7 @@ export default function HostsPage() {
 
     const cascadeItems = [
       ...allConns.map((c) => ({ type: "connection" as const, label: c.name ?? c.host })),
-      ...[...keyMap.values()].map((k) => ({ type: "key" as const, label: k.name ?? t("hosts.page.unnamedKey") })),
+      ...[...keyMap.values()].map((k) => ({ type: "key" as const, label: k.name ?? "Unnamed key" /* default name kept in English until all creation sites are localized together (see i18n issue #14) */ })),
       ...[...identityMap.values()].map((i) => ({ type: "identity" as const, label: i.name || i.username })),
     ];
 
@@ -721,7 +723,8 @@ export default function HostsPage() {
           // Create root folder + sub-folders (BFS order ensures parent exists before child)
           const folderIdMap = new Map<string, string>();
           const destHasFolderName = folders.some((f) => (f.vault_id ?? "personal") === vaultId && f.object_type === folder.object_type && f.name === folder.name);
-          const newFolder = await saveFolder({ name: destHasFolderName ? t("hosts.page.copyOf", { name: folder.name }) : folder.name, object_type: folder.object_type, parent_folder_id: folder.parent_folder_id, vault_id: vaultId });
+          // default name kept in English until all creation sites are localized together (see i18n issue #14)
+          const newFolder = await saveFolder({ name: destHasFolderName ? `${folder.name} (copy)` : folder.name, object_type: folder.object_type, parent_folder_id: folder.parent_folder_id, vault_id: vaultId });
           folderIdMap.set(folder.id, newFolder.id);
           for (const sf of subFolders) {
             const newParentId = sf.parent_folder_id ? (folderIdMap.get(sf.parent_folder_id) ?? newFolder.id) : newFolder.id;
@@ -874,7 +877,7 @@ export default function HostsPage() {
             }}
             canCreate={canCreate}
             canCreateFolder={canCreateFolder}
-            onCreateFolder={() => void saveFolder({ name: t("hosts.toolbar.newFolder"), object_type: "connection", parent_folder_id: activeFolderId ?? undefined, vault_id: defaultVaultId }).then((f) => { setShowForm(false); setShowSerialForm(false); setEditingId(null); setEditingFolderId(f.id); })}
+            onCreateFolder={() => void saveFolder({ name: "New Folder" /* default name kept in English until all creation sites are localized together (see i18n issue #14) */, object_type: "connection", parent_folder_id: activeFolderId ?? undefined, vault_id: defaultVaultId }).then((f) => { setShowForm(false); setShowSerialForm(false); setEditingId(null); setEditingFolderId(f.id); })}
             onCreateSerial={canCreate ? () => {
               hostFormSessionKeyRef.current = `new-${Date.now()}`;
               setEditingId(null);
@@ -981,7 +984,7 @@ export default function HostsPage() {
                         e.currentTarget.style.background = "transparent";
                       }}
                       onClick={() =>
-                        saveFolder({ name: t("hosts.toolbar.newFolder"), object_type: "connection", parent_folder_id: activeFolderId ?? undefined, vault_id: defaultVaultId }).then((f) => {
+                        saveFolder({ name: "New Folder" /* default name kept in English until all creation sites are localized together (see i18n issue #14) */, object_type: "connection", parent_folder_id: activeFolderId ?? undefined, vault_id: defaultVaultId }).then((f) => {
                           setShowForm(false); setEditingId(null); setEditingFolderId(f.id);
                         })
                       }
@@ -1201,7 +1204,7 @@ export default function HostsPage() {
           items={[
             ...(canCreate ? [{ label: t("hosts.toolbar.newHost"), icon: "lucide:server", onClick: () => { hostFormSessionKeyRef.current = `new-${Date.now()}`; setEditingId(null); setShowForm(true); setShowSerialForm(false); setEditingFolderId(null); } } as const] : []),
             ...(canCreate ? [{ label: t("hosts.toolbar.newSerialHost"), icon: "lucide:ethernet-port", onClick: () => { hostFormSessionKeyRef.current = `new-${Date.now()}`; setEditingId(null); setShowSerialForm(true); setShowForm(false); setEditingFolderId(null); } } as const] : []),
-            ...(canCreateFolder ? [{ label: t("hosts.toolbar.newFolder"), icon: "lucide:folder-plus", onClick: () => void saveFolder({ name: t("hosts.toolbar.newFolder"), object_type: "connection", parent_folder_id: activeFolderId ?? undefined, vault_id: defaultVaultId }).then((f) => { setShowForm(false); setEditingId(null); setEditingFolderId(f.id); }) } as const] : []),
+            ...(canCreateFolder ? [{ label: "New Folder" /* default name kept in English until all creation sites are localized together (see i18n issue #14) */, icon: "lucide:folder-plus", onClick: () => void saveFolder({ name: "New Folder" /* default name kept in English until all creation sites are localized together (see i18n issue #14) */, object_type: "connection", parent_folder_id: activeFolderId ?? undefined, vault_id: defaultVaultId }).then((f) => { setShowForm(false); setEditingId(null); setEditingFolderId(f.id); }) } as const] : []),
             ...bgContributions,
           ]}
         />

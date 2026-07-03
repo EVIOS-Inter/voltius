@@ -10,8 +10,7 @@
       "export": "Export…",
       "fromImporter": "From {{label}}",
       "newHost": "New Host",
-      "newSerialHost": "New Serial Host",
-      "newFolder": "New Folder"
+      "newSerialHost": "New Serial Host"
     },
     "card": {
       "pin": "Pin",
@@ -48,8 +47,6 @@
       "noSearchResults": "No hosts match \"{{search}}\"",
       "ejectMoveTo": "Move to {{name}}",
       "ejectRemoveFromFolder": "Remove from folder",
-      "unnamedKey": "Unnamed key",
-      "copyOf": "{{name}} (copy)",
       "emptyState": {
         "title": "No hosts yet",
         "subtitle": "Add your first SSH host to get started"

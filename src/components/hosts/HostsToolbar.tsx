@@ -68,7 +68,8 @@ export function HomeToolbar({
 
   const newHostItems = [
     ...(canCreate && onCreateSerial ? [{ label: t("hosts.toolbar.newSerialHost"), icon: "lucide:ethernet-port", onClick: onCreateSerial }] : []),
-    ...(canCreateFolder ? [{ label: t("hosts.toolbar.newFolder"), icon: "lucide:folder-plus", onClick: onCreateFolder }] : []),
+    // default name kept in English until all creation sites are localized together (see i18n issue #14)
+    ...(canCreateFolder ? [{ label: "New Folder", icon: "lucide:folder-plus", onClick: onCreateFolder }] : []),
     ...pluginHostMenuItems,
   ];
 

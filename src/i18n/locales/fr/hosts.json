@@ -10,8 +10,7 @@
       "export": "Exporter…",
       "fromImporter": "Depuis {{label}}",
       "newHost": "Nouvel hôte",
-      "newSerialHost": "Nouvel hôte série",
-      "newFolder": "Nouveau dossier"
+      "newSerialHost": "Nouvel hôte série"
     },
     "card": {
       "pin": "Épingler",
@@ -48,8 +47,6 @@
       "noSearchResults": "Aucun hôte ne correspond à \"{{search}}\"",
       "ejectMoveTo": "Déplacer vers {{name}}",
       "ejectRemoveFromFolder": "Retirer du dossier",
-      "unnamedKey": "Clé sans nom",
-      "copyOf": "{{name}} (copie)",
       "emptyState": {
         "title": "Aucun hôte pour l'instant",
         "subtitle": "Ajoutez votre premier hôte SSH pour commencer"

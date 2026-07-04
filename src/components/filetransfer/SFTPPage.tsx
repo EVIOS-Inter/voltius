@@ -388,7 +388,7 @@ export default function SFTPPage() {
     if (!dstDir) return;
     const sftpId = phase.sftpId;
     const base = dstDir.replace(/[\\/]$/, "");
-    const label = files.length === 1 ? files[0].name : `${files.length} items`;
+    const label = files.length === 1 ? files[0].name : t("fileTransfer.common.itemsCount", { count: files.length });
     // Archives remotely + extracts locally, so both ends need tar.
     const useTar = await tarUsable([sftpId], true);
 

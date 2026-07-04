@@ -17,6 +17,8 @@ import {
   type ParsedVariable,
 } from "@/services/snippetParser";
 import { snippetScriptText, snippetSearchText } from "@/services/snippetSteps";
+import { runSnippetSequence } from "@/services/snippetSequence";
+import type { RunTarget } from "@/services/sftpTarget";
 import { SnippetVariableModal } from "@/components/terminal/SnippetVariableModal";
 import { PanelShell, PanelHeader, PanelHeaderIconButton } from "@/components/shared/Panel";
 import { useFilterShortcut } from "@/components/shared/ToolbarViewControls";
@@ -143,6 +145,21 @@ export function SnippetPickerPanel({ connectionIds, onClose }: Props) {
   }, [connectionIds, connections, sessions, connectMany, openSessions, setActive, setActiveNav, trackUsed, onClose]);
 
   const handleTrigger = useCallback((snippet: Snippet, execute: boolean) => {
+    if (snippet.steps.some((s) => s.kind !== "script")) {
+      const targets: RunTarget[] = connectionIds.flatMap((connId) => {
+        const conn = connections.find((c) => c.id === connId);
+        if (!conn || conn.connection_type === "serial") return [];
+        const live = sessions.find((s) => s.connectionId === connId && s.status === "connected" && s.type === "ssh");
+        return [live
+          ? { kind: "session" as const, sessionId: live.id, sessionType: "ssh" }
+          : { kind: "connection" as const, connection: conn }];
+      });
+      trackUsed(snippet.id);
+      onClose();
+      void runSnippetSequence(snippet, targets, useSnippetStore.getState().setGlobalPendingSequence);
+      return;
+    }
+
     const text = snippetScriptText(snippet);
     const vars = parseVariables(text);
     const userVars = vars.filter((v) => !v.dynamic);
@@ -153,7 +170,7 @@ export function SnippetPickerPanel({ connectionIds, onClose }: Props) {
     } else {
       void doInjectText(snippet, resolveTemplate(text, initialValues), execute);
     }
-  }, [doInjectText]);
+  }, [doInjectText, connectionIds, connections, sessions, trackUsed, onClose]);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (

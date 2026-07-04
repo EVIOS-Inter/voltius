@@ -17,6 +17,7 @@ import {
   type DynamicContext,
 } from "@/services/snippetParser";
 import { buildDynamicContext } from "@/services/snippetRunCore";
+import { runSnippetSequence } from "@/services/snippetSequence";
 import { snippetScriptText, snippetSearchText } from "@/services/snippetSteps";
 import { SnippetVariableModal } from "@/components/terminal/SnippetVariableModal";
 import { SnippetForm } from "@/components/snippets/SnippetForm";
@@ -400,6 +401,15 @@ export function SnippetsPanel() {
   async function handleTrigger(snippet: Snippet, execute: boolean) {
     if (!activeSession || activeSession.type === "multiplayer") return;
     trackUsed(snippet.id);
+
+    if (snippet.steps.some((s) => s.kind !== "script")) {
+      void runSnippetSequence(
+        snippet,
+        [{ kind: "session", sessionId: activeSession.id, sessionType: activeSession.type }],
+        useSnippetStore.getState().setGlobalPendingSequence,
+      );
+      return;
+    }
 
     const text = snippetScriptText(snippet);
     const allVars = parseVariables(text);

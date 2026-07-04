@@ -16,6 +16,7 @@ import {
   resolveTemplate, type DynamicContext,
 } from "@/services/snippetParser";
 import { broadcastSnippetInject } from "@/services/snippets";
+import { runSnippetSequence } from "@/services/snippetSequence";
 import { snippetScriptText, snippetSearchText } from "@/services/snippetSteps";
 import type { Connection, TerminalSession, SshKey, Identity, Snippet } from "@/types";
 import { ConnectionAvatar } from "@/components/shared/ConnectionAvatar";
@@ -392,6 +393,17 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
           (s) => s.status === "connected" && s.type !== "multiplayer",
         );
         if (!activeSession) { onClose(); return; }
+
+        if (item.snippet.steps.some((s) => s.kind !== "script")) {
+          trackUsed(item.snippet.id);
+          onClose();
+          void runSnippetSequence(
+            item.snippet,
+            [{ kind: "session", sessionId: activeSession.id, sessionType: activeSession.type }],
+            useSnippetStore.getState().setGlobalPendingSequence,
+          );
+          return;
+        }
 
         const conn = connections.find((c) => c.id === activeSession.connectionId);
         const ctx: DynamicContext = activeSession.type === "local"

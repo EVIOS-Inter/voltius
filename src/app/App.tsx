@@ -19,6 +19,7 @@ import { useSnippetStore } from "@/stores/snippetStore";
 import { useSessionStore } from "@/stores/sessionStore";
 import { broadcastSnippetInject } from "@/services/snippets";
 import { isRunnableSession } from "@/services/snippetRun";
+import type { SequenceRunResult } from "@/services/snippetSequence";
 import { initUpdaterListener } from "@/services/updater";
 import { useUpdaterPrefStore } from "@/stores/updaterPrefStore";
 import { restoreWorkspaceOnLaunch } from "@/stores/workspaceRestore";
@@ -55,6 +56,10 @@ function App() {
   const platform = usePlatform();
   const globalPendingInject = useSnippetStore((s) => s.globalPendingInject);
   const setGlobalPendingInject = useSnippetStore((s) => s.setGlobalPendingInject);
+  const globalPendingSequence = useSnippetStore((s) => s.globalPendingSequence);
+  const setGlobalPendingSequence = useSnippetStore((s) => s.setGlobalPendingSequence);
+  // TODO(task-11): replace with reportSequenceResult from snippetSequence
+  const reportSequenceResult = (_r: SequenceRunResult) => {};
 
   if (!ready) {
     return <SplashScreen onReady={() => setReady(true)} />;
@@ -96,6 +101,23 @@ function App() {
             setGlobalPendingInject(null);
           }}
           onClose={() => setGlobalPendingInject(null)}
+        />
+      )}
+
+      {/* Global snippet sequence variable modal */}
+      {globalPendingSequence && (
+        <SnippetVariableModal
+          snippetName={globalPendingSequence.snippet.name}
+          partialTemplate={globalPendingSequence.partialTemplate}
+          userVars={globalPendingSequence.userVars}
+          initialValues={globalPendingSequence.initialValues}
+          onInject={() => {}}
+          onSubmitValues={(values) => {
+            const resume = globalPendingSequence.resume;
+            setGlobalPendingSequence(null);
+            resume(values).then(reportSequenceResult);
+          }}
+          onClose={() => setGlobalPendingSequence(null)}
         />
       )}
     </div>

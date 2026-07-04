@@ -4,8 +4,11 @@ import { useTranslation } from "react-i18next";
 import BottomSheet from "./BottomSheet";
 import { useMobileNavStore } from "@/stores/mobileNavStore";
 import { useSnippetStore } from "@/stores/snippetStore";
+import { useConnectionStore } from "@/stores/connectionStore";
 import { useSnippetTargetPicker } from "@/hooks/useSnippetTargetPicker";
 import { runSnippetIntoSessions } from "@/services/snippetRun";
+import { runSnippetSequence } from "@/services/snippetSequence";
+import type { RunTarget } from "@/services/sftpTarget";
 import { ConnectionAvatar } from "@/components/shared/ConnectionAvatar";
 import { connectionDisplayName } from "@/utils/connectionDisplayName";
 
@@ -31,6 +34,22 @@ export default function MobileSnippetTargetSheet(
 
   async function go() {
     const sn = snippet!;
+
+    if (sn.steps.some((s) => s.kind !== "script")) {
+      const sessionTargets: RunTarget[] = [...p.selectedSessionIds].flatMap((id) => {
+        const s = p.activeSessions.find((x) => x.id === id);
+        return s ? [{ kind: "session" as const, sessionId: s.id, sessionType: s.type }] : [];
+      });
+      const connTargets: RunTarget[] = useConnectionStore.getState().connections
+        .filter((c) => p.selectedConnectionIds.has(c.id))
+        .map((c) => ({ kind: "connection" as const, connection: c }));
+      useSnippetStore.getState().trackUsed(sn.id);
+      void runSnippetSequence(sn, [...sessionTargets, ...connTargets], useSnippetStore.getState().setGlobalPendingSequence);
+      setTab("terminal");
+      closeSheet();
+      return;
+    }
+
     await p.confirm((ids) => {
       if (ids.length === 0) return;
       void runSnippetIntoSessions(sn, ids, execute, {

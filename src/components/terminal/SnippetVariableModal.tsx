@@ -111,6 +111,8 @@ interface Props {
   /** Default values pre-filled from variable definitions. */
   initialValues: Record<string, string>;
   onInject: (resolvedText: string, execute: boolean) => void;
+  /** When provided, replaces insert/execute with a single Run action returning the raw values map. */
+  onSubmitValues?: (values: Record<string, string>) => void;
   onClose: () => void;
 }
 
@@ -120,6 +122,7 @@ export function SnippetVariableModal({
   userVars,
   initialValues,
   onInject,
+  onSubmitValues,
   onClose,
 }: Props) {
   const { t } = useTranslation();
@@ -228,22 +231,35 @@ export function SnippetVariableModal({
           >
             {t("common.action.cancel")}
           </button>
-          <button
-            disabled={!allFilled}
-            onClick={() => onInject(preview, false)}
-            className="btn btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg"
-          >
-            <Icon icon="lucide:arrow-down-to-line" width={12} />
-            {t("terminal.shared.insert")}
-          </button>
-          <button
-            disabled={!allFilled}
-            onClick={() => onInject(preview, true)}
-            className="btn btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg"
-          >
-            <Icon icon="lucide:play" width={12} />
-            {t("terminal.snippetVariableModal.execute")}
-          </button>
+          {onSubmitValues ? (
+            <button
+              disabled={!allFilled}
+              onClick={() => onSubmitValues(values)}
+              className="btn btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg"
+            >
+              <Icon icon="lucide:play" width={12} />
+              {t("terminal.snippetVariableModal.execute")}
+            </button>
+          ) : (
+            <>
+              <button
+                disabled={!allFilled}
+                onClick={() => onInject(preview, false)}
+                className="btn btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg"
+              >
+                <Icon icon="lucide:arrow-down-to-line" width={12} />
+                {t("terminal.shared.insert")}
+              </button>
+              <button
+                disabled={!allFilled}
+                onClick={() => onInject(preview, true)}
+                className="btn btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg"
+              >
+                <Icon icon="lucide:play" width={12} />
+                {t("terminal.snippetVariableModal.execute")}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

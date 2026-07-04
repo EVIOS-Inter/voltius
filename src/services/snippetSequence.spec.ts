@@ -52,6 +52,22 @@ describe("runTransferStep", () => {
     await runTransferStep("sid", { kind: "transfer", direction: "download", local_path: "/l", remote_path: "/r", is_dir: true });
     expect(sftpDownloadDirTar).toHaveBeenCalledWith({ sftpId: "sid", localPath: "/l", remotePath: "/r", transferId: "tid" });
   });
+
+  it("uploads a directory via tar and calls no sibling command", async () => {
+    await runTransferStep("sid", { kind: "transfer", direction: "upload", local_path: "/l", remote_path: "/r", is_dir: true });
+    expect(sftpUploadDirTar).toHaveBeenCalledWith({ sftpId: "sid", localPath: "/l", remotePath: "/r", transferId: "tid" });
+    expect(sftpUpload).not.toHaveBeenCalled();
+    expect(sftpDownload).not.toHaveBeenCalled();
+    expect(sftpDownloadDirTar).not.toHaveBeenCalled();
+  });
+
+  it("downloads a file and calls no sibling command", async () => {
+    await runTransferStep("sid", { kind: "transfer", direction: "download", local_path: "/l", remote_path: "/r", is_dir: false });
+    expect(sftpDownload).toHaveBeenCalledWith({ sftpId: "sid", localPath: "/l", remotePath: "/r", transferId: "tid" });
+    expect(sftpUpload).not.toHaveBeenCalled();
+    expect(sftpUploadDirTar).not.toHaveBeenCalled();
+    expect(sftpDownloadDirTar).not.toHaveBeenCalled();
+  });
 });
 
 describe("executeSequenceForTargets", () => {

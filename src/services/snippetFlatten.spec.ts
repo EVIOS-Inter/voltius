@@ -59,6 +59,23 @@ describe("flattenSnippetSteps", () => {
     expect(r.errors.some((e) => /cycle/i.test(e))).toBe(true);
   });
 
+  it("stops at the max nesting depth on a deep non-cyclic chain", () => {
+    // s0 → s1 → … → s60, all distinct (no cycle), so only the depth backstop
+    // can halt expansion.
+    const map = new Map<string, Snippet>();
+    const N = 60;
+    for (let i = 0; i <= N; i++) {
+      const next: Snippet["steps"] = i < N
+        ? [{ kind: "snippet", snippet_id: `s${i + 1}` }]
+        : [{ kind: "script", content: "leaf" }];
+      map.set(`s${i}`, snip(`s${i}`, next));
+    }
+    const r = flattenSnippetSteps(map.get("s0")!, map);
+    expect(r.errors.some((e) => /too deep|profonde/i.test(e))).toBe(true);
+    // The backstop fires before the deepest script is ever reached.
+    expect(r.steps).toEqual([]);
+  });
+
   it("reports a missing referenced snippet, keeping siblings", () => {
     const a = snip("A", [
       { kind: "script", content: "a1" },

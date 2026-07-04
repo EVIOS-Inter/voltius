@@ -403,7 +403,7 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
             useSnippetStore.getState().setGlobalPendingSequence,
           ).then((r) => {
             if (r !== "prompting") reportSequenceResult(r);
-          });
+          }).catch((e) => console.error(e));
           return;
         }
 

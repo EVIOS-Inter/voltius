@@ -154,11 +154,12 @@ export function SnippetPickerPanel({ connectionIds, onClose }: Props) {
           ? { kind: "session" as const, sessionId: live.id, sessionType: "ssh" }
           : { kind: "connection" as const, connection: conn }];
       });
+      if (targets.length === 0) return;
       trackUsed(snippet.id);
       onClose();
       runSnippetSequence(snippet, targets, useSnippetStore.getState().setGlobalPendingSequence).then((r) => {
         if (r !== "prompting") reportSequenceResult(r);
-      });
+      }).catch((e) => console.error(e));
       return;
     }
 

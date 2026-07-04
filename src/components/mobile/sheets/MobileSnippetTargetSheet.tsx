@@ -43,10 +43,12 @@ export default function MobileSnippetTargetSheet(
       const connTargets: RunTarget[] = useConnectionStore.getState().connections
         .filter((c) => p.selectedConnectionIds.has(c.id))
         .map((c) => ({ kind: "connection" as const, connection: c }));
+      const targets = [...sessionTargets, ...connTargets];
+      if (targets.length === 0) return;
       useSnippetStore.getState().trackUsed(sn.id);
-      runSnippetSequence(sn, [...sessionTargets, ...connTargets], useSnippetStore.getState().setGlobalPendingSequence).then((r) => {
+      runSnippetSequence(sn, targets, useSnippetStore.getState().setGlobalPendingSequence).then((r) => {
         if (r !== "prompting") reportSequenceResult(r);
-      });
+      }).catch((e) => console.error(e));
       setTab("terminal");
       closeSheet();
       return;

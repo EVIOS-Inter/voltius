@@ -409,7 +409,7 @@ export function SnippetsPanel() {
         useSnippetStore.getState().setGlobalPendingSequence,
       ).then((r) => {
         if (r !== "prompting") reportSequenceResult(r);
-      });
+      }).catch((e) => console.error(e));
       return;
     }
 

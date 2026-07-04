@@ -23,27 +23,27 @@ export default function TagSelector({ value, onChange, vaultId }: Props) {
   const allTags = useMemo(() => {
     const set = new Set<string>();
     const scoped = vaultId ? connections.filter((c) => c.vault_id === vaultId) : connections;
-    for (const c of scoped) for (const t of c.tags) set.add(t);
+    for (const c of scoped) for (const tag of c.tags) set.add(tag);
     return [...set].sort((a, b) => a.localeCompare(b));
   }, [connections, vaultId]);
 
   const query = input.trim().toLowerCase();
   const suggestions = useMemo(() => {
     return allTags.filter(
-      (t) => !value.includes(t) && (!query || t.toLowerCase().includes(query)),
+      (tag) => !value.includes(tag) && (!query || tag.toLowerCase().includes(query)),
     );
   }, [allTags, value, query]);
 
-  const canCreate = query.length > 0 && !value.includes(input.trim()) && !allTags.some((t) => t.toLowerCase() === query);
+  const canCreate = query.length > 0 && !value.includes(input.trim()) && !allTags.some((tag) => tag.toLowerCase() === query);
 
   const addTag = (tag: string) => {
-    const t = tag.trim();
-    if (!t || value.includes(t)) return;
-    onChange([...value, t]);
+    const tagName = tag.trim();
+    if (!tagName || value.includes(tagName)) return;
+    onChange([...value, tagName]);
     setInput("");
   };
 
-  const removeTag = (tag: string) => onChange(value.filter((t) => t !== tag));
+  const removeTag = (tag: string) => onChange(value.filter((tagName) => tagName !== tag));
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if ((e.key === "Enter" || e.key === ",") && input.trim()) {

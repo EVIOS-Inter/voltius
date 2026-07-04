@@ -32,9 +32,9 @@ export function VaultPicker({
   }, [loadTeams]);
 
   useEffect(() => {
-    teams.forEach((t) => {
-      if (!membersByTeam[t.id]) loadMembers(t.id).catch(() => {});
-      if (!rolesByTeam[t.id]) loadRoles(t.id).catch(() => {});
+    teams.forEach((team) => {
+      if (!membersByTeam[team.id]) loadMembers(team.id).catch(() => {});
+      if (!rolesByTeam[team.id]) loadRoles(team.id).catch(() => {});
     });
   }, [teams, membersByTeam, rolesByTeam, loadMembers, loadRoles]);
 
@@ -61,7 +61,7 @@ export function VaultPicker({
   // displayed selection matches what is stored in vault_id after a move/create.
   const allVaults = [
     ...vaults.map((v) => ({ id: v.teamId ?? v.id, name: v.name, team: !!v.teamId })),
-    ...teams.filter((t) => !linkedTeamIds.has(t.id)).map((t) => ({ id: t.id, name: t.name, team: true })),
+    ...teams.filter((team) => !linkedTeamIds.has(team.id)).map((team) => ({ id: team.id, name: team.name, team: true })),
   ];
 
   const currentId = vaultId || "personal";

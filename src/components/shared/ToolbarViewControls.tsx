@@ -208,13 +208,13 @@ function TagFilterButton({
   const isActive = tagFilter.length > 0;
 
   const filteredTags = tagSearch.trim()
-    ? availableTags.filter((t) => t.toLowerCase().includes(tagSearch.toLowerCase()))
+    ? availableTags.filter((tag) => tag.toLowerCase().includes(tagSearch.toLowerCase()))
     : availableTags;
 
   const toggleTag = (tag: string) => {
     onTagFilterChange(
       tagFilter.includes(tag)
-        ? tagFilter.filter((t) => t !== tag)
+        ? tagFilter.filter((tagName) => tagName !== tag)
         : [...tagFilter, tag],
     );
   };
@@ -224,7 +224,7 @@ function TagFilterButton({
     if (trimmed && trimmed !== editingTag && onRenameTag && editingTag) {
       // Follow the rename in active filter
       if (tagFilter.includes(editingTag)) {
-        onTagFilterChange(tagFilter.map((t) => (t === editingTag ? trimmed : t)));
+        onTagFilterChange(tagFilter.map((tag) => (tag === editingTag ? trimmed : tag)));
       }
       await onRenameTag(editingTag, trimmed).catch(() => {});
     }
@@ -234,7 +234,7 @@ function TagFilterButton({
   const confirmDelete = async () => {
     if (!deletingTag || !onDeleteTag) return;
     if (tagFilter.includes(deletingTag)) {
-      onTagFilterChange(tagFilter.filter((t) => t !== deletingTag));
+      onTagFilterChange(tagFilter.filter((tag) => tag !== deletingTag));
     }
     await onDeleteTag(deletingTag).catch(() => {});
     setDeletingTag(null);

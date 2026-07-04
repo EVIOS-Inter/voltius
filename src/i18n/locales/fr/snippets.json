@@ -6,7 +6,17 @@
         "partial": "{{count}} ok — {{details}}",
         "failed": "échec"
       },
-      "connectFailed": "impossible d'ouvrir une session terminal"
+      "connectFailed": "impossible d'ouvrir une session terminal",
+      "flatten": {
+        "tooDeep": "Imbrication de snippets trop profonde à « {{name}} »",
+        "tooManySteps": "Le snippet a généré trop d'étapes",
+        "cycle": "Cycle de snippets détecté dans « {{name}} »",
+        "missingRef": "Une étape référence un snippet introuvable ({{id}})"
+      },
+      "error": {
+        "needsTerminal": "Une étape de script nécessite une session terminal ouverte pour cette cible",
+        "noSftp": "Aucune connexion SFTP pour l'étape de transfert"
+      }
     },
     "toolbar": {
       "filterPlaceholder": "Filtrer les snippets...",

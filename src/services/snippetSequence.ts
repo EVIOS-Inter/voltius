@@ -192,11 +192,11 @@ async function prepareTarget(target: RunTarget, steps: LeafStep[]): Promise<Prep
 
   const exec: TargetExec = {
     async runScript(content) {
-      if (!sessionId) throw new Error("Script step requires an open terminal session for this target");
+      if (!sessionId) throw new Error(i18n.t("snippets.sequence.error.needsTerminal"));
       await snippetInject(sessionId, sessionType, content, true);
     },
     async runTransfer(step) {
-      if (!sftpId) throw new Error("No SFTP connection for transfer step");
+      if (!sftpId) throw new Error(i18n.t("snippets.sequence.error.noSftp"));
       await runTransferStep(sftpId, step);
     },
     async close() {

@@ -1,10 +1,36 @@
 import { describe, it, expect } from "vitest";
 import { flattenSnippetSteps } from "./snippetFlatten";
+import i18n from "@/i18n";
 import type { Snippet } from "@/types";
 
 function snip(id: string, steps: Snippet["steps"]): Snippet {
   return { id, name: id, steps, tags: [], favorite: false, only_for_connection_tags: [], only_for_distros: [], created_at: "", updated_at: "", vault_id: "personal", clocks: {} };
 }
+
+describe("flattenSnippetSteps — localization", () => {
+  it("localizes the cycle error under the fr locale", () => {
+    i18n.changeLanguage("fr");
+    try {
+      const a = snip("A", [{ kind: "snippet", snippet_id: "A" }]);
+      const r = flattenSnippetSteps(a, new Map([["A", a]]));
+      expect(r.errors[0]).toContain("détecté");
+      expect(r.errors[0]).toContain("A");
+    } finally {
+      i18n.changeLanguage("en");
+    }
+  });
+
+  it("localizes the missing-reference error under the fr locale", () => {
+    i18n.changeLanguage("fr");
+    try {
+      const a = snip("A", [{ kind: "snippet", snippet_id: "GONE" }]);
+      const r = flattenSnippetSteps(a, new Map([["A", a]]));
+      expect(r.errors[0]).toContain("introuvable");
+    } finally {
+      i18n.changeLanguage("en");
+    }
+  });
+});
 
 describe("flattenSnippetSteps", () => {
   it("expands snippet-call steps inline, preserving order", () => {

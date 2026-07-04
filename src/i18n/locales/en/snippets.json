@@ -6,7 +6,17 @@
         "partial": "{{count}} ok — {{details}}",
         "failed": "failed"
       },
-      "connectFailed": "could not open a terminal session"
+      "connectFailed": "could not open a terminal session",
+      "flatten": {
+        "tooDeep": "Snippet nesting too deep at \"{{name}}\"",
+        "tooManySteps": "Snippet expanded too many steps",
+        "cycle": "Snippet cycle detected in \"{{name}}\"",
+        "missingRef": "Snippet step references a missing snippet ({{id}})"
+      },
+      "error": {
+        "needsTerminal": "Script step requires an open terminal session for this target",
+        "noSftp": "No SFTP connection for transfer step"
+      }
     },
     "toolbar": {
       "filterPlaceholder": "Filter snippets...",

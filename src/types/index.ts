@@ -225,10 +225,15 @@ export interface VaultOption {
   name: string;
 }
 
+export type SnippetStep =
+  | { kind: "script"; content: string }
+  | { kind: "transfer"; direction: "upload" | "download"; local_path: string; remote_path: string; is_dir: boolean }
+  | { kind: "snippet"; snippet_id: string };
+
 export interface Snippet {
   id: string;
   name: string;
-  content: string;
+  steps: SnippetStep[];
   description?: string;
   tags: string[];
   folder_id?: string;
@@ -244,7 +249,7 @@ export interface Snippet {
 
 export interface SnippetFormData {
   name: string;
-  content: string;
+  steps: SnippetStep[];
   description?: string;
   tags: string[];
   folder_id?: string;

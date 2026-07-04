@@ -469,6 +469,7 @@ pub fn run() {
             commands::greet,
             commands::get_platform,
             commands::diagnostics::set_verbose_logging,
+            commands::diagnostics::create_bug_report,
             commands::ping::ping_host,
             commands::ping::ping_host_via_jumps,
             commands::connections::connection_list,

@@ -11,6 +11,10 @@ export function setLoggerVerbose(enabled: boolean): void {
   verbose = enabled;
 }
 
+export function getLoggerVerbose(): boolean {
+  return verbose;
+}
+
 function fmt(msg: string, args: unknown[]): string {
   const extra = args.length
     ? " " + args.map((a) => (typeof a === "string" ? a : safeJson(a))).join(" ")

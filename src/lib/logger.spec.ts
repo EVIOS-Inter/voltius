@@ -18,7 +18,7 @@ vi.mock("@/stores/uiStore", () => ({
   useUIStore: { getState: () => ({ openSettings }) },
 }));
 
-import { log, installGlobalErrorLogging, setLoggerVerbose } from "./logger";
+import { log, installGlobalErrorLogging, setLoggerVerbose, getLoggerVerbose } from "./logger";
 
 beforeEach(() => {
   pluginLog.info.mockClear();
@@ -51,6 +51,15 @@ describe("log", () => {
     log.debug("loud");
     expect(pluginLog.debug).toHaveBeenCalledTimes(1);
     expect(pluginLog.debug.mock.calls[0][0]).toContain("[fe]");
+  });
+});
+
+describe("getLoggerVerbose", () => {
+  it("reflects the value set by setLoggerVerbose", () => {
+    setLoggerVerbose(true);
+    expect(getLoggerVerbose()).toBe(true);
+    setLoggerVerbose(false);
+    expect(getLoggerVerbose()).toBe(false);
   });
 });
 

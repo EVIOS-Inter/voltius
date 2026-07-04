@@ -26,6 +26,13 @@ describe("diagnostics service", () => {
     expect(setLoggerVerbose).toHaveBeenCalledWith(true);
   });
 
+  it("setVerboseLogging(false) passes the disabled flag and syncs the logger", async () => {
+    invoke.mockResolvedValue(undefined);
+    await setVerboseLogging(false);
+    expect(invoke).toHaveBeenCalledWith("set_verbose_logging", { enabled: false });
+    expect(setLoggerVerbose).toHaveBeenCalledWith(false);
+  });
+
   it("createBugReport returns the path", async () => {
     invoke.mockResolvedValue("/logs/voltius-report-2026-07-04.zip");
     await expect(createBugReport()).resolves.toContain("voltius-report");

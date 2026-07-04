@@ -85,10 +85,18 @@ pub fn create_bug_report(app: tauri::AppHandle) -> Result<String, String> {
             json!([])
         }
     };
+    let webview_version = match tauri::webview_version() {
+        Ok(v) => json!(v),
+        Err(e) => {
+            warnings.push(format!("webview_version: {e}"));
+            serde_json::Value::Null
+        }
+    };
     let system = json!({
         "app_version": version,
         "system": sysinfo,
         "plugins": plugins,
+        "webview_version": webview_version,
         "generated_at": chrono::Local::now().to_rfc3339(),
         "warnings": warnings,
     });

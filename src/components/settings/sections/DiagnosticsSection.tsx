@@ -4,12 +4,13 @@ import { useTranslation } from "react-i18next";
 import { Toggle } from "@/components/shared/Toggle";
 import { useNotificationStore } from "@/stores/notificationStore";
 import { setVerboseLogging, createBugReport } from "@/services/diagnostics";
+import { getLoggerVerbose } from "@/lib/logger";
 
 type ReportState = "idle" | "working" | "done";
 
 export default function DiagnosticsSection() {
   const { t } = useTranslation();
-  const [verbose, setVerbose] = useState(false);
+  const [verbose, setVerbose] = useState(() => getLoggerVerbose());
   const [reportState, setReportState] = useState<ReportState>("idle");
   const [showIncluded, setShowIncluded] = useState(false);
   const addToast = useNotificationStore((s) => s.addToast);

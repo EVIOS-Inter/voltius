@@ -224,7 +224,6 @@
       "reportSub": "Inclut les journaux de l'application et les infos système. N'inclut jamais vos mots de passe, clés ou le contenu du terminal.",
       "whatsIncluded": "Que contient le rapport ?",
       "includedBody": "Inclus :\n• Journaux de l'application (ce que faisait Voltius, avec les valeurs sensibles retirées)\n• Version de l'application, système d'exploitation et extensions actives\nNON inclus :\n• Mots de passe, contenu du coffre-fort ou clés privées\n• Sortie du terminal ou tout ce que vous avez tapé\nLe rapport est enregistré sur votre ordinateur. Rien n'est envoyé automatiquement — vous choisissez où le partager.",
-      "openLogFolder": "Ouvrir le dossier des journaux",
       "toastSaved": "Rapport enregistré — {{name}}",
       "toastError": "Impossible de créer le rapport : {{reason}}",
       "toastGenericError": "Une erreur s'est produite."

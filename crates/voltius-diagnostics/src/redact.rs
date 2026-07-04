@@ -11,7 +11,7 @@ static PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
         )
         .unwrap(),
         // key=value / key: value for common secret-bearing keys
-        Regex::new(r#"(?i)\b(authorization|bearer|password|passwd|pwd|secret|token|api[_-]?key)\b\s*[=:]\s*\S+(?:\s+\S+)?"#)
+        Regex::new(r#"(?i)\b(authorization|bearer|password|passwd|pwd|secret|token|api[_-]?key)\b["']?\s*[=:]\s*["']?\S+(?:\s+\S+)?"#)
             .unwrap(),
     ]
 });
@@ -55,5 +55,12 @@ mod tests {
         assert!(!redact("Authorization: Basic dXNlcjpwYXNz").contains("dXNlcjpwYXNz"));
         assert!(!redact("Authorization: rawtoken123").contains("rawtoken123"));
         assert!(!redact("bearer=abc123").contains("abc123"));
+    }
+
+    #[test]
+    fn redacts_json_serialized_secrets() {
+        assert!(!redact(r#"{"password":"hunter2"}"#).contains("hunter2"));
+        assert!(!redact(r#"{"token":"eyJabc.def"}"#).contains("eyJabc"));
+        assert!(!redact(r#"{"apiKey":"sk-xyz"}"#).contains("sk-xyz"));
     }
 }

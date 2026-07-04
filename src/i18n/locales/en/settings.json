@@ -224,7 +224,6 @@
       "reportSub": "Includes app logs and system info. Never includes your passwords, keys, or terminal contents.",
       "whatsIncluded": "What's included?",
       "includedBody": "Included:\n• App logs (what Voltius was doing, with sensitive values removed)\n• App version, operating system, and active plugins\nNOT included:\n• Passwords, vault contents, or private keys\n• Terminal output or anything you typed\nThe report is saved to your computer. Nothing is sent automatically — you choose where to share it.",
-      "openLogFolder": "Open log folder",
       "toastSaved": "Report saved — {{name}}",
       "toastError": "Couldn't create report: {{reason}}",
       "toastGenericError": "Something went wrong."

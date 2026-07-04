@@ -1,17 +1,23 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { useMobileNavStore } from "@/stores/mobileNavStore";
 import { useSessionStore } from "@/stores/sessionStore";
 import type { MobileTab } from "@/stores/mobileNavCore";
 
-const TABS: { id: MobileTab; label: string; icon: string }[] = [
-  { id: "hosts",    label: "Hosts",    icon: "lucide:server" },
-  { id: "terminal", label: "Terminal", icon: "lucide:square-terminal" },
-  { id: "snippets", label: "Snippets", icon: "lucide:braces" },
-  { id: "sftp",     label: "SFTP",     icon: "lucide:folder-closed" },
-  { id: "more",     label: "More",     icon: "lucide:menu" },
-];
+function getTabs(t: TFunction): { id: MobileTab; label: string; icon: string }[] {
+  return [
+    { id: "hosts",    label: t("common.entity.hosts"),  icon: "lucide:server" },
+    { id: "terminal", label: t("mobile.tabBar.terminal"), icon: "lucide:square-terminal" },
+    { id: "snippets", label: t("common.entity.snippets"), icon: "lucide:braces" },
+    { id: "sftp",     label: t("mobile.tabBar.sftp"),    icon: "lucide:folder-closed" },
+    { id: "more",     label: t("mobile.tabBar.more"),    icon: "lucide:menu" },
+  ];
+}
 
 export default function BottomTabBar() {
+  const { t } = useTranslation();
+  const TABS = getTabs(t);
   const tab = useMobileNavStore((s) => s.tab);
   const setTab = useMobileNavStore((s) => s.setTab);
   const sessionCount = useSessionStore((s) => s.sessions.length);

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 import { useCrossDeviceSessionsStore } from "@/stores/crossDeviceSessionsStore";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useConnectionStore } from "@/stores/connectionStore";
@@ -9,11 +11,11 @@ import { getJoinableSessions, joinRemoteSession } from "@/services/crossDeviceSe
 
 function relativeAge(iso: string): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return i18n.t("mobile.remoteSessions.relativeTime.justNow");
+  if (mins < 60) return i18n.t("mobile.remoteSessions.relativeTime.minutesAgo", { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
+  if (hours < 24) return i18n.t("mobile.remoteSessions.relativeTime.hoursAgo", { count: hours });
+  return i18n.t("mobile.remoteSessions.relativeTime.daysAgo", { count: Math.floor(hours / 24) });
 }
 
 /** Mobile "Live on other devices" strip — phone-native styling over the same pure
@@ -21,6 +23,7 @@ function relativeAge(iso: string): string {
  * On join, also switch the mobile terminal tab (joinRemoteSession's desktop setActiveNav
  * is inert in the mobile shell). */
 export default function MobileRemoteDeviceSessions() {
+  const { t } = useTranslation();
   const [enabled] = useToggle("cross-device-sessions");
   // Subscribed so the derived list recomputes when its inputs change.
   useCrossDeviceSessionsStore((s) => s.manifests);
@@ -35,7 +38,7 @@ export default function MobileRemoteDeviceSessions() {
   return (
     <div className="px-3 pt-2 pb-1" data-mobile-remote-sessions>
       <p className="text-[11px] font-bold uppercase tracking-widest text-(--t-text-dim) mb-2 px-1">
-        Live on other devices
+        {t("mobile.remoteSessions.title")}
       </p>
       <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
         {joinable.map((a) => (

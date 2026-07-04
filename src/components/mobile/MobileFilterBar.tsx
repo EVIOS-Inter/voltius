@@ -1,8 +1,11 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 
 export default function MobileFilterBar({
-  value, onChange, placeholder = "Filter…",
+  value, onChange, placeholder,
 }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+  const { t } = useTranslation();
+  const effectivePlaceholder = placeholder ?? t("mobile.filterBar.placeholder");
   return (
     <div className="px-3 py-2 shrink-0">
       <div className="flex items-center gap-2 px-3 h-10 rounded-xl"
@@ -12,7 +15,7 @@ export default function MobileFilterBar({
           data-mobile-filter
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
+          placeholder={effectivePlaceholder}
           className="flex-1 bg-transparent outline-none text-sm text-(--t-text-primary) placeholder:text-(--t-text-dim)"
         />
         {value && (

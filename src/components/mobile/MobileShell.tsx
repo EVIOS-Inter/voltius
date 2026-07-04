@@ -28,14 +28,18 @@ import MobileSnippetTargetSheet from "./sheets/MobileSnippetTargetSheet";
 import MobileSnippetActionsSheet from "./sheets/MobileSnippetActionsSheet";
 import MobileSnippetsSheet from "./sheets/MobileSnippetsSheet";
 import type { MorePage } from "@/stores/mobileNavCore";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-const MORE_PAGE_TITLES: Record<MorePage, string> = {
-  "keychain": "Keychain",
-  "port-forwarding": "Port Forwarding",
-  "known-hosts": "Known Hosts",
-  "members": "Members",
-  "logs": "Logs",
-};
+function getMorePageTitles(t: TFunction): Record<MorePage, string> {
+  return {
+    "keychain": t("mobile.morePages.keychain"),
+    "port-forwarding": t("mobile.morePages.portForwarding"),
+    "known-hosts": t("mobile.morePages.knownHosts"),
+    "members": t("mobile.morePages.members"),
+    "logs": t("mobile.morePages.logs"),
+  };
+}
 import { useMobileNavStore } from "@/stores/mobileNavStore";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useUIStore } from "@/stores/uiStore";
@@ -45,6 +49,8 @@ import { useHostPingPolling } from "@/hooks/useHostPingPolling";
 import { refitSession } from "@/hooks/useTerminal";
 
 export default function MobileShell() {
+  const { t } = useTranslation();
+  const MORE_PAGE_TITLES = getMorePageTitles(t);
   useAndroidBack();
   useHostPingPolling(); // desktop mounts this in MainPanel; the mobile shell doesn't
   const tab = useMobileNavStore((s) => s.tab);

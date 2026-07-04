@@ -1,0 +1,63 @@
+{
+  "mobile": {
+    "tabBar": {
+      "terminal": "Terminal",
+      "sftp": "SFTP",
+      "more": "More"
+    },
+    "filterBar": {
+      "placeholder": "Filter…"
+    },
+    "header": {
+      "syncTooltip": "Sync: {{status}}",
+      "syncStatus": {
+        "idle": "Idle",
+        "syncing": "Syncing",
+        "success": "Synced",
+        "error": "Error",
+        "offline": "Offline"
+      }
+    },
+    "remoteSessions": {
+      "title": "Live on other devices",
+      "relativeTime": {
+        "justNow": "just now",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago"
+      }
+    },
+    "snippets": {
+      "searchPlaceholder": "Search snippets",
+      "noMatches": "No matches",
+      "empty": "No snippets yet",
+      "insertAriaLabel": "Insert",
+      "executeAriaLabel": "Execute",
+      "moreAriaLabel": "More",
+      "newFolderTitle": "New folder"
+    },
+    "terminalGestures": {
+      "selectAll": "All",
+      "paste": "Paste"
+    },
+    "terminalTopBar": {
+      "exitAriaLabel": "Exit terminal",
+      "newSessionAriaLabel": "New session",
+      "panelsAriaLabel": "Panels"
+    },
+    "panelItems": {
+      "sftp": "SFTP",
+      "docker": "Docker",
+      "metrics": "Metrics",
+      "processes": "Processes",
+      "proxmox": "Proxmox"
+    },
+    "morePages": {
+      "keychain": "Keychain",
+      "portForwarding": "Port Forwarding",
+      "knownHosts": "Known Hosts",
+      "members": "Members",
+      "logs": "Logs"
+    }
+  }
+}

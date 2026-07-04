@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useMobileNavStore } from "@/stores/mobileNavStore";
 import { useConnectionStore } from "@/stores/connectionStore";
@@ -15,6 +16,7 @@ const DOT: Record<TerminalSession["status"], string> = {
 
 /** Persistent slim terminal chrome: exit chevron / scrollable session tabs / new / panels menu. */
 export default function MobileTerminalTopBar() {
+  const { t } = useTranslation();
   // Select the raw array (stable ref) and filter in render — a filtering selector
   // returns a fresh array each store update and defeats selector memoization.
   const allSessions = useSessionStore((s) => s.sessions);
@@ -40,7 +42,7 @@ export default function MobileTerminalTopBar() {
         data-mobile-terminal-exit
         onClick={() => setTab(exitTo)}
         className="px-2 h-full text-(--t-text-primary) shrink-0"
-        aria-label="Exit terminal"
+        aria-label={t("mobile.terminalTopBar.exitAriaLabel")}
       >
         <Icon icon="lucide:chevron-left" width={22} />
       </button>
@@ -71,7 +73,7 @@ export default function MobileTerminalTopBar() {
         data-mobile-terminal-new
         onClick={() => setTab("hosts")}
         className="px-2 h-full text-(--t-text-primary) shrink-0"
-        aria-label="New session"
+        aria-label={t("mobile.terminalTopBar.newSessionAriaLabel")}
       >
         <Icon icon="lucide:plus" width={20} />
       </button>
@@ -80,7 +82,7 @@ export default function MobileTerminalTopBar() {
           data-mobile-terminal-menu
           onClick={() => setMenuOpen((v) => !v)}
           className="px-2 h-full text-(--t-text-primary)"
-          aria-label="Panels"
+          aria-label={t("mobile.terminalTopBar.panelsAriaLabel")}
         >
           <Icon icon="lucide:ellipsis-vertical" width={20} />
         </button>
@@ -95,7 +97,7 @@ export default function MobileTerminalTopBar() {
               connectionIdOfActive: allSessions.find((s) => s.id === activeSessionId)?.connectionId,
               nav: { push, openSheet },
               isProxmox,
-            }).map((it) => (
+            }, t).map((it) => (
               <button
                 key={it.key}
                 data-mobile-panel={it.key}

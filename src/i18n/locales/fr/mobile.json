@@ -1,0 +1,63 @@
+{
+  "mobile": {
+    "tabBar": {
+      "terminal": "Terminal",
+      "sftp": "SFTP",
+      "more": "Plus"
+    },
+    "filterBar": {
+      "placeholder": "Filtrer…"
+    },
+    "header": {
+      "syncTooltip": "Synchro : {{status}}",
+      "syncStatus": {
+        "idle": "Inactif",
+        "syncing": "Synchronisation",
+        "success": "Synchronisé",
+        "error": "Erreur",
+        "offline": "Hors ligne"
+      }
+    },
+    "remoteSessions": {
+      "title": "En direct sur d'autres appareils",
+      "relativeTime": {
+        "justNow": "à l'instant",
+        "minutesAgo": "il y a {{count}} min",
+        "hoursAgo": "il y a {{count}} h",
+        "daysAgo": "il y a {{count}} j"
+      }
+    },
+    "snippets": {
+      "searchPlaceholder": "Rechercher des snippets",
+      "noMatches": "Aucun résultat",
+      "empty": "Aucun snippet pour l'instant",
+      "insertAriaLabel": "Insérer",
+      "executeAriaLabel": "Exécuter",
+      "moreAriaLabel": "Plus",
+      "newFolderTitle": "Nouveau dossier"
+    },
+    "terminalGestures": {
+      "selectAll": "Tout",
+      "paste": "Coller"
+    },
+    "terminalTopBar": {
+      "exitAriaLabel": "Quitter le terminal",
+      "newSessionAriaLabel": "Nouvelle session",
+      "panelsAriaLabel": "Panneaux"
+    },
+    "panelItems": {
+      "sftp": "SFTP",
+      "docker": "Docker",
+      "metrics": "Métriques",
+      "processes": "Processus",
+      "proxmox": "Proxmox"
+    },
+    "morePages": {
+      "keychain": "Trousseau",
+      "portForwarding": "Redirection de ports",
+      "knownHosts": "Hôtes connus",
+      "members": "Membres",
+      "logs": "Journaux"
+    }
+  }
+}

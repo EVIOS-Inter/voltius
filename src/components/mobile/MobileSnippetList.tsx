@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useSnippetStore } from "@/stores/snippetStore";
 import { useSnippetFolderStore } from "@/stores/snippetFolderStore";
 import { useAllSnippetFolders } from "@/hooks/useAllSnippetFolders";
@@ -18,6 +19,7 @@ import type { Snippet, Folder } from "@/types";
 export default function MobileSnippetList({
   currentSessionId, addFolderOpen = false, onCloseAddFolder,
 }: { currentSessionId?: string; addFolderOpen?: boolean; onCloseAddFolder?: () => void }) {
+  const { t } = useTranslation();
   const snippets = useSnippetStore((s) => s.snippets);
   const allSnippetFolders = useAllSnippetFolders();
   const selectedVaultIds = useVaultStore((s) => s.selectedVaultIds);
@@ -80,7 +82,7 @@ export default function MobileSnippetList({
         <div className="flex items-center gap-2 rounded-xl px-3 h-10" style={{ background: "var(--t-bg-card)", border: "1px solid var(--t-border)" }}>
           <Icon icon="lucide:search" width={16} className="text-(--t-text-dim)" />
           <input data-mobile-snippet-search value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search snippets" className="flex-1 bg-transparent text-sm outline-none text-(--t-text-primary)" />
+            placeholder={t("mobile.snippets.searchPlaceholder")} className="flex-1 bg-transparent text-sm outline-none text-(--t-text-primary)" />
         </div>
       </div>
       {foldersEnabled && <MobileFolderBreadcrumb path={nav.folderPath} onNavigate={(i) => (i < 0 ? nav.navigateToRoot() : nav.navigateTo(i))} />}
@@ -97,7 +99,7 @@ export default function MobileSnippetList({
         {visible.length === 0 && subFolders.length === 0 && (
           <div className="flex flex-col items-center gap-2 pt-16 text-(--t-text-dim)">
             <Icon icon="lucide:braces" width={28} />
-            <span className="text-sm">{search ? "No matches" : "No snippets yet"}</span>
+            <span className="text-sm">{search ? t("mobile.snippets.noMatches") : t("mobile.snippets.empty")}</span>
           </div>
         )}
         {visible.map((sn) => (
@@ -107,14 +109,14 @@ export default function MobileSnippetList({
               <span className="text-sm font-medium text-(--t-text-primary) truncate">{sn.name}</span>
               <span className="text-xs font-mono text-(--t-text-dim) truncate">{sn.content}</span>
             </button>
-            <button className="p-2.5 text-(--t-text-secondary)" data-mobile-snippet-insert={sn.id} aria-label="Insert" onClick={() => onInsert(sn)}>
+            <button className="p-2.5 text-(--t-text-secondary)" data-mobile-snippet-insert={sn.id} aria-label={t("mobile.snippets.insertAriaLabel")} onClick={() => onInsert(sn)}>
               <Icon icon="lucide:arrow-down-to-line" width={18} />
             </button>
-            <button className="p-2.5 text-(--t-accent)" data-mobile-snippet-execute={sn.id} aria-label="Execute" onClick={() => onExecute(sn)}>
+            <button className="p-2.5 text-(--t-accent)" data-mobile-snippet-execute={sn.id} aria-label={t("mobile.snippets.executeAriaLabel")} onClick={() => onExecute(sn)}>
               <Icon icon="lucide:play" width={18} />
             </button>
             {!currentSessionId && (
-              <button className="p-2.5 text-(--t-text-dim)" data-mobile-snippet-more={sn.id} aria-label="More"
+              <button className="p-2.5 text-(--t-text-dim)" data-mobile-snippet-more={sn.id} aria-label={t("mobile.snippets.moreAriaLabel")}
                 onClick={() => openSheet({ kind: "snippet-actions", snippetId: sn.id })}>
                 <Icon icon="lucide:ellipsis-vertical" width={18} />
               </button>
@@ -124,7 +126,7 @@ export default function MobileSnippetList({
       </div>
 
       {foldersEnabled && addFolderOpen && (
-        <FolderFormSheet title="New folder" submitLabel="Create" onSubmit={createFolder} onClose={() => onCloseAddFolder?.()} />
+        <FolderFormSheet title={t("mobile.snippets.newFolderTitle")} submitLabel={t("common.action.create")} onSubmit={createFolder} onClose={() => onCloseAddFolder?.()} />
       )}
       {foldersEnabled && folderSheet && (
         <FolderActionsSheet

@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useVaultStore } from "@/stores/vaultStore";
 import { useTeamStore } from "@/stores/teamStore";
 import { useMobileNavStore } from "@/stores/mobileNavStore";
@@ -8,6 +9,7 @@ import { useEffectiveSyncStatus } from "@/hooks/useEffectiveSyncStatus";
 import { syncStatusIcon, syncStatusColor } from "@/services/syncStatus";
 
 export default function MobileHeader({ title, onAdd }: { title?: string; onAdd?: () => void }) {
+  const { t } = useTranslation();
   const selectedVaultIds = useVaultStore((s) => s.selectedVaultIds);
   const vaults = useVaultStore((s) => s.vaults);
   const teams = useTeamStore((s) => s.teams);
@@ -15,7 +17,7 @@ export default function MobileHeader({ title, onAdd }: { title?: string; onAdd?:
 
   const id = selectedVaultIds[0];
   const vaultName =
-    vaults.find((v) => v.id === id)?.name ?? teams.find((t) => t.id === id)?.name ?? "Vault";
+    vaults.find((v) => v.id === id)?.name ?? teams.find((tm) => tm.id === id)?.name ?? t("common.entity.vault");
   const counts = useVaultContents(id);
   const sync = useEffectiveSyncStatus();
 
@@ -40,7 +42,7 @@ export default function MobileHeader({ title, onAdd }: { title?: string; onAdd?:
         {sync.configured && (
           <span
             data-mobile-sync-status
-            title={`Sync: ${sync.status}`}
+            title={t("mobile.header.syncTooltip", { status: t(`mobile.header.syncStatus.${sync.status}`) })}
             className="p-2 flex items-center"
           >
             <Icon

@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import type { MobileScreen, MobileSheet } from "@/stores/mobileNavCore";
 
 export interface PanelItem {
@@ -19,14 +20,14 @@ export function terminalPanelItems(args: {
   connectionIdOfActive: string | undefined;
   nav: NavActions;
   isProxmox?: boolean;
-}): PanelItem[] {
+}, t: TFunction): PanelItem[] {
   const { activeSessionId, connectionIdOfActive, nav, isProxmox } = args;
   return [
-    { key: "snippets", icon: "lucide:braces", label: "Snippets", onTap: () => nav.openSheet({ kind: "snippets", sessionId: activeSessionId ?? undefined }) },
-    { key: "sftp", icon: "lucide:folder-open", label: "SFTP", onTap: () => { if (connectionIdOfActive) nav.push({ kind: "panel-sftp", connectionId: connectionIdOfActive }); } },
-    { key: "docker", icon: "lucide:container", label: "Docker", onTap: () => { if (activeSessionId) nav.push({ kind: "panel-docker", sessionId: activeSessionId }); } },
-    { key: "metrics", icon: "lucide:activity", label: "Metrics", onTap: () => { if (activeSessionId) nav.push({ kind: "panel-metrics", sessionId: activeSessionId }); } },
-    { key: "processes", icon: "lucide:cpu", label: "Processes", onTap: () => { if (activeSessionId) nav.push({ kind: "panel-processes", sessionId: activeSessionId }); } },
-    ...(isProxmox ? [{ key: "proxmox", icon: "devicon:proxmox-plain", label: "Proxmox", onTap: () => { if (activeSessionId) nav.push({ kind: "panel-proxmox", sessionId: activeSessionId }); } }] : []),
+    { key: "snippets", icon: "lucide:braces", label: t("common.entity.snippets"), onTap: () => nav.openSheet({ kind: "snippets", sessionId: activeSessionId ?? undefined }) },
+    { key: "sftp", icon: "lucide:folder-open", label: t("mobile.panelItems.sftp"), onTap: () => { if (connectionIdOfActive) nav.push({ kind: "panel-sftp", connectionId: connectionIdOfActive }); } },
+    { key: "docker", icon: "lucide:container", label: t("mobile.panelItems.docker"), onTap: () => { if (activeSessionId) nav.push({ kind: "panel-docker", sessionId: activeSessionId }); } },
+    { key: "metrics", icon: "lucide:activity", label: t("mobile.panelItems.metrics"), onTap: () => { if (activeSessionId) nav.push({ kind: "panel-metrics", sessionId: activeSessionId }); } },
+    { key: "processes", icon: "lucide:cpu", label: t("mobile.panelItems.processes"), onTap: () => { if (activeSessionId) nav.push({ kind: "panel-processes", sessionId: activeSessionId }); } },
+    ...(isProxmox ? [{ key: "proxmox", icon: "devicon:proxmox-plain", label: t("mobile.panelItems.proxmox"), onTap: () => { if (activeSessionId) nav.push({ kind: "panel-proxmox", sessionId: activeSessionId }); } }] : []),
   ];
 }

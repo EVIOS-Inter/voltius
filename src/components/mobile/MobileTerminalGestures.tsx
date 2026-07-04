@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getTerminalApi } from "@/hooks/useTerminal";
 import { sendSpecialKey } from "@/services/terminalInput";
 import { isDoubleTap, type TapPoint } from "./doubleTap";
@@ -27,6 +28,7 @@ type Phase = "idle" | "pending" | "scrolling" | "selecting";
  * synthesized mouse handling for consumed gestures.
  */
 export default function MobileTerminalGestures({ sessionId, active }: { sessionId: string; active: boolean }) {
+  const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
   const [hintKey, setHintKey] = useState(0);
   const [toolbar, setToolbar] = useState<{ x: number; y: number; mode: "select" | "paste" } | null>(null);
@@ -285,14 +287,14 @@ export default function MobileTerminalGestures({ sessionId, active }: { sessionI
                   anchorEnd.current = null;
                 }}
               >
-                Copy
+                {t("common.action.copy")}
               </button>
               <button
                 data-toolbar-selectall
                 className="px-3 py-1.5 rounded-md text-xs font-medium text-(--t-text-primary)"
                 onClick={() => getTerminalApi(sessionId)?.selectAll()}
               >
-                All
+                {t("mobile.terminalGestures.selectAll")}
               </button>
             </>
           )}
@@ -309,7 +311,7 @@ export default function MobileTerminalGestures({ sessionId, active }: { sessionI
               anchorEnd.current = null;
             }}
           >
-            Paste
+            {t("mobile.terminalGestures.paste")}
           </button>
         </div>
       )}

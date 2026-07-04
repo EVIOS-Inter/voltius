@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 import { Icon } from "@iconify/react";
 import { AvatarTile } from "@/components/shared/AvatarTile";
 import { useSnippetStore } from "@/stores/snippetStore";
@@ -71,14 +73,14 @@ function sortSnippets(list: Snippet[], mode: SortMode): Snippet[] {
 function formatRelativeTime(ts: number): string {
   const diff = Date.now() - ts;
   const s = Math.floor(diff / 1000);
-  if (s < 5) return "just now";
-  if (s < 60) return `${s}s ago`;
+  if (s < 5) return i18n.t("snippets.page.relativeTime.justNow");
+  if (s < 60) return i18n.t("snippets.page.relativeTime.secondsAgo", { count: s });
   const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
+  if (m < 60) return i18n.t("snippets.page.relativeTime.minutesAgo", { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
+  if (h < 24) return i18n.t("snippets.page.relativeTime.hoursAgo", { count: h });
   const d = Math.floor(h / 24);
-  if (d < 7) return `${d}d ago`;
+  if (d < 7) return i18n.t("snippets.page.relativeTime.daysAgo", { count: d });
   return new Date(ts).toLocaleDateString();
 }
 
@@ -95,15 +97,16 @@ interface RecentCardProps {
 }
 
 function RecentCard({ entry, snippet, layout, onReplay, onRemove }: RecentCardProps) {
+  const { t } = useTranslation();
   const isList = layout === "list";
-  const label = snippet?.name ?? "Deleted snippet";
+  const label = snippet?.name ?? t("snippets.page.recent.deletedSnippet");
   const isDeleted = !snippet;
   const primaryTarget = entry.targets[0];
   const host = primaryTarget
     ? entry.targets.length > 1
-      ? `${primaryTarget.connectionName} +${entry.targets.length - 1} more`
+      ? t("snippets.page.recent.targetMore", { name: primaryTarget.connectionName, count: entry.targets.length - 1 })
       : primaryTarget.connectionName
-    : "Unknown";
+    : t("snippets.page.recent.unknownTarget");
   const hostIcon = primaryTarget?.sessionType === "local" ? "lucide:terminal" : "lucide:server";
 
   const modeBadge = (
@@ -116,13 +119,13 @@ function RecentCard({ entry, snippet, layout, onReplay, onRemove }: RecentCardPr
         color: entry.execute ? "var(--t-accent)" : "var(--t-text-dim)",
       }}
     >
-      {entry.execute ? "run" : "insert"}
+      {entry.execute ? t("snippets.page.recent.modeRun") : t("snippets.page.recent.modeInsert")}
     </span>
   );
 
   const removeButton = (
     <button
-      title="Remove"
+      title={t("common.action.remove")}
       onClick={(e) => { e.stopPropagation(); onRemove(); }}
       className="p-1.5 rounded-lg transition-colors text-(--t-text-dim)"
       onMouseEnter={(e) => (e.currentTarget.style.color = "var(--t-text-primary)")}
@@ -134,7 +137,7 @@ function RecentCard({ entry, snippet, layout, onReplay, onRemove }: RecentCardPr
 
   const replayButton = (
     <button
-      title="Replay"
+      title={t("snippets.page.recent.replay")}
       disabled={isDeleted}
       onClick={(e) => { e.stopPropagation(); onReplay(); }}
       className="p-1.5 rounded-lg transition-colors text-(--t-text-secondary) disabled:opacity-30 disabled:cursor-not-allowed"
@@ -247,6 +250,7 @@ function SkeletonList() {
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
 function EmptyState({ onAdd }: { onAdd: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center h-full gap-4 text-center py-16">
       <div
@@ -259,9 +263,9 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
         <Icon icon="lucide:braces" width={36} />
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-base font-semibold text-(--t-text-primary)">No snippets yet</span>
+        <span className="text-base font-semibold text-(--t-text-primary)">{t("snippets.page.emptyState.title")}</span>
         <span className="text-sm text-(--t-text-dim) max-w-[18rem]">
-          Save reusable terminal commands with dynamic variables.
+          {t("snippets.page.emptyState.subtitle")}
         </span>
       </div>
       <button
@@ -271,7 +275,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
         onMouseLeave={(e) => (e.currentTarget.style.background = "var(--t-bg-elevated)")}
       >
         <Icon icon="lucide:plus" width={15} />
-        Create your first snippet
+        {t("snippets.page.emptyState.cta")}
       </button>
     </div>
   );
@@ -281,6 +285,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export function SnippetsPage() {
+  const { t } = useTranslation();
   const { loading, loadSnippets, createSnippet, updateSnippet, deleteSnippet, pinSnippet } = useSnippetStore();
   const recentEntries = useSnippetRecentStore((s) => s.entries);
   const addRecentEntry = useSnippetRecentStore((s) => s.add);
@@ -578,23 +583,23 @@ export function SnippetsPage() {
     const copyChildren = bulkVaultChildren("copy");
     return [
       ...(allCanEdit ? [{
-        label: `Duplicate ${ids.length} snippets`,
+        label: t("snippets.page.bulk.duplicateSnippets", { count: ids.length }),
         icon: "lucide:copy",
         onClick: () => { void Promise.all(selectedSnippets.map((s) => handleDuplicate(s))); },
       }] : []),
       ...(moveChildren.length > 0 ? [{
-        label: `Move ${ids.length} item${ids.length === 1 ? "" : "s"} to`,
+        label: t("snippets.page.bulk.moveItemsTo", { count: ids.length }),
         icon: "lucide:vault",
         children: moveChildren,
         divider: true,
       }] : []),
       ...(copyChildren.length > 0 ? [{
-        label: `Copy ${ids.length} item${ids.length === 1 ? "" : "s"} to`,
+        label: t("snippets.page.bulk.copyItemsTo", { count: ids.length }),
         icon: "lucide:copy-plus",
         children: copyChildren,
       }] : []),
       {
-        label: allSynced ? `Disable cloud sync (${ids.length})` : `Enable cloud sync (${ids.length})`,
+        label: allSynced ? t("snippets.page.bulk.disableCloudSync", { count: ids.length }) : t("snippets.page.bulk.enableCloudSync", { count: ids.length }),
         icon: allSynced ? "lucide:cloud-off" : "lucide:cloud",
         onClick: () => {
           const store = useSyncPrefsStore.getState();
@@ -607,12 +612,12 @@ export function SnippetsPage() {
         divider: true,
       },
       {
-        label: `Export ${ids.length} snippet${ids.length === 1 ? "" : "s"}`,
+        label: t("snippets.page.bulk.exportSnippets", { count: ids.length }),
         icon: "lucide:upload",
         onClick: () => useUIStore.getState().openImportExport("export", { bulk: { snippets: ids } }),
       },
       {
-        label: `Delete ${ids.length} snippets`,
+        label: t("snippets.page.bulk.deleteSnippets", { count: ids.length }),
         icon: "lucide:trash-2",
         onClick: () => setConfirmDeleteIds(ids),
         danger: true,
@@ -620,7 +625,7 @@ export function SnippetsPage() {
       },
     ];
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedIdSet, viewSnippets, selectedFolders, excludedIds, syncTypes, can, vaultOptions, snippets, folders]);
+  }, [selectedIdSet, viewSnippets, selectedFolders, excludedIds, syncTypes, can, vaultOptions, snippets, folders, t]);
 
   // ── Injection ────────────────────────────────────────────────────────────
 
@@ -813,6 +818,7 @@ export function SnippetsPage() {
   async function handleCreateFolder() {
     ep.closeEdit();
     const folder = await saveFolder({
+      // "New Folder" default name kept in English until all creation sites are localized together (see i18n issue #14)
       name: "New Folder",
       object_type: "snippet",
       parent_folder_id: activeFolderId ?? undefined,
@@ -944,7 +950,7 @@ export function SnippetsPage() {
                     onClick={navigateToRoot}
                   >
                     <Icon icon="lucide:chevron-left" width={13} />
-                    All Snippets
+                    {t("snippets.page.allSnippets")}
                   </button>
                   {folderPath.map((folder, i) => (
                     <span key={folder.id} className="flex items-center gap-2">
@@ -976,14 +982,14 @@ export function SnippetsPage() {
                     <div className="flex items-center gap-1.5">
                       <Icon icon="lucide:history" width={12} className="text-(--t-text-dim)" />
                       <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">
-                        Recent
+                        {t("snippets.page.recent.title")}
                       </p>
                     </div>
                     <button
                       onClick={() => { useSnippetRecentStore.getState().clear(); setShowAllRecent(false); }}
                       className="text-xs text-(--t-text-dim) hover:text-(--t-text-primary) transition-colors"
                     >
-                      Clear
+                      {t("snippets.page.recent.clear")}
                     </button>
                   </div>
                   <div
@@ -1008,7 +1014,7 @@ export function SnippetsPage() {
                       style={{ background: "var(--t-bg-elevated)" }}
                     >
                       <Icon icon={showAllRecent ? "lucide:chevron-up" : "lucide:chevron-down"} width={12} />
-                      {showAllRecent ? "Show less" : `Show ${scopedRecentEntries.length - RECENT_PREVIEW_COUNT} more`}
+                      {showAllRecent ? t("snippets.page.recent.showLess") : t("snippets.page.recent.showMore", { count: scopedRecentEntries.length - RECENT_PREVIEW_COUNT })}
                     </button>
                   )}
                 </div>
@@ -1017,7 +1023,7 @@ export function SnippetsPage() {
               {/* ── Pinned (root only) ── */}
               {favorites.length > 0 && (
                 <div>
-                  <SectionHeader label="Pinned" count={favorites.length} />
+                  <SectionHeader label={t("snippets.page.pinned")} count={favorites.length} />
                   <div className={layoutMode === "grid" ? "grid gap-4" : "flex flex-col gap-1"} style={layoutMode === "grid" ? { gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" } : undefined}>{favorites.map(renderCard)}</div>
                 </div>
               )}
@@ -1025,7 +1031,7 @@ export function SnippetsPage() {
               {/* ── Folders ── */}
               {visibleFolders.length > 0 && (
                 <div>
-                  <SectionHeader label="Folders" />
+                  <SectionHeader label={t("snippets.page.folders")} />
                   <div className="flex flex-col gap-1.5">
                     {visibleFolders.map((folder) => (
                       <FolderCard
@@ -1076,7 +1082,7 @@ export function SnippetsPage() {
                 >
                   <Icon icon="lucide:folder-minus" width={16} />
                   <span className="text-sm font-medium">
-                    {ejectTargetFolderId ? `Move to ${folderPath[folderPath.length - 2].name}` : "Remove from folder"}
+                    {ejectTargetFolderId ? t("snippets.page.ejectMoveTo", { name: folderPath[folderPath.length - 2].name }) : t("snippets.page.ejectRemoveFromFolder")}
                   </span>
                 </div>
               )}
@@ -1086,7 +1092,7 @@ export function SnippetsPage() {
                 <div>
                   {!hasSearch && (visibleFolders.length > 0 || favorites.length > 0 || activeFolderId) && (
                     <SectionHeader
-                      label={activeFolderId ? "Snippets" : "Other"}
+                      label={activeFolderId ? t("snippets.page.snippetsSection") : t("snippets.page.other")}
                       count={viewSnippets.length}
                     />
                   )}
@@ -1095,19 +1101,19 @@ export function SnippetsPage() {
               ) : !hasSearch && filtered.length > 0 && activeFolderId ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
                   <Icon icon="lucide:folder-open" width={32} className="text-(--t-text-dim)" />
-                  <p className="text-sm text-(--t-text-dim)">This folder is empty</p>
+                  <p className="text-sm text-(--t-text-dim)">{t("snippets.page.folderEmpty")}</p>
                   <button
                     className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-(--t-bg-elevated) text-(--t-accent) border border-(--t-border-hover)"
                     onClick={() => openSnippet("new")}
                   >
                     <Icon icon="lucide:plus" width={12} />
-                    Add Snippet
+                    {t("snippets.page.addSnippet")}
                   </button>
                 </div>
               ) : hasSearch && filtered.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 py-12">
                   <Icon icon="lucide:search-x" width={28} className="text-(--t-text-dim)" />
-                  <p className="text-sm text-(--t-text-dim)">No snippets match "{search}"</p>
+                  <p className="text-sm text-(--t-text-dim)">{t("snippets.page.noSearchResults", { search })}</p>
                   <button
                     onClick={() => setSearch("")}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-(--t-bg-elevated) text-(--t-text-secondary) border border-(--t-border-hover)"
@@ -1115,7 +1121,7 @@ export function SnippetsPage() {
                     onMouseLeave={(e) => (e.currentTarget.style.background = "var(--t-bg-elevated)")}
                   >
                     <Icon icon="lucide:x" width={11} />
-                    Clear search
+                    {t("snippets.page.clearSearch")}
                   </button>
                 </div>
               ) : null}
@@ -1131,7 +1137,8 @@ export function SnippetsPage() {
           pos={bgMenuPos}
           onClose={closeBgMenu}
           items={[
-            ...(canCreate ? [{ label: "New Snippet", icon: "lucide:braces", onClick: () => openSnippet("new") } as const] : []),
+            ...(canCreate ? [{ label: t("snippets.toolbar.newSnippet"), icon: "lucide:braces", onClick: () => openSnippet("new") } as const] : []),
+            // "New Folder" default name kept in English until all creation sites are localized together (see i18n issue #14)
             { label: "New Folder", icon: "lucide:folder-plus", onClick: () => void handleCreateFolder() },
           ]}
         />
@@ -1141,9 +1148,9 @@ export function SnippetsPage() {
     {/* ── Confirm folder delete ── */}
     {confirmDeleteFolder && (
       <ConfirmModal
-        title={`Delete "${confirmDeleteFolder.name}"?`}
-        message="Snippets inside will be moved to the root. This cannot be undone."
-        confirmLabel="Delete folder"
+        title={t("snippets.page.confirmDeleteFolder.title", { name: confirmDeleteFolder.name })}
+        message={t("snippets.page.confirmDeleteFolder.message")}
+        confirmLabel={t("snippets.page.confirmDeleteFolder.confirmLabel")}
         onConfirm={() => void handleDeleteFolder(confirmDeleteFolder)}
         onCancel={() => setConfirmDeleteFolder(null)}
       />
@@ -1152,9 +1159,9 @@ export function SnippetsPage() {
     {/* ── Confirm bulk delete ── */}
     {confirmDeleteIds && (
       <ConfirmModal
-        title={`Delete ${confirmDeleteIds.length} item${confirmDeleteIds.length === 1 ? "" : "s"}`}
-        message={`Are you sure you want to delete ${confirmDeleteIds.length} item${confirmDeleteIds.length === 1 ? "" : "s"}? This cannot be undone.`}
-        confirmLabel="Delete"
+        title={t("snippets.page.confirmDelete.title", { count: confirmDeleteIds.length })}
+        message={t("snippets.page.confirmDelete.message", { count: confirmDeleteIds.length })}
+        confirmLabel={t("common.action.delete")}
         onConfirm={() => {
           for (const id of confirmDeleteIds) {
             const folder = folders.find((f) => f.id === id);

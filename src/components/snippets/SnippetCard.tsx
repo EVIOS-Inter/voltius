@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { AvatarTile } from "@/components/shared/AvatarTile";
 import { BaseCard } from "@/components/shared/BaseCard";
@@ -66,6 +67,7 @@ export function SnippetCard({
   onToggleSync,
   onPointerDown,
 }: Props) {
+  const { t } = useTranslation();
   const isList = layout === "list";
   const pinSnippet = useSnippetStore((s) => s.pinSnippet);
   const pinSnippetForTeam = useSnippetStore((s) => s.pinSnippetForTeam);
@@ -90,18 +92,18 @@ export function SnippetCard({
   const pinAlwaysVisible = pinSource !== "none" && pinSource !== "team-hidden";
 
   const contextMenuItems: ContextMenuItem[] = [
-    { label: "Edit",      icon: "lucide:pencil",  onClick: onEdit, shortcut: "E" },
-    { label: "Duplicate", icon: "lucide:copy",    onClick: onDuplicate, shortcut: "D" },
+    { label: t("common.action.edit"), icon: "lucide:pencil",  onClick: onEdit, shortcut: "E" },
+    { label: t("snippets.card.duplicate"), icon: "lucide:copy",    onClick: onDuplicate, shortcut: "D" },
     {
       label: isTeamVault
         ? (pinSource === "personal" || pinSource === "team+personal")
-          ? "Unpin for me"
+          ? t("snippets.card.unpinForMe")
           : pinSource === "team-hidden"
-          ? "Show in my view"
+          ? t("snippets.card.showInMyView")
           : pinSource === "team"
-          ? "Hide for me"
-          : "Pin for me"
-        : effPinned ? "Unpin" : "Pin",
+          ? t("snippets.card.hideForMe")
+          : t("snippets.card.pinForMe")
+        : effPinned ? t("snippets.card.unpin") : t("snippets.card.pin"),
       icon: (pinSource === "personal" || pinSource === "team+personal" || (!isTeamVault && effPinned))
         ? "lucide:pin-off"
         : "lucide:pin",
@@ -109,23 +111,23 @@ export function SnippetCard({
       divider: true as const,
     },
     ...(canEdit && isTeamVault ? [{
-      label: snippet.favorite ? "Unpin for team" : "Pin for team",
+      label: snippet.favorite ? t("snippets.card.unpinForTeam") : t("snippets.card.pinForTeam"),
       icon: "lucide:users",
       onClick: () => pinSnippetForTeam(snippet.id, !snippet.favorite).catch(() => {}),
     }] : []),
     ...(onToggleSync ? [{
-      label: syncEnabled ? "Disable cloud sync" : "Enable cloud sync",
+      label: syncEnabled ? t("snippets.card.disableCloudSync") : t("snippets.card.enableCloudSync"),
       icon: syncEnabled ? "lucide:cloud-off" : "lucide:cloud",
       onClick: onToggleSync,
     }] : []),
     {
-      label: "Export",
+      label: t("snippets.card.export"),
       icon: "lucide:upload",
       onClick: () => useUIStore.getState().openImportExport("export", { single: { key: "snippets", id: snippet.id } }),
       divider: true as const,
     },
     ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault),
-    { label: "Delete", icon: "lucide:trash-2", onClick: onDelete, danger: true as const, divider: true as const, shortcut: getShortcutHint("delete") },
+    { label: t("common.action.delete"), icon: "lucide:trash-2", onClick: onDelete, danger: true as const, divider: true as const, shortcut: getShortcutHint("delete") },
   ];
 
   if (!isList) {
@@ -163,7 +165,7 @@ export function SnippetCard({
                     onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
                     className={`shrink-0 flex items-center transition-colors ${pinAlwaysVisible ? "opacity-100" : "opacity-0 group-hover:opacity-100 hover:text-(--t-text-bright)"}`}
                     style={{ color: pinColor }}
-                    title={effPinned ? "Unstar" : "Star"}
+                    title={effPinned ? t("snippets.card.unstar") : t("snippets.card.star")}
                   >
                     <Icon icon="lucide:star" width={14} />
                   </button>
@@ -204,7 +206,7 @@ export function SnippetCard({
                   overflow: "hidden",
                 }}
               >
-                {`> ${snippet.content || "No content"}`}
+                {`> ${snippet.content || t("snippets.card.noContent")}`}
               </p>
             </div>
 
@@ -220,7 +222,7 @@ export function SnippetCard({
               </div>
               <div className="flex items-center gap-0.5">
                 <button
-                  title="Insert"
+                  title={t("snippets.card.insert")}
                   onClick={(e) => { e.stopPropagation(); setPanelMode("insert"); }}
                   className="p-1.5 rounded-lg transition-colors text-(--t-text-secondary)"
                   onMouseEnter={(e) => (e.currentTarget.style.color = "var(--t-text-bright)")}
@@ -229,7 +231,7 @@ export function SnippetCard({
                   <Icon icon="lucide:arrow-down-to-line" width={15} />
                 </button>
                 <button
-                  title="Execute"
+                  title={t("snippets.card.execute")}
                   onClick={(e) => { e.stopPropagation(); setPanelMode("execute"); }}
                   className="p-1.5 rounded-lg transition-colors text-(--t-text-secondary)"
                   onMouseEnter={(e) => (e.currentTarget.style.color = "var(--t-text-bright)")}
@@ -311,7 +313,7 @@ export function SnippetCard({
         {/* Actions */}
         <div className="flex items-center gap-0.5 shrink-0">
           <button
-            title={effPinned ? "Unstar" : "Star"}
+            title={effPinned ? t("snippets.card.unstar") : t("snippets.card.star")}
             onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
             className={`p-1.5 rounded-lg transition-colors ${pinAlwaysVisible ? "flex" : "hidden group-hover:flex"}`}
             style={{ color: pinColor }}
@@ -322,7 +324,7 @@ export function SnippetCard({
           </button>
 
           <button
-            title="Insert"
+            title={t("snippets.card.insert")}
             onClick={(e) => { e.stopPropagation(); setPanelMode("insert"); }}
             className="p-1.5 flex rounded-lg transition-colors text-(--t-text-secondary)"
             onMouseEnter={(e) => { e.currentTarget.style.color = "var(--t-text-primary)"; e.currentTarget.style.background = "color-mix(in srgb, #ffffff 10%, transparent)"; }}
@@ -331,7 +333,7 @@ export function SnippetCard({
             <Icon icon="lucide:arrow-down-to-line" width={16} />
           </button>
           <button
-            title="Execute"
+            title={t("snippets.card.execute")}
             onClick={(e) => { e.stopPropagation(); setPanelMode("execute"); }}
             className="p-1.5 flex rounded-lg transition-colors text-(--t-text-secondary)"
             onMouseEnter={(e) => { e.currentTarget.style.color = "var(--t-text-primary)"; e.currentTarget.style.background = "color-mix(in srgb, #ffffff 10%, transparent)"; }}

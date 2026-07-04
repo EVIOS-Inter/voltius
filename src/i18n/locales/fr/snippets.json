@@ -1,0 +1,128 @@
+{
+  "snippets": {
+    "toolbar": {
+      "filterPlaceholder": "Filtrer les snippets...",
+      "gridLabel": "Grille",
+      "listLabel": "Liste",
+      "sortNameAsc": "A → Z",
+      "sortNameDesc": "Z → A",
+      "sortNewest": "Plus récents",
+      "sortOldest": "Plus anciens",
+      "newSnippet": "Nouveau snippet",
+      "newSnippetOptions": "Options du nouveau snippet"
+    },
+    "card": {
+      "duplicate": "Dupliquer",
+      "unpin": "Détacher",
+      "pin": "Épingler",
+      "unpinForMe": "Détacher pour moi",
+      "showInMyView": "Afficher dans ma vue",
+      "hideForMe": "Masquer pour moi",
+      "pinForMe": "Épingler pour moi",
+      "unpinForTeam": "Détacher pour l'équipe",
+      "pinForTeam": "Épingler pour l'équipe",
+      "enableCloudSync": "Activer la synchronisation cloud",
+      "disableCloudSync": "Désactiver la synchronisation cloud",
+      "export": "Exporter",
+      "star": "Ajouter aux favoris",
+      "unstar": "Retirer des favoris",
+      "insert": "Insérer",
+      "execute": "Exécuter",
+      "noContent": "Aucun contenu"
+    },
+    "form": {
+      "nameLabel": "Nom",
+      "namePlaceholder": "Mon snippet",
+      "contentLabel": "Contenu",
+      "variablesLabel": "Variables :",
+      "autoBadge": "auto",
+      "syntaxHintType": "Tapez",
+      "syntaxHintForAutocomplete": "pour l'auto-complétion.",
+      "syntaxHintCustomPrompts": "Invites personnalisées :",
+      "syntaxHintTypesList": "— texte · nombre · mot de passe · booléen ·",
+      "descriptionLabel": "Description (optionnel)",
+      "descriptionPlaceholder": "Que fait ce snippet ?",
+      "tagsLabel": "Étiquettes",
+      "folderLabel": "Dossier",
+      "starred": "Favori",
+      "starThisSnippet": "Ajouter ce snippet aux favoris",
+      "generalSection": "Général",
+      "contextualFiltersSection": "Filtres contextuels",
+      "contextualFiltersHint": "Laissez vide pour afficher pour toutes les connexions. Les snippets non correspondants sont grisés, pas masqués.",
+      "onlyForConnectionTags": "Uniquement pour les étiquettes de connexion",
+      "connectionTagsPlaceholder": "ex. production",
+      "onlyForDistros": "Uniquement pour les distributions",
+      "distrosPlaceholder": "ex. ubuntu, debian",
+      "removeTagAriaLabel": "Supprimer l'étiquette {{tag}}",
+      "dynamicVars": {
+        "connectionHost": "Nom d'hôte / IP SSH actif",
+        "connectionUsername": "Nom d'utilisateur SSH actif",
+        "connectionName": "Nom de la connexion actuelle",
+        "date": "Aujourd'hui — AAAA-MM-JJ",
+        "datetime": "Date + heure — AAAA-MM-JJ HH:MM:SS",
+        "timestamp": "Horodatage Unix",
+        "clipboard": "Contenu actuel du presse-papiers"
+      }
+    },
+    "page": {
+      "emptyState": {
+        "title": "Aucun snippet pour l'instant",
+        "subtitle": "Enregistrez des commandes de terminal réutilisables avec des variables dynamiques.",
+        "cta": "Créez votre premier snippet"
+      },
+      "pinned": "Épinglés",
+      "folders": "Dossiers",
+      "snippetsSection": "Snippets",
+      "other": "Autres",
+      "allSnippets": "Tous les snippets",
+      "folderEmpty": "Ce dossier est vide",
+      "addSnippet": "Ajouter un snippet",
+      "noSearchResults": "Aucun snippet ne correspond à \"{{search}}\"",
+      "clearSearch": "Effacer la recherche",
+      "ejectMoveTo": "Déplacer vers {{name}}",
+      "ejectRemoveFromFolder": "Retirer du dossier",
+      "recent": {
+        "title": "Récents",
+        "clear": "Effacer",
+        "showLess": "Afficher moins",
+        "showMore": "Afficher {{count}} de plus",
+        "deletedSnippet": "Snippet supprimé",
+        "unknownTarget": "Inconnu",
+        "targetMore": "{{name}} +{{count}} autres",
+        "modeRun": "exécuter",
+        "modeInsert": "insérer",
+        "replay": "Rejouer"
+      },
+      "bulk": {
+        "duplicateSnippets": "Dupliquer {{count}} snippets",
+        "moveItemsTo_one": "Déplacer {{count}} élément vers",
+        "moveItemsTo_other": "Déplacer {{count}} éléments vers",
+        "copyItemsTo_one": "Copier {{count}} élément vers",
+        "copyItemsTo_other": "Copier {{count}} éléments vers",
+        "enableCloudSync": "Activer la synchronisation cloud ({{count}})",
+        "disableCloudSync": "Désactiver la synchronisation cloud ({{count}})",
+        "exportSnippets_one": "Exporter {{count}} snippet",
+        "exportSnippets_other": "Exporter {{count}} snippets",
+        "deleteSnippets": "Supprimer {{count}} snippets"
+      },
+      "confirmDelete": {
+        "title_one": "Supprimer {{count}} élément",
+        "title_other": "Supprimer {{count}} éléments",
+        "message_one": "Voulez-vous vraiment supprimer {{count}} élément ? Cette action est irréversible.",
+        "message_other": "Voulez-vous vraiment supprimer {{count}} éléments ? Cette action est irréversible."
+      },
+      "confirmDeleteFolder": {
+        "title": "Supprimer \"{{name}}\" ?",
+        "message": "Les snippets à l'intérieur seront déplacés à la racine. Cette action est irréversible.",
+        "confirmLabel": "Supprimer le dossier"
+      },
+      "relativeTime": {
+        "justNow": "à l'instant",
+        "secondsAgo": "il y a {{count}}s",
+        "minutesAgo": "il y a {{count}} min",
+        "hoursAgo": "il y a {{count}} h",
+        "daysAgo": "il y a {{count}} j"
+      }
+    }
+  }
+}

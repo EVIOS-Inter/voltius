@@ -1,0 +1,128 @@
+{
+  "snippets": {
+    "toolbar": {
+      "filterPlaceholder": "Filter snippets...",
+      "gridLabel": "Grid",
+      "listLabel": "List",
+      "sortNameAsc": "A → Z",
+      "sortNameDesc": "Z → A",
+      "sortNewest": "Newest first",
+      "sortOldest": "Oldest first",
+      "newSnippet": "New Snippet",
+      "newSnippetOptions": "New snippet options"
+    },
+    "card": {
+      "duplicate": "Duplicate",
+      "unpin": "Unpin",
+      "pin": "Pin",
+      "unpinForMe": "Unpin for me",
+      "showInMyView": "Show in my view",
+      "hideForMe": "Hide for me",
+      "pinForMe": "Pin for me",
+      "unpinForTeam": "Unpin for team",
+      "pinForTeam": "Pin for team",
+      "enableCloudSync": "Enable cloud sync",
+      "disableCloudSync": "Disable cloud sync",
+      "export": "Export",
+      "star": "Star",
+      "unstar": "Unstar",
+      "insert": "Insert",
+      "execute": "Execute",
+      "noContent": "No content"
+    },
+    "form": {
+      "nameLabel": "Name",
+      "namePlaceholder": "My snippet",
+      "contentLabel": "Content",
+      "variablesLabel": "Variables:",
+      "autoBadge": "auto",
+      "syntaxHintType": "Type",
+      "syntaxHintForAutocomplete": "for autocomplete.",
+      "syntaxHintCustomPrompts": "Custom prompts:",
+      "syntaxHintTypesList": "— text · number · password · boolean ·",
+      "descriptionLabel": "Description (optional)",
+      "descriptionPlaceholder": "What does this snippet do?",
+      "tagsLabel": "Tags",
+      "folderLabel": "Folder",
+      "starred": "Starred",
+      "starThisSnippet": "Star this snippet",
+      "generalSection": "General",
+      "contextualFiltersSection": "Contextual Filters",
+      "contextualFiltersHint": "Leave empty to show for all connections. Non-matching snippets are greyed out, not hidden.",
+      "onlyForConnectionTags": "Only for connection tags",
+      "connectionTagsPlaceholder": "e.g. production",
+      "onlyForDistros": "Only for distros",
+      "distrosPlaceholder": "e.g. ubuntu, debian",
+      "removeTagAriaLabel": "Remove tag {{tag}}",
+      "dynamicVars": {
+        "connectionHost": "Active SSH hostname / IP",
+        "connectionUsername": "Active SSH username",
+        "connectionName": "Active connection name",
+        "date": "Today — YYYY-MM-DD",
+        "datetime": "Date + time — YYYY-MM-DD HH:MM:SS",
+        "timestamp": "Unix timestamp",
+        "clipboard": "Current clipboard contents"
+      }
+    },
+    "page": {
+      "emptyState": {
+        "title": "No snippets yet",
+        "subtitle": "Save reusable terminal commands with dynamic variables.",
+        "cta": "Create your first snippet"
+      },
+      "pinned": "Pinned",
+      "folders": "Folders",
+      "snippetsSection": "Snippets",
+      "other": "Other",
+      "allSnippets": "All Snippets",
+      "folderEmpty": "This folder is empty",
+      "addSnippet": "Add Snippet",
+      "noSearchResults": "No snippets match \"{{search}}\"",
+      "clearSearch": "Clear search",
+      "ejectMoveTo": "Move to {{name}}",
+      "ejectRemoveFromFolder": "Remove from folder",
+      "recent": {
+        "title": "Recent",
+        "clear": "Clear",
+        "showLess": "Show less",
+        "showMore": "Show {{count}} more",
+        "deletedSnippet": "Deleted snippet",
+        "unknownTarget": "Unknown",
+        "targetMore": "{{name}} +{{count}} more",
+        "modeRun": "run",
+        "modeInsert": "insert",
+        "replay": "Replay"
+      },
+      "bulk": {
+        "duplicateSnippets": "Duplicate {{count}} snippets",
+        "moveItemsTo_one": "Move {{count}} item to",
+        "moveItemsTo_other": "Move {{count}} items to",
+        "copyItemsTo_one": "Copy {{count}} item to",
+        "copyItemsTo_other": "Copy {{count}} items to",
+        "enableCloudSync": "Enable cloud sync ({{count}})",
+        "disableCloudSync": "Disable cloud sync ({{count}})",
+        "exportSnippets_one": "Export {{count}} snippet",
+        "exportSnippets_other": "Export {{count}} snippets",
+        "deleteSnippets": "Delete {{count}} snippets"
+      },
+      "confirmDelete": {
+        "title_one": "Delete {{count}} item",
+        "title_other": "Delete {{count}} items",
+        "message_one": "Are you sure you want to delete {{count}} item? This cannot be undone.",
+        "message_other": "Are you sure you want to delete {{count}} items? This cannot be undone."
+      },
+      "confirmDeleteFolder": {
+        "title": "Delete \"{{name}}\"?",
+        "message": "Snippets inside will be moved to the root. This cannot be undone.",
+        "confirmLabel": "Delete folder"
+      },
+      "relativeTime": {
+        "justNow": "just now",
+        "secondsAgo": "{{count}}s ago",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago"
+      }
+    }
+  }
+}

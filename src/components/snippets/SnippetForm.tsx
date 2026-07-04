@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useSnippetFolderStore } from "@/stores/snippetFolderStore";
@@ -30,14 +31,14 @@ import type { Snippet, SnippetFormData } from "@/types";
 import { getShortcutHint } from "@/stores/shortcutStore";
 import { parseVariables } from "@/services/snippetParser";
 
-const DYNAMIC_VAR_DEFS: { value: string; desc: string }[] = [
-  { value: "connection.host",     desc: "Active SSH hostname / IP" },
-  { value: "connection.username", desc: "Active SSH username" },
-  { value: "connection.name",     desc: "Active connection name" },
-  { value: "date",                desc: "Today — YYYY-MM-DD" },
-  { value: "datetime",            desc: "Date + time — YYYY-MM-DD HH:MM:SS" },
-  { value: "timestamp",           desc: "Unix timestamp" },
-  { value: "clipboard",           desc: "Current clipboard contents" },
+const DYNAMIC_VAR_DEF_KEYS: { value: string; descKey: string }[] = [
+  { value: "connection.host",     descKey: "snippets.form.dynamicVars.connectionHost" },
+  { value: "connection.username", descKey: "snippets.form.dynamicVars.connectionUsername" },
+  { value: "connection.name",     descKey: "snippets.form.dynamicVars.connectionName" },
+  { value: "date",                descKey: "snippets.form.dynamicVars.date" },
+  { value: "datetime",            descKey: "snippets.form.dynamicVars.datetime" },
+  { value: "timestamp",           descKey: "snippets.form.dynamicVars.timestamp" },
+  { value: "clipboard",           descKey: "snippets.form.dynamicVars.clipboard" },
 ];
 
 interface Props {
@@ -50,6 +51,11 @@ interface Props {
 }
 
 export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete, isDirtyRef }: Props) {
+  const { t } = useTranslation();
+  const DYNAMIC_VAR_DEFS = useMemo(
+    () => DYNAMIC_VAR_DEF_KEYS.map((d) => ({ value: d.value, desc: t(d.descKey) })),
+    [t],
+  );
   const isNew = !initial;
   const pinSnippet = useSnippetStore((s) => s.pinSnippet);
   const effPinned = useEffectivePinned(initial ?? { id: "", favorite: false }, "snippet");
@@ -122,6 +128,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
   }, [isNew, defaultVaultId]);
 
   const buildData = (): SnippetFormData => ({
+    // "Untitled snippet" is the persisted default name when left blank; kept in English until all creation sites are localized together (see i18n issue #14)
     name: name.trim() || "Untitled snippet",
     content,
     description: description.trim() || undefined,
@@ -166,15 +173,16 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
   }
 
   const panelItems = initial ? [
-    ...(onDuplicate ? [{ label: "Duplicate", icon: "lucide:copy", onClick: onDuplicate }] : []),
-    ...(onDelete ? [{ label: "Delete", icon: "lucide:trash-2", onClick: () => { flush(); onDelete(); }, shortcut: getShortcutHint("delete") }] : []),
+    ...(onDuplicate ? [{ label: t("snippets.card.duplicate"), icon: "lucide:copy", onClick: onDuplicate }] : []),
+    ...(onDelete ? [{ label: t("common.action.delete"), icon: "lucide:trash-2", onClick: () => { flush(); onDelete(); }, shortcut: getShortcutHint("delete") }] : []),
   ] : [];
 
   return (
     <PanelShell>
       <PanelHeader
         icon="lucide:braces"
-        title={isNew ? "New Snippet" : (name.trim() || "Untitled snippet")}
+        // "Untitled snippet" is the persisted default name when left blank; kept in English until all creation sites are localized together (see i18n issue #14)
+        title={isNew ? t("snippets.toolbar.newSnippet") : (name.trim() || "Untitled snippet")}
         subtitle={<VaultPicker vaultId={vaultId} onChange={(id) => { vaultTouched.current = true; setVaultId(id); markDirty(); }} />}
         onClose={handleClose}
         saveState={saveState}
@@ -194,20 +202,20 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* ── General ── */}
-        <FormSection label="General">
+        <FormSection label={t("snippets.form.generalSection")}>
           <div>
-            <label className={formLabelClass} style={formLabelStyle}>Name</label>
+            <label className={formLabelClass} style={formLabelStyle}>{t("snippets.form.nameLabel")}</label>
             <input
               value={name}
               onChange={(e) => { markDirty(); setName(e.target.value); }}
-              placeholder="My snippet"
+              placeholder={t("snippets.form.namePlaceholder")}
               className={formInputClass}
               style={formInputStyle}
             />
           </div>
 
           <div>
-            <label className={formLabelClass} style={formLabelStyle}>Content</label>
+            <label className={formLabelClass} style={formLabelStyle}>{t("snippets.form.contentLabel")}</label>
             <div className="relative">
               <textarea
                 ref={contentRef}
@@ -222,6 +230,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
                   else if (e.key === "Escape") { setVarQuery(null); }
                 }}
                 onBlur={() => setTimeout(() => setVarQuery(null), 100)}
+                // Sample shell command syntax, not prose UI copy — left untranslated like snippet body content
                 placeholder="echo Hello, {{name}}!"
                 rows={6}
                 className={`${formInputClass} font-mono resize-y`}
@@ -254,7 +263,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
             {/* Detected variables */}
             {detectedVars.length > 0 && (
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                <span className="text-xs" style={{ color: "var(--t-text-dim)" }}>Variables:</span>
+                <span className="text-xs" style={{ color: "var(--t-text-dim)" }}>{t("snippets.form.variablesLabel")}</span>
                 {detectedVars.map((v) => (
                   <span
                     key={v.name}
@@ -266,7 +275,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
                     }}
                   >
                     <span>{v.name}</span>
-                    <span className="font-sans" style={{ color: "var(--t-text-dim)" }}>{v.dynamic ? "auto" : v.type}</span>
+                    <span className="font-sans" style={{ color: "var(--t-text-dim)" }}>{v.dynamic ? t("snippets.form.autoBadge") : v.type}</span>
                   </span>
                 ))}
               </div>
@@ -274,24 +283,24 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
 
             {/* Syntax hint */}
             <p className="mt-1.5 text-xs leading-relaxed" style={{ color: "var(--t-text-dim)" }}>
-              Type <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>{"{{"}</code> for autocomplete.
-              {" "}Custom prompts: <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>{"{{name:type}}"}</code>
-              {" "}— text · number · password · boolean · <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>choice:a,b</code>
+              {t("snippets.form.syntaxHintType")} <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>{"{{"}</code> {t("snippets.form.syntaxHintForAutocomplete")}
+              {" "}{t("snippets.form.syntaxHintCustomPrompts")} <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>{"{{name:type}}"}</code>
+              {" "}{t("snippets.form.syntaxHintTypesList")} <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>choice:a,b</code>
             </p>
           </div>
 
           <div>
-            <label className={formLabelClass} style={formLabelStyle}>Description (optional)</label>
+            <label className={formLabelClass} style={formLabelStyle}>{t("snippets.form.descriptionLabel")}</label>
             <input
               value={description}
               onChange={(e) => { markDirty(); setDesc(e.target.value); }}
-              placeholder="What does this snippet do?"
+              placeholder={t("snippets.form.descriptionPlaceholder")}
               className={formInputClass}
               style={formInputStyle}
             />
           </div>
           <div>
-            <label className={formLabelClass} style={formLabelStyle}>Tags</label>
+            <label className={formLabelClass} style={formLabelStyle}>{t("snippets.form.tagsLabel")}</label>
             <TagSelector
               value={tags}
               vaultId={vaultId}
@@ -299,7 +308,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
             />
           </div>
           <div>
-            <label className={formLabelClass} style={formLabelStyle}>Folder</label>
+            <label className={formLabelClass} style={formLabelStyle}>{t("snippets.form.folderLabel")}</label>
             <FolderSelector
               value={folderId}
               folders={folders}
@@ -321,22 +330,22 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
               style={{ color: favorite ? "var(--t-accent)" : "var(--t-text-dim)" }}
             >
               <Icon icon="lucide:star" width={15} />
-              {favorite ? "Starred" : "Star this snippet"}
+              {favorite ? t("snippets.form.starred") : t("snippets.form.starThisSnippet")}
             </button>
           </div>
         </FormSection>
 
         {/* ── Contextual filters ── */}
-        <FormSection label="Contextual Filters">
+        <FormSection label={t("snippets.form.contextualFiltersSection")}>
           <p className="text-xs text-(--t-text-dim) -mt-1">
-            Leave empty to show for all connections. Non-matching snippets are greyed out, not hidden.
+            {t("snippets.form.contextualFiltersHint")}
           </p>
           <div>
-            <label className={formLabelClass} style={formLabelStyle}>Only for connection tags</label>
+            <label className={formLabelClass} style={formLabelStyle}>{t("snippets.form.onlyForConnectionTags")}</label>
             <AutocompleteTagInput
               tags={connTags}
               input={connTagInput}
-              placeholder="e.g. production"
+              placeholder={t("snippets.form.connectionTagsPlaceholder")}
               suggestions={allConnectionTags}
               onInputChange={setConnTagInput}
               onAdd={(v) => commitTag(connTags, v, setConnTags, setConnTagInput)}
@@ -344,11 +353,11 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
             />
           </div>
           <div>
-            <label className={formLabelClass} style={formLabelStyle}>Only for distros</label>
+            <label className={formLabelClass} style={formLabelStyle}>{t("snippets.form.onlyForDistros")}</label>
             <AutocompleteTagInput
               tags={distros}
               input={distroInput}
-              placeholder="e.g. ubuntu, debian"
+              placeholder={t("snippets.form.distrosPlaceholder")}
               suggestions={[]}
               onInputChange={setDistroInput}
               onAdd={(v) => commitTag(distros, v, setDistros, setDistroInput)}
@@ -380,6 +389,7 @@ function AutocompleteTagInput({
   onAdd: (v: string) => void;
   onRemove: (v: string) => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -399,7 +409,7 @@ function AutocompleteTagInput({
                 type="button"
                 onClick={() => onRemove(tag)}
                 className="transition-opacity opacity-60 hover:opacity-100"
-                aria-label={`Remove tag ${tag}`}
+                aria-label={t("snippets.form.removeTagAriaLabel", { tag })}
               >
                 <Icon icon="lucide:x" width={10} />
               </button>

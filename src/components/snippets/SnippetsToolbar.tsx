@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { FilterInput, SORT_MODE_ICONS, type SortMode, type LayoutMode } from "@/components/shared/ToolbarViewControls";
 import { ToolbarDropdown } from "@/components/shared/ToolbarDropdown";
@@ -28,6 +29,7 @@ export function SnippetsToolbar({
   onNewSnippet,
   onNewFolder,
 }: Props) {
+  const { t } = useTranslation();
   const { compact, rowRef, leftRef, rightRef } = useToolbarResize();
   const { createRipple, rippleEls } = useRipple();
   const { createRipple: rippleChevron, rippleEls: ripplesChevron } = useRipple();
@@ -62,14 +64,14 @@ export function SnippetsToolbar({
           <FilterInput
             value={search}
             onChange={onSearchChange}
-            placeholder="Filter snippets..."
+            placeholder={t("snippets.toolbar.filterPlaceholder")}
             width={176}
             shortcutId="filter"
           />
           <Pills
             options={[
-              { value: "grid", label: "Grid", icon: "lucide:layout-grid" },
-              { value: "list", label: "List", icon: "lucide:layout-list" },
+              { value: "grid", label: t("snippets.toolbar.gridLabel"), icon: "lucide:layout-grid" },
+              { value: "list", label: t("snippets.toolbar.listLabel"), icon: "lucide:layout-list" },
             ]}
             value={layoutMode}
             onChange={onLayoutModeChange}
@@ -79,10 +81,10 @@ export function SnippetsToolbar({
             value={sortMode}
             menuWidth={200}
             options={[
-              { value: "name-asc",  label: "A → Z",        icon: "lucide:arrow-up-a-z" },
-              { value: "name-desc", label: "Z → A",        icon: "lucide:arrow-down-a-z" },
-              { value: "newest",    label: "Newest first",  icon: "lucide:arrow-down-0-1" },
-              { value: "oldest",    label: "Oldest first",  icon: "lucide:arrow-up-0-1" },
+              { value: "name-asc",  label: t("snippets.toolbar.sortNameAsc"),  icon: "lucide:arrow-up-a-z" },
+              { value: "name-desc", label: t("snippets.toolbar.sortNameDesc"), icon: "lucide:arrow-down-a-z" },
+              { value: "newest",    label: t("snippets.toolbar.sortNewest"),   icon: "lucide:arrow-down-0-1" },
+              { value: "oldest",    label: t("snippets.toolbar.sortOldest"),   icon: "lucide:arrow-up-0-1" },
             ]}
             onChange={onSortModeChange}
           />
@@ -93,7 +95,7 @@ export function SnippetsToolbar({
           <button
             onClick={onNewSnippet}
             onMouseDown={createRipple}
-            title={compact ? "New Snippet" : undefined}
+            title={compact ? t("snippets.toolbar.newSnippet") : undefined}
             type="button"
             className="flex items-center gap-2 px-3 h-8 text-sm font-bold tracking-wider transition-colors shrink-0 whitespace-nowrap relative overflow-hidden rounded-tl-[0.533rem] rounded-bl-[0.533rem]"
             style={{ background: "var(--t-accent)", color: "var(--t-bg-terminal)" }}
@@ -102,14 +104,14 @@ export function SnippetsToolbar({
           >
             {rippleEls}
             <Icon icon="lucide:braces" width={18} />
-            {!compact && "New Snippet"}
+            {!compact && t("snippets.toolbar.newSnippet")}
           </button>
 
           <button
             onClick={openMenu}
             onMouseDown={rippleChevron}
             type="button"
-            aria-label="New snippet options"
+            aria-label={t("snippets.toolbar.newSnippetOptions")}
             className="flex items-center justify-center w-8 h-8 transition-colors relative overflow-hidden rounded-tr-[0.533rem] rounded-br-[0.533rem]"
             style={{ background: "var(--t-accent)" }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "var(--t-accent-hover)")}
@@ -130,6 +132,7 @@ export function SnippetsToolbar({
                 width: "max-content",
               }}
             >
+              {/* "New Folder" default name kept in English until all creation sites are localized together (see i18n issue #14) */}
               <DropdownMenuItem
                 icon="lucide:folder-plus"
                 label="New Folder"

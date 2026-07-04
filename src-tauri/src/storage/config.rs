@@ -504,11 +504,38 @@ pub fn save_known_hosts(entries: &[KnownHost]) -> Result<(), String> {
 
 // ─── Snippets ────────────────────────────────────────────────────────────────
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum TransferDirection {
+    Upload,
+    Download,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum SnippetStep {
+    Script {
+        content: String,
+    },
+    Transfer {
+        direction: TransferDirection,
+        local_path: String,
+        remote_path: String,
+        is_dir: bool,
+    },
+    Snippet {
+        snippet_id: String,
+    },
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Snippet {
     pub id: String,
     pub name: String,
-    pub content: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content: Option<String>,
+    #[serde(default)]
+    pub steps: Vec<SnippetStep>,
     #[serde(default)]
     pub description: Option<String>,
     #[serde(default)]
@@ -532,7 +559,8 @@ pub struct Snippet {
 #[derive(Debug, Deserialize)]
 pub struct SnippetFormData {
     pub name: String,
-    pub content: String,
+    #[serde(default)]
+    pub steps: Vec<SnippetStep>,
     #[serde(default)]
     pub description: Option<String>,
     #[serde(default)]
@@ -634,8 +662,31 @@ fn snippets_file() -> PathBuf {
     config_dir().join("snippets.json")
 }
 
+fn migrate_snippet_steps(s: &mut Snippet) {
+    if s.steps.is_empty() {
+        let content = s.content.take().unwrap_or_default();
+        s.steps = vec![SnippetStep::Script { content }];
+        if let Some(c) = s.clocks.remove("content") {
+            s.clocks.entry("steps".to_string()).or_insert(c);
+        }
+    } else if s.content.is_some() {
+        s.content = None;
+    }
+}
+
 pub fn load_snippets() -> Vec<Snippet> {
-    load_json_migrated(snippets_file())
+    let mut snippets: Vec<Snippet> = load_json_migrated(snippets_file());
+    let before: Vec<bool> = snippets
+        .iter()
+        .map(|s| s.content.is_some() || s.steps.is_empty())
+        .collect();
+    for s in snippets.iter_mut() {
+        migrate_snippet_steps(s);
+    }
+    if before.iter().any(|&needed| needed) {
+        let _ = save_snippets(&snippets);
+    }
+    snippets
 }
 
 pub fn save_snippets(snippets: &[Snippet]) -> Result<(), String> {
@@ -976,5 +1027,33 @@ mod tests {
         assert_eq!(migrated[0].vault_id, "legacy-team");
 
         let _ = std::fs::remove_dir_all(&dir);
+    }
+}
+
+#[cfg(test)]
+mod snippet_steps_tests {
+    use super::*;
+
+    #[test]
+    fn legacy_content_becomes_single_script_step() {
+        let json = r#"{"id":"a","name":"n","content":"echo hi","created_at":"t","updated_at":"t","deleted_at":null,"vault_id":"personal","clocks":{"content":"t"}}"#;
+        let mut s: Snippet = serde_json::from_str(json).unwrap();
+        migrate_snippet_steps(&mut s);
+        assert_eq!(s.steps.len(), 1);
+        match &s.steps[0] {
+            SnippetStep::Script { content } => assert_eq!(content, "echo hi"),
+            _ => panic!("expected script step"),
+        }
+        assert!(s.content.is_none());
+        assert!(s.clocks.contains_key("steps"));
+        assert!(!s.clocks.contains_key("content"));
+    }
+
+    #[test]
+    fn snippet_with_steps_is_left_alone() {
+        let json = r#"{"id":"a","name":"n","steps":[{"kind":"script","content":"x"}],"created_at":"t","updated_at":"t","deleted_at":null,"vault_id":"personal","clocks":{"steps":"t"}}"#;
+        let mut s: Snippet = serde_json::from_str(json).unwrap();
+        migrate_snippet_steps(&mut s);
+        assert_eq!(s.steps.len(), 1);
     }
 }

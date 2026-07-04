@@ -24,6 +24,12 @@ fn max_clock(clocks: &HashMap<String, String>, fallback: &str) -> String {
         .unwrap_or_else(|| fallback.to_string())
 }
 
+impl Snippet {
+    fn steps_differs(&self, other: &[crate::storage::config::SnippetStep]) -> bool {
+        serde_json::to_string(&self.steps).ok() != serde_json::to_string(other).ok()
+    }
+}
+
 #[tauri::command]
 pub fn snippet_list() -> Result<Vec<Snippet>, String> {
     let snippets = load_snippets();
@@ -40,7 +46,7 @@ pub fn snippet_create(data: SnippetFormData) -> Result<Snippet, String> {
     let mut clocks = HashMap::new();
     for field in &[
         "name",
-        "content",
+        "steps",
         "description",
         "tags",
         "folder_id",
@@ -56,7 +62,8 @@ pub fn snippet_create(data: SnippetFormData) -> Result<Snippet, String> {
     let snippet = Snippet {
         id: Uuid::new_v4().to_string(),
         name: data.name,
-        content: data.content,
+        content: None,
+        steps: data.steps,
         description: data.description,
         tags: data.tags,
         folder_id: data.folder_id,
@@ -86,8 +93,8 @@ pub fn snippet_update(id: String, data: SnippetFormData) -> Result<Snippet, Stri
     if snippet.name != data.name {
         snippet.clocks.insert("name".to_string(), now.clone());
     }
-    if snippet.content != data.content {
-        snippet.clocks.insert("content".to_string(), now.clone());
+    if snippet.steps_differs(&data.steps) {
+        snippet.clocks.insert("steps".to_string(), now.clone());
     }
     if snippet.description != data.description {
         snippet
@@ -126,7 +133,8 @@ pub fn snippet_update(id: String, data: SnippetFormData) -> Result<Snippet, Stri
     check_vault_write(&[effective_vault])?;
 
     snippet.name = data.name;
-    snippet.content = data.content;
+    snippet.steps = data.steps;
+    snippet.content = None;
     snippet.description = data.description;
     snippet.tags = data.tags;
     snippet.folder_id = data.folder_id;

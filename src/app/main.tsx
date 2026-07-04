@@ -4,8 +4,11 @@ import App from "./App";
 import "@/styles/globals.css";
 import "@/i18n";
 import { preloadIcons } from "@/utils/icons";
+import { installGlobalErrorLogging } from "@/lib/logger";
 
 preloadIcons();
+
+installGlobalErrorLogging();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

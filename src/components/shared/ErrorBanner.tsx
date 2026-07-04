@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   error: string;
@@ -6,6 +7,7 @@ interface Props {
 }
 
 export function ErrorBanner({ error, onDismiss }: Props) {
+  const { t } = useTranslation();
   return (
     <div
       className="mx-5 mt-3 flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs bg-[#2D1515] border border-[#5C2020] text-[#F87171]"
@@ -13,7 +15,7 @@ export function ErrorBanner({ error, onDismiss }: Props) {
       <Icon icon="lucide:circle-alert" width={14} />
       <span className="flex-1">{error}</span>
       <button className="underline opacity-70 hover:opacity-100 transition-opacity" onClick={onDismiss}>
-        dismiss
+        {t("shared.errorBanner.dismiss")}
       </button>
     </div>
   );

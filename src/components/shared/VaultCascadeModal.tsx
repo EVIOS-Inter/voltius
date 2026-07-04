@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { Modal, ModalCard } from "./Modal";
 import type { PendingCascade } from "@/hooks/useVaultCascade";
 
@@ -14,14 +15,18 @@ const typeIcon: Record<string, string> = {
   connection: "lucide:server",
 };
 
-const typeLabel: Record<string, string> = {
-  identity: "Identity",
-  key: "SSH Key",
-  connection: "Host",
-};
+function getTypeLabel(t: (key: string) => string): Record<string, string> {
+  return {
+    identity: t("shared.vaultCascadeModal.typeLabel.identity"),
+    key: t("shared.vaultCascadeModal.typeLabel.key"),
+    connection: t("common.entity.host"),
+  };
+}
 
 export function VaultCascadeModal({ cascade, onConfirm, onCancel }: Props) {
-  const verb = cascade.operation === "move" ? "Move" : "Copy";
+  const { t } = useTranslation();
+  const isMove = cascade.operation === "move";
+  const typeLabel = getTypeLabel(t);
 
   return (
     <Modal onClose={onCancel} onEnter={onConfirm}>
@@ -38,17 +43,16 @@ export function VaultCascadeModal({ cascade, onConfirm, onCancel }: Props) {
             />
           </div>
           <h2 className="text-sm font-semibold text-(--t-text-bright)">
-            {verb} linked items to{" "}
+            {isMove ? t("shared.vaultCascadeModal.headingMove") : t("shared.vaultCascadeModal.headingCopy")}{" "}
             <span className="text-(--t-accent)">{cascade.targetVaultName}</span>?
           </h2>
         </div>
 
         <p className="text-sm text-(--t-text-secondary)">
           {cascade.description ?? (
-            <>
-              The following linked items are in a different vault and will also be{" "}
-              {cascade.operation === "move" ? "moved" : "copied"}:
-            </>
+            isMove
+              ? t("shared.vaultCascadeModal.fallbackDescriptionMoved")
+              : t("shared.vaultCascadeModal.fallbackDescriptionCopied")
           )}
         </p>
 
@@ -76,13 +80,13 @@ export function VaultCascadeModal({ cascade, onConfirm, onCancel }: Props) {
             onClick={onCancel}
             className="btn btn-secondary px-4 py-2 rounded-lg text-sm font-medium"
           >
-            Cancel
+            {t("common.action.cancel")}
           </button>
           <button
             onClick={onConfirm}
             className="btn btn-primary px-4 py-2 rounded-lg text-sm font-medium"
           >
-            {verb} All
+            {isMove ? t("shared.vaultCascadeModal.confirmMove") : t("shared.vaultCascadeModal.confirmCopy")}
           </button>
         </div>
       </ModalCard>

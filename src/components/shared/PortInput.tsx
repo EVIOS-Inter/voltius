@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { DropdownMenuItem } from "./DropdownMenuItem";
 import { formInputClass, formInputStyle } from "./Panel";
 
@@ -12,7 +13,8 @@ interface Props {
   autoFocus?: boolean;
 }
 
-export function PortInput({ value, ports, onChange, placeholder = "/dev/ttyUSB0 or COM3", className = "", autoFocus }: Props) {
+export function PortInput({ value, ports, onChange, placeholder, className = "", autoFocus }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [menuRect, setMenuRect] = useState({ top: 0, left: 0, width: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +58,7 @@ export function PortInput({ value, ports, onChange, placeholder = "/dev/ttyUSB0 
         autoFocus={autoFocus}
         onChange={(e) => { onChange(e.target.value); showDropdown(); }}
         onFocus={() => showDropdown()}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t("shared.portInput.placeholder")}
         className={`w-full ${formInputClass}`}
         style={{ ...formInputStyle }}
       />

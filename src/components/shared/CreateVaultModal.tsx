@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal, ModalCard } from "./Modal";
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function CreateVaultModal({ onConfirm, onCancel }: Props) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -32,18 +34,18 @@ export function CreateVaultModal({ onConfirm, onCancel }: Props) {
             <Icon icon="lucide:vault" width={18} className="text-(--t-accent)" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-(--t-text-bright)">New Vault</h2>
-            <p className="text-xs text-(--t-text-dim) mt-0.5">Vaults keep your credentials organized</p>
+            <h2 className="text-sm font-semibold text-(--t-text-bright)">{t("shared.createVaultModal.title")}</h2>
+            <p className="text-xs text-(--t-text-dim) mt-0.5">{t("shared.createVaultModal.subtitle")}</p>
           </div>
         </div>
 
         {/* Input */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-(--t-text-secondary)">Vault name</label>
+          <label className="text-xs font-medium text-(--t-text-secondary)">{t("shared.createVaultModal.nameLabel")}</label>
           <input
             ref={inputRef}
             type="text"
-            placeholder="e.g. Work, Personal, Staging…"
+            placeholder={t("shared.createVaultModal.namePlaceholder")}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => {
@@ -65,14 +67,14 @@ export function CreateVaultModal({ onConfirm, onCancel }: Props) {
             onClick={onCancel}
             className="btn btn-secondary px-4 py-2 rounded-lg text-sm font-medium"
           >
-            Cancel
+            {t("common.action.cancel")}
           </button>
           <button
             onClick={submit}
             disabled={!name.trim()}
             className="btn btn-primary px-4 py-2 rounded-lg text-sm font-medium"
           >
-            Create Vault
+            {t("shared.createVaultModal.createButton")}
           </button>
         </div>
       </ModalCard>

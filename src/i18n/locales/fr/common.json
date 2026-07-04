@@ -13,7 +13,11 @@
       "remove": "Retirer",
       "add": "Ajouter",
       "connect": "Connecter",
-      "disconnect": "Déconnecter"
+      "disconnect": "Déconnecter",
+      "pin": "Épingler",
+      "unpin": "Désépingler",
+      "moreOptions": "Plus d'options",
+      "closePanel": "Fermer le panneau"
     },
     "entity": {
       "host": "Hôte",
@@ -28,14 +32,25 @@
       "session": "Session",
       "sessions": "Sessions",
       "rule": "Règle",
-      "rules": "Règles"
+      "rules": "Règles",
+      "tags": "Tags",
+      "personal": "Personnel"
     },
     "state": {
       "loading": "Chargement…",
       "saving": "Enregistrement…",
       "none": "Aucun",
       "empty": "Rien ici pour l'instant",
-      "error": "Une erreur s'est produite"
+      "error": "Une erreur s'est produite",
+      "noResults": "Aucun résultat"
+    },
+    "viewMode": {
+      "grid": "Grille",
+      "list": "Liste"
+    },
+    "placeholder": {
+      "filter": "Filtrer...",
+      "search": "Rechercher…"
     },
     "toast": {
       "proSubscriptionEnded": "Votre abonnement Pro a expiré — la synchronisation est en pause.",

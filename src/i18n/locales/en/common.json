@@ -13,7 +13,11 @@
       "remove": "Remove",
       "add": "Add",
       "connect": "Connect",
-      "disconnect": "Disconnect"
+      "disconnect": "Disconnect",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "moreOptions": "More options",
+      "closePanel": "Close panel"
     },
     "entity": {
       "host": "Host",
@@ -28,14 +32,25 @@
       "session": "Session",
       "sessions": "Sessions",
       "rule": "Rule",
-      "rules": "Rules"
+      "rules": "Rules",
+      "tags": "Tags",
+      "personal": "Personal"
     },
     "state": {
       "loading": "Loading…",
       "saving": "Saving…",
       "none": "None",
       "empty": "Nothing here yet",
-      "error": "Something went wrong"
+      "error": "Something went wrong",
+      "noResults": "No results"
+    },
+    "viewMode": {
+      "grid": "Grid",
+      "list": "List"
+    },
+    "placeholder": {
+      "filter": "Filter...",
+      "search": "Search…"
     },
     "toast": {
       "proSubscriptionEnded": "Your Pro subscription has ended — sync has been paused.",

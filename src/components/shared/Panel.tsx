@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import type { SaveState } from "@/hooks/useAutosave";
 import { useRipple } from "@/hooks/useRipple";
 
@@ -62,15 +63,18 @@ export function PanelHeaderIconButton({
   );
 }
 
-const SAVE_STATE_CONFIG = {
-  dirty:  { icon: "lucide:pencil",      label: "Editing...", color: "var(--t-text-dim)",    spin: false },
-  saving: { icon: "lucide:loader-circle",    label: "Saving...",  color: "var(--t-text-dim)",    spin: true  },
-  saved:  { icon: "lucide:circle-check-big", label: "Saved",     color: "var(--t-accent)",      spin: false },
-} as const;
+function getSaveStateConfig(t: (key: string) => string) {
+  return {
+    dirty:  { icon: "lucide:pencil",           label: t("shared.panel.saveState.dirty"),  color: "var(--t-text-dim)", spin: false },
+    saving: { icon: "lucide:loader-circle",    label: t("shared.panel.saveState.saving"), color: "var(--t-text-dim)", spin: true  },
+    saved:  { icon: "lucide:circle-check-big", label: t("shared.panel.saveState.saved"),  color: "var(--t-accent)",   spin: false },
+  } as const;
+}
 
 function SaveStateIndicator({ state }: { state: SaveState }) {
+  const { t } = useTranslation();
   if (state === "idle") return null;
-  const { icon, label, color, spin } = SAVE_STATE_CONFIG[state];
+  const { icon, label, color, spin } = getSaveStateConfig(t)[state];
   return (
     <div className="flex items-center gap-1.5 select-none" style={{ color }}>
       <Icon icon={icon} width={12} className={spin ? "animate-spin" : ""} />
@@ -94,6 +98,7 @@ export function PanelHeader({
   actions?: React.ReactNode;
   saveState?: SaveState;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="px-4 py-3 shrink-0 bg-(--t-bg-card) border-b border-b-(--t-bg-terminal)">
       <div className="flex items-center justify-between">
@@ -109,7 +114,7 @@ export function PanelHeader({
           {saveState && <SaveStateIndicator state={saveState} />}
           <div className="flex items-center gap-1">
             {actions}
-            <PanelHeaderIconButton icon="lucide:arrow-right-to-line" title="Close panel" onClick={onClose} />
+            <PanelHeaderIconButton icon="lucide:arrow-right-to-line" title={t("common.action.closePanel")} onClick={onClose} />
           </div>
         </div>
       </div>

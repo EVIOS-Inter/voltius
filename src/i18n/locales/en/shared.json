@@ -1,0 +1,107 @@
+{
+  "shared": {
+    "errorBanner": {
+      "dismiss": "dismiss"
+    },
+    "trialExpiredModal": {
+      "title": "Your Pro trial has ended",
+      "body": "You've had 14 days to try Pro — hope it was useful. Upgrade to keep real-time sync and cloud features.",
+      "upgradeButton": "Upgrade to Pro",
+      "laterButton": "Maybe later"
+    },
+    "createVaultModal": {
+      "title": "New Vault",
+      "subtitle": "Vaults keep your credentials organized",
+      "nameLabel": "Vault name",
+      "namePlaceholder": "e.g. Work, Personal, Staging…",
+      "createButton": "Create Vault"
+    },
+    "vaultCascadeModal": {
+      "headingMove": "Move linked items to",
+      "headingCopy": "Copy linked items to",
+      "fallbackDescriptionMoved": "The following linked items are in a different vault and will also be moved:",
+      "fallbackDescriptionCopied": "The following linked items are in a different vault and will also be copied:",
+      "confirmMove": "Move All",
+      "confirmCopy": "Copy All",
+      "typeLabel": {
+        "identity": "Identity",
+        "key": "SSH Key"
+      }
+    },
+    "formSelect": {
+      "title": "Select"
+    },
+    "folderSelector": {
+      "noFolder": "No folder",
+      "namePlaceholder": "Folder name",
+      "newFolder": "New folder"
+    },
+    "tagSelector": {
+      "placeholder": "Add tags…",
+      "removeTag": "Remove tag {{tag}}"
+    },
+    "portInput": {
+      "placeholder": "/dev/ttyUSB0 or COM3"
+    },
+    "avatarStack": {
+      "participantCount_one": "{{count}} participant",
+      "participantCount_other": "{{count}} participants"
+    },
+    "panel": {
+      "saveState": {
+        "dirty": "Editing...",
+        "saving": "Saving...",
+        "saved": "Saved"
+      }
+    },
+    "vaultPicker": {
+      "memberBadge": "member"
+    },
+    "pickers": {
+      "thisComputer": "This computer"
+    },
+    "sessionPicker": {
+      "insertTitle": "Insert to...",
+      "executeTitle": "Execute in...",
+      "insertConfirm_one": "Insert to {{count}} target",
+      "insertConfirm_other": "Insert to {{count}} targets",
+      "executeConfirm_one": "Execute in {{count}} target",
+      "executeConfirm_other": "Execute in {{count}} targets",
+      "noActiveSessions": "No active sessions",
+      "activeSessionsHeader": "Active Sessions",
+      "openNewConnectionHeader": "Open New Connection",
+      "localShellFallbackName": "Local Shell",
+      "sshSessionSub": "SSH Session",
+      "noRemoteHostsFound": "No remote hosts found",
+      "noHostsFound": "No hosts found"
+    },
+    "hostPicker": {
+      "selectHostTitle": "Select Host",
+      "newHostButton": "NEW HOST",
+      "filterPlaceholder": "Filter hosts...",
+      "localMachineName": "Local Machine",
+      "wslSub": "WSL",
+      "noHostsConfigured": "No hosts configured",
+      "noHostsMatch": "No hosts match"
+    },
+    "sort": {
+      "nameAsc": "A → Z",
+      "nameDesc": "Z → A",
+      "newest": "Newest first",
+      "oldest": "Oldest first"
+    },
+    "tagFilter": {
+      "filterByTag": "Filter by tag",
+      "emptyTitle": "Add tags",
+      "emptyDescription": "Tags help you filter your hosts. You can add a tag when editing a host.",
+      "searchPlaceholder": "Filter tags...",
+      "clearSelection": "Clear selection ({{count}})",
+      "noTagsMatch": "No tags match \"{{search}}\"",
+      "deleteTagTitle": "Delete tag \"{{tag}}\"?",
+      "deleteTagBody_one": "This will remove the tag from {{count}} host. The hosts themselves won't be deleted.",
+      "deleteTagBody_other": "This will remove the tag from {{count}} hosts. The hosts themselves won't be deleted.",
+      "renameTagTitle": "Rename tag",
+      "deleteTagButtonTitle": "Delete tag"
+    }
+  }
+}

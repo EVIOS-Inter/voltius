@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { DropdownMenuItem } from "./DropdownMenuItem";
 import { formInputStyle } from "./Panel";
 import { PickerSurface } from "./PickerSurface";
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function FormSelect({ value, options, onChange, className = "" }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -40,7 +42,7 @@ export function FormSelect({ value, options, onChange, className = "" }: Props) 
         />
       </button>
 
-      <PickerSurface open={open} onClose={() => setOpen(false)} anchorRef={triggerRef} title="Select">
+      <PickerSurface open={open} onClose={() => setOpen(false)} anchorRef={triggerRef} title={t("shared.formSelect.title")}>
         {options.map((opt) => (
           <DropdownMenuItem
             key={opt.value}

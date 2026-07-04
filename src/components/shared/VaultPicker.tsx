@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useVaultStore } from "@/stores/vaultStore";
 import { useTeamStore } from "@/stores/teamStore";
 import { getMyUserId } from "@/services/teamService";
@@ -13,6 +14,7 @@ export function VaultPicker({
   vaultId: string;
   onChange: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const { vaults, selectVaultOnly } = useVaultStore();
   const { teams, membersByTeam, loadMembers, loadTeams, rolesByTeam, loadRoles } = useTeamStore();
   const [myUserId, setMyUserId] = useState("");
@@ -64,7 +66,7 @@ export function VaultPicker({
 
   const currentId = vaultId || "personal";
   const currentVault = allVaults.find((v) => v.id === currentId);
-  const label = currentVault?.name ?? "Personal";
+  const label = currentVault?.name ?? t("common.entity.personal");
 
   const handleOpen = () => {
     if (triggerRef.current) {
@@ -128,7 +130,7 @@ export function VaultPicker({
                   </span>
                   {!writable && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>
-                      member
+                      {t("shared.vaultPicker.memberBadge")}
                     </span>
                   )}
                   {writable && role && (

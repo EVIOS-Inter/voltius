@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { DropdownMenuItem } from "@/components/shared/DropdownMenuItem";
 
 export interface DropdownOption<T extends string> {
@@ -49,6 +50,7 @@ export function ToolbarDropdown<T extends string>({
   label, onAction, align = "right", disabled, variant = "default", searchable,
   ...rest
 }: Props<T>) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const ref = useRef<HTMLDivElement>(null);
@@ -119,7 +121,7 @@ export function ToolbarDropdown<T extends string>({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search…"
+              placeholder={t("common.placeholder.search")}
               className="flex-1 text-xs bg-transparent outline-hidden text-(--t-text-primary) placeholder:text-(--t-text-dim)"
             />
             {searchQuery && (
@@ -157,7 +159,7 @@ export function ToolbarDropdown<T extends string>({
                 />
               ))
             : (
-              <p className="text-xs text-(--t-text-dim) px-3 py-2">No results</p>
+              <p className="text-xs text-(--t-text-dim) px-3 py-2">{t("common.state.noResults")}</p>
             )
         }
       </div>
@@ -197,7 +199,7 @@ export function ToolbarDropdown<T extends string>({
           style={{ background: chevronBg, color: actionText, borderColor: actionBorder }}
           onMouseEnter={(e) => (e.currentTarget.style.background = chevronBgHover)}
           onMouseLeave={(e) => (e.currentTarget.style.background = chevronBg)}
-          title="More options"
+          title={t("common.action.moreOptions")}
         >
           <span className="[&_path]:stroke-3">
             <Icon icon="lucide:chevron-down" width={20} style={{ transition: "transform 150ms", transform: open ? "rotate(180deg)" : "rotate(0deg)" }} />

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal, ModalCard } from "@/components/shared/Modal";
 import { useSubscriptionStore } from "@/stores/subscriptionStore";
 import { openPortal } from "@/utils/billing";
@@ -6,6 +7,7 @@ import { openPortal } from "@/utils/billing";
 const STORAGE_KEY = "voltius_trial_expired_shown";
 
 export function TrialExpiredModal() {
+  const { t } = useTranslation();
   const { tier, trialEndsAt, trialUsed } = useSubscriptionStore();
   const [visible, setVisible] = useState(false);
 
@@ -31,11 +33,10 @@ export function TrialExpiredModal() {
       <ModalCard className="flex flex-col gap-4 animate-fadeIn p-8" style={{ width: "min(28rem, 92vw)" }}>
         <div>
           <p className="text-base font-semibold text-(--t-text-primary) mb-1">
-            Your Pro trial has ended
+            {t("shared.trialExpiredModal.title")}
           </p>
           <p className="text-sm text-(--t-text-muted) leading-relaxed">
-            You&apos;ve had 14 days to try Pro — hope it was useful. Upgrade to keep
-            real-time sync and cloud features.
+            {t("shared.trialExpiredModal.body")}
           </p>
         </div>
 
@@ -44,13 +45,13 @@ export function TrialExpiredModal() {
             onClick={handleUpgrade}
             className="btn btn-primary w-full py-2.5 rounded-lg text-sm font-semibold"
           >
-            Upgrade to Pro
+            {t("shared.trialExpiredModal.upgradeButton")}
           </button>
           <button
             onClick={() => setVisible(false)}
             className="btn btn-ghost w-full py-2.5 rounded-lg text-sm"
           >
-            Maybe later
+            {t("shared.trialExpiredModal.laterButton")}
           </button>
         </div>
       </ModalCard>

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 const AVATAR_COLORS = [
   "#6366f1", "#8b5cf6", "#ec4899", "#ef4444",
   "#f59e0b", "#10b981", "#3b82f6", "#14b8a6",
@@ -51,6 +53,7 @@ export function AvatarStack({
   size = 22,
   ringColor = "var(--t-bg-card)",
 }: AvatarStackProps) {
+  const { t } = useTranslation();
   const total = participants?.length ?? count ?? 0;
   if (total === 0) return null;
 
@@ -60,7 +63,7 @@ export function AvatarStack({
         className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
         style={{ background: "var(--t-bg-elevated)", color: "var(--t-text-dim)" }}
       >
-        {total} participant{total !== 1 ? "s" : ""}
+        {t("shared.avatarStack.participantCount", { count: total })}
       </span>
     );
   }

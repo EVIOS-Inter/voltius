@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { useUIStore } from "@/stores/uiStore";
 import { matchesSearch, compareConnections } from "@/utils/connectionFilter";
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export function HostPickerPanel({ onPick, selectedHostId, onBack, sshOnly, vaultId }: Props) {
+  const { t } = useTranslation();
   const { connections, loadConnections } = useConnectionStore();
   useEffect(() => { void loadConnections(); }, [loadConnections]);
 
@@ -66,7 +68,7 @@ export function HostPickerPanel({ onPick, selectedHostId, onBack, sshOnly, vault
               <Icon icon="lucide:arrow-left" width={16} />
             </span>
           </button>
-          <h2 className="text-sm font-semibold flex-1 text-(--t-text-primary)">Select Host</h2>
+          <h2 className="text-sm font-semibold flex-1 text-(--t-text-primary)">{t("shared.hostPicker.selectHostTitle")}</h2>
         </div>
       )}
 
@@ -82,7 +84,7 @@ export function HostPickerPanel({ onPick, selectedHostId, onBack, sshOnly, vault
           type="button"
         >
           <Icon icon="lucide:server" width={14} />
-          NEW HOST
+          {t("shared.hostPicker.newHostButton")}
         </button>
 
         <div className="flex-1 relative">
@@ -91,7 +93,7 @@ export function HostPickerPanel({ onPick, selectedHostId, onBack, sshOnly, vault
             ref={searchRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Filter hosts..."
+            placeholder={t("shared.hostPicker.filterPlaceholder")}
             className="form-input w-full pl-8 pr-2 h-8 rounded-lg text-xs outline-hidden bg-(--t-bg-input) border border-(--t-border) text-(--t-text-primary)"
           />
         </div>
@@ -101,10 +103,10 @@ export function HostPickerPanel({ onPick, selectedHostId, onBack, sshOnly, vault
           value={sortMode}
           menuWidth={200}
           options={[
-            { value: "name-asc",  label: "A → Z",       icon: "lucide:arrow-up-a-z" },
-            { value: "name-desc", label: "Z → A",       icon: "lucide:arrow-down-a-z" },
-            { value: "newest",    label: "Newest first", icon: "lucide:arrow-down-0-1" },
-            { value: "oldest",    label: "Oldest first", icon: "lucide:arrow-up-0-1" },
+            { value: "name-asc",  label: t("shared.sort.nameAsc"), icon: "lucide:arrow-up-a-z" },
+            { value: "name-desc", label: t("shared.sort.nameDesc"), icon: "lucide:arrow-down-a-z" },
+            { value: "newest",    label: t("shared.sort.newest"), icon: "lucide:arrow-down-0-1" },
+            { value: "oldest",    label: t("shared.sort.oldest"), icon: "lucide:arrow-up-0-1" },
           ]}
           onChange={setSortMode}
         />
@@ -121,8 +123,8 @@ export function HostPickerPanel({ onPick, selectedHostId, onBack, sshOnly, vault
                 <Icon icon="lucide:monitor" width={14} />
               </div>
             }
-            name="Local Machine"
-            sub="This computer"
+            name={t("shared.hostPicker.localMachineName")}
+            sub={t("shared.pickers.thisComputer")}
             isSelected={false}
             onClick={() => onPick({ kind: "local" })}
           />
@@ -144,7 +146,7 @@ export function HostPickerPanel({ onPick, selectedHostId, onBack, sshOnly, vault
                   />
                 }
                 name={d}
-                sub="WSL"
+                sub={t("shared.hostPicker.wslSub")}
                 isSelected={false}
                 onClick={() => onPick({ kind: "local", wslDistro: d })}
               />
@@ -167,7 +169,7 @@ export function HostPickerPanel({ onPick, selectedHostId, onBack, sshOnly, vault
                   />
                 }
                 name={d}
-                sub="WSL"
+                sub={t("shared.hostPicker.wslSub")}
                 isSelected={false}
                 onClick={() => onPick({ kind: "local", wslDistro: d })}
               />
@@ -175,10 +177,10 @@ export function HostPickerPanel({ onPick, selectedHostId, onBack, sshOnly, vault
           })}
 
         {connections.length === 0 && (
-          <p className="px-3 py-4 text-xs text-center text-(--t-text-muted)">No hosts configured</p>
+          <p className="px-3 py-4 text-xs text-center text-(--t-text-muted)">{t("shared.hostPicker.noHostsConfigured")}</p>
         )}
         {connections.length > 0 && filtered.length === 0 && (
-          <p className="px-3 py-4 text-xs text-center text-(--t-text-muted)">No hosts match</p>
+          <p className="px-3 py-4 text-xs text-center text-(--t-text-muted)">{t("shared.hostPicker.noHostsMatch")}</p>
         )}
 
         {filtered.map((c) => (

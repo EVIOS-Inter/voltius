@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { ToolbarDropdown } from "./ToolbarDropdown";
 import { Pills } from "./Pills";
 import { matchShortcut } from "@/stores/shortcutStore";
@@ -59,7 +60,7 @@ interface Props {
 export function FilterInput({
   value,
   onChange,
-  placeholder = "Filter...",
+  placeholder,
   width = 144,
   shortcutId,
 }: {
@@ -69,6 +70,7 @@ export function FilterInput({
   width?: number;
   shortcutId?: string;
 }) {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   useFilterShortcut(shortcutId ? inputRef : { current: null });
 
@@ -83,7 +85,7 @@ export function FilterInput({
         ref={inputRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t("common.placeholder.filter")}
         className="form-input pl-7 pr-3 h-8 rounded-lg text-xs outline-hidden bg-(--t-bg-input) border border-(--t-border-hover) text-(--t-text-primary) placeholder:text-(--t-text-dim)"
         style={{
           width: `${(width / 15).toFixed(3)}rem`,
@@ -97,7 +99,7 @@ export function FilterInput({
 export function ToolbarViewControls({
   search,
   onSearchChange,
-  filterPlaceholder = "Filter...",
+  filterPlaceholder,
   filterShortcutId,
   layoutMode,
   onLayoutModeChange,
@@ -112,15 +114,16 @@ export function ToolbarViewControls({
   onRenameTag,
   onDeleteTag,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-1.5">
-      <FilterInput value={search} onChange={onSearchChange} placeholder={filterPlaceholder} width={filterWidth} shortcutId={filterShortcutId} />
+      <FilterInput value={search} onChange={onSearchChange} placeholder={filterPlaceholder ?? t("common.placeholder.filter")} width={filterWidth} shortcutId={filterShortcutId} />
 
       <div className="flex items-center gap-1">
         <Pills
           options={[
-            { value: "grid", label: "Grid", icon: "lucide:layout-grid" },
-            { value: "list", label: "List", icon: "lucide:layout-list" },
+            { value: "grid", label: t("common.viewMode.grid"), icon: "lucide:layout-grid" },
+            { value: "list", label: t("common.viewMode.list"), icon: "lucide:layout-list" },
           ]}
           value={layoutMode}
           onChange={onLayoutModeChange}
@@ -142,10 +145,10 @@ export function ToolbarViewControls({
           className="-ml-1"
           options={[
             ...(extraSortOptions ?? []),
-            { value: "name-asc",  label: "A → Z",       icon: "lucide:arrow-up-a-z" },
-            { value: "name-desc", label: "Z → A",       icon: "lucide:arrow-down-a-z" },
-            { value: "newest",    label: "Newest first", icon: "lucide:arrow-down-0-1" },
-            { value: "oldest",    label: "Oldest first", icon: "lucide:arrow-up-0-1" },
+            { value: "name-asc",  label: t("shared.sort.nameAsc"), icon: "lucide:arrow-up-a-z" },
+            { value: "name-desc", label: t("shared.sort.nameDesc"), icon: "lucide:arrow-down-a-z" },
+            { value: "newest",    label: t("shared.sort.newest"), icon: "lucide:arrow-down-0-1" },
+            { value: "oldest",    label: t("shared.sort.oldest"), icon: "lucide:arrow-up-0-1" },
           ]}
           onChange={onSortModeChange}
         />
@@ -171,6 +174,7 @@ function TagFilterButton({
   onRenameTag?: (oldName: string, newName: string) => Promise<void>;
   onDeleteTag?: (name: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [tagSearch, setTagSearch] = useState("");
   const [editingTag, setEditingTag] = useState<string | null>(null);
@@ -242,7 +246,7 @@ function TagFilterButton({
       {/* Trigger */}
       <button
         onClick={() => { setOpen((o) => !o); if (open) { setEditingTag(null); setTagSearch(""); } }}
-        title="Filter by tag"
+        title={t("shared.tagFilter.filterByTag")}
         className="flex items-center gap-1 px-2 h-8 rounded-lg transition-colors"
         style={{ color: isActive ? "var(--t-accent)" : "var(--t-text-primary)" }}
         onMouseEnter={(e) => (e.currentTarget.style.color = "var(--t-tab-active-text)")}
@@ -284,9 +288,9 @@ function TagFilterButton({
                 <Icon icon="lucide:tag" width={22} />
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-bold text-(--t-text-primary)">Add tags</span>
+                <span className="text-sm font-bold text-(--t-text-primary)">{t("shared.tagFilter.emptyTitle")}</span>
                 <span className="text-xs leading-relaxed text-(--t-text-dim)" style={{ maxWidth: "12rem" }}>
-                  Tags help you filter your hosts. You can add a tag when editing a host.
+                  {t("shared.tagFilter.emptyDescription")}
                 </span>
               </div>
             </div>
@@ -301,7 +305,7 @@ function TagFilterButton({
                   ref={searchInputRef}
                   value={tagSearch}
                   onChange={(e) => setTagSearch(e.target.value)}
-                  placeholder="Filter tags..."
+                  placeholder={t("shared.tagFilter.searchPlaceholder")}
                   className="flex-1 bg-transparent text-xs outline-hidden text-(--t-text-primary)"
                   onKeyDown={(e) => e.key === "Escape" && (setTagSearch(""), setOpen(false))}
                 />
@@ -322,7 +326,7 @@ function TagFilterButton({
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                   >
                     <Icon icon="lucide:x" width={14} />
-                    Clear selection ({tagFilter.length})
+                    {t("shared.tagFilter.clearSelection", { count: tagFilter.length })}
                   </button>
                 </div>
               )}
@@ -331,7 +335,7 @@ function TagFilterButton({
               <div className="p-1.5 flex flex-col max-h-[240px] overflow-y-auto">
                 {filteredTags.length === 0 ? (
                   <p className="px-3 py-3 text-xs text-center text-(--t-text-dim)">
-                    No tags match "{tagSearch}"
+                    {t("shared.tagFilter.noTagsMatch", { search: tagSearch })}
                   </p>
                 ) : (
                   filteredTags.map((tag) => (
@@ -373,14 +377,10 @@ function TagFilterButton({
           >
             <div className="flex flex-col gap-1.5">
               <p className="text-sm font-semibold text-(--t-text-primary)">
-                Delete tag "{deletingTag}"?
+                {t("shared.tagFilter.deleteTagTitle", { tag: deletingTag })}
               </p>
               <p className="text-xs text-(--t-text-dim)">
-                This will remove the tag from{" "}
-                <span className="text-(--t-text-secondary)">
-                  {tagCounts?.[deletingTag] ?? 0} host{(tagCounts?.[deletingTag] ?? 0) !== 1 ? "s" : ""}
-                </span>
-                . The hosts themselves won't be deleted.
+                {t("shared.tagFilter.deleteTagBody", { count: tagCounts?.[deletingTag] ?? 0 })}
               </p>
             </div>
             <div className="flex items-center justify-end gap-2">
@@ -390,7 +390,7 @@ function TagFilterButton({
                 onMouseEnter={(e) => (e.currentTarget.style.background = "var(--t-border-hover)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "var(--t-bg-elevated)")}
               >
-                Cancel
+                {t("common.action.cancel")}
               </button>
               <button
                 onClick={confirmDelete}
@@ -398,7 +398,7 @@ function TagFilterButton({
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#5C2020")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "#3D1515")}
               >
-                Delete
+                {t("common.action.delete")}
               </button>
             </div>
           </div>
@@ -439,6 +439,7 @@ function TagRow({
   onDelete: () => void;
   canManage: boolean;
 }) {
+  const { t } = useTranslation();
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -465,14 +466,14 @@ function TagRow({
           />
           <button
             onMouseDown={(e) => { e.preventDefault(); onEditCommit(); }}
-            title="Save"
+            title={t("common.action.save")}
             className="shrink-0 p-1 rounded-sm transition-colors text-(--t-accent)"
           >
             <Icon icon="lucide:check" width={13} />
           </button>
           <button
             onMouseDown={(e) => { e.preventDefault(); onEditCancel(); }}
-            title="Cancel"
+            title={t("common.action.cancel")}
             className="shrink-0 p-1 rounded-sm transition-colors text-(--t-text-dim)"
           >
             <Icon icon="lucide:x" width={13} />
@@ -508,7 +509,7 @@ function TagRow({
             <div className="flex items-center gap-0.5 shrink-0">
               <button
                 onClick={(e) => { e.stopPropagation(); onStartEdit(); }}
-                title="Rename tag"
+                title={t("shared.tagFilter.renameTagTitle")}
                 className="p-1 rounded-sm transition-colors text-(--t-text-dim)"
                 onMouseEnter={(e) => { e.currentTarget.style.background = "var(--t-bg-card)"; e.currentTarget.style.color = "var(--t-text-primary)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--t-text-dim)"; }}
@@ -517,7 +518,7 @@ function TagRow({
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                title="Delete tag"
+                title={t("shared.tagFilter.deleteTagButtonTitle")}
                 className="p-1 rounded-sm transition-colors text-(--t-text-dim)"
                 onMouseEnter={(e) => { e.currentTarget.style.background = "#3D1515"; e.currentTarget.style.color = "#F87171"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--t-text-dim)"; }}

@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { TagBadge } from "@/components/shared/TagBadge";
 import { getTagColorStyle } from "@/utils/tagColors";
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function TagSelector({ value, onChange, vaultId }: Props) {
+  const { t } = useTranslation();
   const [input, setInput] = useState("");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -86,7 +88,7 @@ export default function TagSelector({ value, onChange, vaultId }: Props) {
               type="button"
               onClick={(e) => { e.stopPropagation(); removeTag(tag); }}
               className="opacity-60 hover:opacity-100 transition-opacity leading-none"
-              aria-label={`Remove tag ${tag}`}
+              aria-label={t("shared.tagSelector.removeTag", { tag })}
             >
               <Icon icon="lucide:x" width={9} />
             </button>
@@ -108,13 +110,13 @@ export default function TagSelector({ value, onChange, vaultId }: Props) {
               }
             }}
             onKeyDown={handleKeyDown}
-            placeholder={value.length === 0 ? "Add tags…" : ""}
+            placeholder={value.length === 0 ? t("shared.tagSelector.placeholder") : ""}
             className="flex-1 bg-transparent outline-hidden text-xs text-(--t-text-primary) placeholder:text-(--t-text-dim) min-w-0"
           />
         </div>
       </div>
 
-      <PickerSurface open={showDropdown} onClose={() => { setOpen(false); setInput(""); }} anchorRef={containerRef} title="Tags">
+      <PickerSurface open={showDropdown} onClose={() => { setOpen(false); setInput(""); }} anchorRef={containerRef} title={t("common.entity.tags")}>
         {canCreate && (
           <button
             type="button"
@@ -129,7 +131,7 @@ export default function TagSelector({ value, onChange, vaultId }: Props) {
             >
               <Icon icon="lucide:plus" width={9} />
             </span>
-            <span className="text-(--t-text-dim)">Create</span>
+            <span className="text-(--t-text-dim)">{t("common.action.create")}</span>
             <span
               className="px-1.5 py-0.5 rounded-sm text-[11px] font-medium border"
               style={getTagColorStyle(input.trim())}

@@ -1,5 +1,6 @@
 import { createPortal } from "react-dom";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { PanelHeaderIconButton } from "@/components/shared/Panel";
 import { MenuItemList, type ContextMenuItem } from "@/components/shared/ContextMenu";
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function PanelActionsMenu({ items }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ top: 0, right: 0 });
   const btnRef = useRef<HTMLDivElement>(null);
@@ -22,7 +24,7 @@ export function PanelActionsMenu({ items }: Props) {
 
   return (
     <div ref={btnRef}>
-      <PanelHeaderIconButton icon="lucide:ellipsis" title="More options" onClick={handleOpen} />
+      <PanelHeaderIconButton icon="lucide:ellipsis" title={t("common.action.moreOptions")} onClick={handleOpen} />
       {open && createPortal(
         <>
           {/* Backdrop: closes menu on outside click without swallowing submenu portal clicks */}

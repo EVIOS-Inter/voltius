@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import type { Folder } from "@/types";
 import { PickerSurface } from "./PickerSurface";
 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function FolderSelector({ value, folders, onChange, onCreateFolder }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
@@ -59,7 +61,7 @@ export default function FolderSelector({ value, folders, onChange, onCreateFolde
           width={14}
           className="text-(--t-text-dim) shrink-0"
         />
-        <span className="flex-1 text-left truncate text-xs">{selected ? selected.name : "No folder"}</span>
+        <span className="flex-1 text-left truncate text-xs">{selected ? selected.name : t("shared.folderSelector.noFolder")}</span>
         <span className="[&_path]:stroke-[2.5]">
           <Icon
             icon="lucide:chevron-down"
@@ -70,7 +72,7 @@ export default function FolderSelector({ value, folders, onChange, onCreateFolde
         </span>
       </button>
 
-      <PickerSurface open={open} onClose={() => setOpen(false)} anchorRef={buttonRef} title="Folder">
+      <PickerSurface open={open} onClose={() => setOpen(false)} anchorRef={buttonRef} title={t("common.entity.folder")}>
         <button
           type="button"
           onClick={() => { onChange(null); setOpen(false); }}
@@ -80,7 +82,7 @@ export default function FolderSelector({ value, folders, onChange, onCreateFolde
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
         >
           <Icon icon="lucide:folder-x" width={13} className="shrink-0" />
-          <span className="flex-1 text-left text-(--t-text-primary)">No folder</span>
+          <span className="flex-1 text-left text-(--t-text-primary)">{t("shared.folderSelector.noFolder")}</span>
           {value === null && (
             <span className="[&_path]:stroke-[2.5]">
               <Icon icon="lucide:check" width={13} />
@@ -124,7 +126,7 @@ export default function FolderSelector({ value, folders, onChange, onCreateFolde
                 if (e.key === "Enter") { e.preventDefault(); void handleCreate(); }
                 if (e.key === "Escape") setCreating(false);
               }}
-              placeholder="Folder name"
+              placeholder={t("shared.folderSelector.namePlaceholder")}
               className="flex-1 bg-transparent outline-hidden text-xs text-(--t-text-primary) placeholder:text-(--t-text-dim) min-w-0"
             />
             <button
@@ -163,7 +165,7 @@ export default function FolderSelector({ value, folders, onChange, onCreateFolde
             }}
           >
             <Icon icon="lucide:folder-plus" width={13} />
-            <span className="flex-1 text-left">New folder</span>
+            <span className="flex-1 text-left">{t("shared.folderSelector.newFolder")}</span>
           </button>
         )}
       </PickerSurface>

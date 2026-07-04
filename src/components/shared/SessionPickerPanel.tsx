@@ -1,6 +1,7 @@
 import { createPortal } from "react-dom";
 import { useEffect } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { formatLocalShellTitle } from "@/utils/localShellTitle";
 import { ConnectionAvatar } from "./ConnectionAvatar";
 import { HostRow } from "./HostPickerPanel";
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function SessionPickerPanel({ mode, onConfirm, onClose }: Props) {
+  const { t } = useTranslation();
   const picker = useSnippetTargetPicker();
 
   useEffect(() => {
@@ -23,10 +25,10 @@ export function SessionPickerPanel({ mode, onConfirm, onClose }: Props) {
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const label = mode === "insert" ? "Insert to..." : "Execute in...";
+  const label = mode === "insert" ? t("shared.sessionPicker.insertTitle") : t("shared.sessionPicker.executeTitle");
   const confirmLabel = mode === "insert"
-    ? `Insert to ${picker.totalSelected} target${picker.totalSelected !== 1 ? "s" : ""}`
-    : `Execute in ${picker.totalSelected} target${picker.totalSelected !== 1 ? "s" : ""}`;
+    ? t("shared.sessionPicker.insertConfirm", { count: picker.totalSelected })
+    : t("shared.sessionPicker.executeConfirm", { count: picker.totalSelected });
 
   return createPortal(
     <>
@@ -50,7 +52,7 @@ export function SessionPickerPanel({ mode, onConfirm, onClose }: Props) {
             <input
               value={picker.search}
               onChange={(e) => picker.setSearch(e.target.value)}
-              placeholder="Filter..."
+              placeholder={t("common.placeholder.filter")}
               autoFocus
               className="form-input w-full pl-8 pr-2 h-8 rounded-lg text-xs outline-hidden bg-(--t-bg-input) border border-(--t-border) text-(--t-text-primary)"
             />
@@ -59,13 +61,13 @@ export function SessionPickerPanel({ mode, onConfirm, onClose }: Props) {
 
         <div className="flex-1 overflow-y-auto py-1.5 px-2">
           {picker.activeSessions.length === 0 && !picker.search && (
-            <p className="px-3 py-3 text-xs text-(--t-text-muted)">No active sessions</p>
+            <p className="px-3 py-3 text-xs text-(--t-text-muted)">{t("shared.sessionPicker.noActiveSessions")}</p>
           )}
 
           {picker.filteredSessions.length > 0 && (
             <>
               <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-(--t-text-dim)">
-                Active Sessions
+                {t("shared.sessionPicker.activeSessionsHeader")}
               </p>
               {picker.filteredSessions.map((s) => (
                 <HostRow
@@ -82,7 +84,7 @@ export function SessionPickerPanel({ mode, onConfirm, onClose }: Props) {
                     </div>
                   }
                   name={s.connectionName}
-                  sub={s.type === "local" ? "This computer" : "SSH Session"}
+                  sub={s.type === "local" ? t("shared.pickers.thisComputer") : t("shared.sessionPicker.sshSessionSub")}
                   isSelected={picker.selectedSessionIds.has(s.id)}
                   onClick={() => picker.toggleSession(s.id)}
                 />
@@ -92,11 +94,11 @@ export function SessionPickerPanel({ mode, onConfirm, onClose }: Props) {
           )}
 
           <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-(--t-text-dim)">
-            Open New Connection
+            {t("shared.sessionPicker.openNewConnectionHeader")}
           </p>
 
           {/* Local shell rows */}
-          {!picker.search && !picker.isAndroid && (picker.shells.length > 0 ? picker.shells : [{ name: "Local Shell", path: "" }]).map((s) => {
+          {!picker.search && !picker.isAndroid && (picker.shells.length > 0 ? picker.shells : [{ name: t("shared.sessionPicker.localShellFallbackName"), path: "" }]).map((s) => {
             const selected = picker.localShell === s.path;
             return (
               <HostRow
@@ -113,7 +115,7 @@ export function SessionPickerPanel({ mode, onConfirm, onClose }: Props) {
                   </div>
                 }
                 name={formatLocalShellTitle(s.path) || s.name}
-                sub="This computer"
+                sub={t("shared.pickers.thisComputer")}
                 isSelected={selected}
                 onClick={() => picker.setLocalShell(selected ? null : s.path)}
               />
@@ -125,10 +127,10 @@ export function SessionPickerPanel({ mode, onConfirm, onClose }: Props) {
           )}
 
           {picker.filteredHosts.length === 0 && !picker.search && (
-            <p className="px-3 py-4 text-xs text-center text-(--t-text-muted)">No remote hosts found</p>
+            <p className="px-3 py-4 text-xs text-center text-(--t-text-muted)">{t("shared.sessionPicker.noRemoteHostsFound")}</p>
           )}
           {picker.filteredHosts.length === 0 && picker.search && (
-            <p className="px-3 py-4 text-xs text-center text-(--t-text-muted)">No hosts found</p>
+            <p className="px-3 py-4 text-xs text-center text-(--t-text-muted)">{t("shared.sessionPicker.noHostsFound")}</p>
           )}
 
           {picker.filteredHosts.map((c) => (

@@ -1,0 +1,107 @@
+{
+  "shared": {
+    "errorBanner": {
+      "dismiss": "ignorer"
+    },
+    "trialExpiredModal": {
+      "title": "Votre essai Pro est terminé",
+      "body": "Vous avez eu 14 jours pour essayer Pro — nous espérons que cela vous a été utile. Passez à l'abonnement supérieur pour conserver la synchronisation en temps réel et les fonctionnalités cloud.",
+      "upgradeButton": "Passer à Pro",
+      "laterButton": "Plus tard"
+    },
+    "createVaultModal": {
+      "title": "Nouveau coffre",
+      "subtitle": "Les coffres permettent d'organiser vos identifiants",
+      "nameLabel": "Nom du coffre",
+      "namePlaceholder": "ex. Travail, Personnel, Préproduction…",
+      "createButton": "Créer le coffre"
+    },
+    "vaultCascadeModal": {
+      "headingMove": "Déplacer les éléments liés vers",
+      "headingCopy": "Copier les éléments liés vers",
+      "fallbackDescriptionMoved": "Les éléments liés suivants se trouvent dans un autre coffre et seront également déplacés :",
+      "fallbackDescriptionCopied": "Les éléments liés suivants se trouvent dans un autre coffre et seront également copiés :",
+      "confirmMove": "Tout déplacer",
+      "confirmCopy": "Tout copier",
+      "typeLabel": {
+        "identity": "Identité",
+        "key": "Clé SSH"
+      }
+    },
+    "formSelect": {
+      "title": "Sélectionner"
+    },
+    "folderSelector": {
+      "noFolder": "Aucun dossier",
+      "namePlaceholder": "Nom du dossier",
+      "newFolder": "Nouveau dossier"
+    },
+    "tagSelector": {
+      "placeholder": "Ajouter des tags…",
+      "removeTag": "Retirer le tag {{tag}}"
+    },
+    "portInput": {
+      "placeholder": "/dev/ttyUSB0 ou COM3"
+    },
+    "avatarStack": {
+      "participantCount_one": "{{count}} participant",
+      "participantCount_other": "{{count}} participants"
+    },
+    "panel": {
+      "saveState": {
+        "dirty": "Modification...",
+        "saving": "Enregistrement...",
+        "saved": "Enregistré"
+      }
+    },
+    "vaultPicker": {
+      "memberBadge": "membre"
+    },
+    "pickers": {
+      "thisComputer": "Cet ordinateur"
+    },
+    "sessionPicker": {
+      "insertTitle": "Insérer dans...",
+      "executeTitle": "Exécuter dans...",
+      "insertConfirm_one": "Insérer dans {{count}} cible",
+      "insertConfirm_other": "Insérer dans {{count}} cibles",
+      "executeConfirm_one": "Exécuter dans {{count}} cible",
+      "executeConfirm_other": "Exécuter dans {{count}} cibles",
+      "noActiveSessions": "Aucune session active",
+      "activeSessionsHeader": "Sessions actives",
+      "openNewConnectionHeader": "Ouvrir une nouvelle connexion",
+      "localShellFallbackName": "Shell local",
+      "sshSessionSub": "Session SSH",
+      "noRemoteHostsFound": "Aucun hôte distant trouvé",
+      "noHostsFound": "Aucun hôte trouvé"
+    },
+    "hostPicker": {
+      "selectHostTitle": "Sélectionner un hôte",
+      "newHostButton": "NOUVEL HÔTE",
+      "filterPlaceholder": "Filtrer les hôtes...",
+      "localMachineName": "Machine locale",
+      "wslSub": "WSL",
+      "noHostsConfigured": "Aucun hôte configuré",
+      "noHostsMatch": "Aucun hôte ne correspond"
+    },
+    "sort": {
+      "nameAsc": "A → Z",
+      "nameDesc": "Z → A",
+      "newest": "Plus récent",
+      "oldest": "Plus ancien"
+    },
+    "tagFilter": {
+      "filterByTag": "Filtrer par tag",
+      "emptyTitle": "Ajouter des tags",
+      "emptyDescription": "Les tags permettent de filtrer vos hôtes. Vous pouvez ajouter un tag lors de la modification d'un hôte.",
+      "searchPlaceholder": "Filtrer les tags...",
+      "clearSelection": "Effacer la sélection ({{count}})",
+      "noTagsMatch": "Aucun tag ne correspond à \"{{search}}\"",
+      "deleteTagTitle": "Supprimer le tag \"{{tag}}\" ?",
+      "deleteTagBody_one": "Ceci retirera le tag de {{count}} hôte. Les hôtes eux-mêmes ne seront pas supprimés.",
+      "deleteTagBody_other": "Ceci retirera le tag de {{count}} hôtes. Les hôtes eux-mêmes ne seront pas supprimés.",
+      "renameTagTitle": "Renommer le tag",
+      "deleteTagButtonTitle": "Supprimer le tag"
+    }
+  }
+}

@@ -225,9 +225,22 @@ export interface VaultOption {
   name: string;
 }
 
+export type TransferEndpoint = "local" | "remote";
+export type TransferMode = "copy" | "move";
+export type TransferConflict = "overwrite" | "skip" | "fail";
+
 export type SnippetStep =
   | { kind: "script"; content: string }
-  | { kind: "transfer"; direction: "upload" | "download"; local_path: string; remote_path: string; is_dir: boolean }
+  | {
+      kind: "transfer";
+      from: TransferEndpoint;
+      to: TransferEndpoint;
+      from_path: string;
+      to_path: string;
+      is_dir: boolean;
+      mode: TransferMode;
+      on_conflict: TransferConflict;
+    }
   | { kind: "snippet"; snippet_id: string };
 
 export interface Snippet {

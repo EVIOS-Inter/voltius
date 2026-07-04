@@ -8,7 +8,7 @@ export function leafTemplateText(steps: LeafStep[]): string {
   const parts: string[] = [];
   for (const s of steps) {
     if (s.kind === "script") parts.push(s.content);
-    else parts.push(s.local_path, s.remote_path);
+    else parts.push(s.from_path, s.to_path);
   }
   return parts.join("\n");
 }
@@ -17,7 +17,7 @@ export function resolveLeafSteps(steps: LeafStep[], values: Record<string, strin
   return steps.map((s) =>
     s.kind === "script"
       ? { ...s, content: resolveTemplate(s.content, values) }
-      : { ...s, local_path: resolveTemplate(s.local_path, values), remote_path: resolveTemplate(s.remote_path, values) },
+      : { ...s, from_path: resolveTemplate(s.from_path, values), to_path: resolveTemplate(s.to_path, values) },
   );
 }
 

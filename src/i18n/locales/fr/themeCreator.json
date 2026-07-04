@@ -1,0 +1,98 @@
+{
+  "themeCreator": {
+    "header": {
+      "editTheme": "Modifier le thème",
+      "newTheme": "Nouveau thème",
+      "pickTooltip": "Sélectionner un élément pour inspecter ses variables CSS"
+    },
+    "font": {
+      "customLabel": "Police personnalisée…",
+      "customPlaceholder": "'Ma Police', monospace",
+      "customHint": "Appuyez sur Entrée pour appliquer"
+    },
+    "varSearch": {
+      "usage_one": "{{count}} élément utilise",
+      "usage_other": "{{count}} éléments utilisent",
+      "suffix": "ou cliquez pour fermer"
+    },
+    "pickOverlay": {
+      "prefix": "Cliquez sur n'importe quel élément —",
+      "suffix": "pour annuler"
+    },
+    "escKey": "Échap",
+    "editor": {
+      "general": "Général",
+      "name": "Nom",
+      "appFont": "Police de l'application",
+      "family": "Famille",
+      "sizePx": "Taille (px)",
+      "terminalFont": "Police du terminal",
+      "highlightUsing": "Mettre en surbrillance les éléments utilisant {{varName}}"
+    },
+    "groups": {
+      "backgrounds": "Arrière-plans",
+      "borders": "Bordures",
+      "text": "Texte",
+      "accentAndTabs": "Accent et onglets",
+      "vaultTabs": "Onglets de coffre",
+      "status": "Statut",
+      "other": "Autre",
+      "terminalBase": "Terminal de base",
+      "ansiColors": "Couleurs ANSI",
+      "brightAnsiColors": "Couleurs ANSI vives"
+    },
+    "fields": {
+      "bgTerminal": "Terminal / Barre de titre",
+      "bgStatusBar": "Barre d'état",
+      "bgBase": "Arrière-plan de base",
+      "bgToolbar": "Barre d'outils",
+      "bgCard": "Cartes",
+      "bgCardHover": "Cartes (survol)",
+      "bgCardAvatar": "Avatar de carte",
+      "bgInput": "Champs de saisie",
+      "bgInputHover": "Champs de saisie (survol)",
+      "bgElevated": "Élevé / Survol",
+      "bgModal": "Modale / Panneau",
+      "border": "Bordure",
+      "borderHover": "Bordure (survol)",
+      "textDim": "Texte atténué",
+      "textMuted": "Texte estompé",
+      "textSecondary": "Texte secondaire",
+      "textPrimary": "Texte principal",
+      "textBright": "Texte vif",
+      "accent": "Accent",
+      "accentHover": "Accent (survol)",
+      "tabBg": "Fond d'onglet",
+      "tabActiveBg": "Fond d'onglet actif",
+      "tabActiveText": "Texte d'onglet actif",
+      "tabActiveBorder": "Bordure d'onglet actif",
+      "vaultTabBg": "Fond d'onglet de coffre",
+      "vaultTabActiveBg": "Fond d'onglet de coffre actif",
+      "statusConnected": "Connecté",
+      "statusError": "Erreur",
+      "statusConnecting": "Connexion en cours",
+      "statusWarning": "Avertissement",
+      "textNotice": "Texte de notice",
+      "background": "Arrière-plan",
+      "foreground": "Premier plan",
+      "cursor": "Curseur",
+      "selectionBackground": "Sélection",
+      "black": "Noir",
+      "red": "Rouge",
+      "green": "Vert",
+      "yellow": "Jaune",
+      "blue": "Bleu",
+      "magenta": "Magenta",
+      "cyan": "Cyan",
+      "white": "Blanc",
+      "brightBlack": "Noir vif",
+      "brightRed": "Rouge vif",
+      "brightGreen": "Vert vif",
+      "brightYellow": "Jaune vif",
+      "brightBlue": "Bleu vif",
+      "brightMagenta": "Magenta vif",
+      "brightCyan": "Cyan vif",
+      "brightWhite": "Blanc vif"
+    }
+  }
+}

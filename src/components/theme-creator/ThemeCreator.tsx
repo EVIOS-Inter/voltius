@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useUIStore } from "@/stores/uiStore";
 import { useThemeStore } from "@/stores/themeStore";
 import { BUILT_IN_THEMES } from "@/themes/presets";
 import { applyThemeToDom } from "@/hooks/useApplyTheme";
 import type { AppTheme, UITheme, TerminalTheme } from "@/themes/types";
-import { UI_GROUPS, TERMINAL_GROUPS, FIELD_LABELS } from "./colorGroups";
+import { getUiGroups, getTerminalGroups, getFieldLabels } from "./colorGroups";
 import { ColorPicker } from "./ColorPicker";
 
 // ── CSS variable inspector ────────────────────────────────────────────────────
@@ -106,6 +107,7 @@ function FontPicker({
   onChange: (v: string) => void;
   options: { label: string; value: string }[];
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [custom, setCustom] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -171,21 +173,21 @@ function FontPicker({
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-primary)"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-muted)"; }}
             >
-              Custom font…
+              {t("themeCreator.font.customLabel")}
             </button>
           ) : (
             <div className="px-3 py-2">
               <input
                 autoFocus
                 defaultValue={isPreset ? "" : value}
-                placeholder="'My Font', monospace"
+                placeholder={t("themeCreator.font.customPlaceholder")}
                 className="w-full px-2 py-1 rounded-sm text-xs outline-hidden font-mono bg-(--t-bg-input) border border-(--t-accent) text-(--t-text-primary)"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") { onChange(e.currentTarget.value); setOpen(false); setCustom(false); }
                   if (e.key === "Escape") { setCustom(false); }
                 }}
               />
-              <p className="text-[10px] text-(--t-text-dim) mt-1">Press Enter to apply</p>
+              <p className="text-[10px] text-(--t-text-dim) mt-1">{t("themeCreator.font.customHint")}</p>
             </div>
           )}
         </div>
@@ -197,6 +199,7 @@ function FontPicker({
 // ── Var search overlay ────────────────────────────────────────────────────────
 
 function VarSearchOverlay({ varName, onClose }: { varName: string; onClose: () => void }) {
+  const { t } = useTranslation();
   const [rects, setRects] = useState<DOMRect[]>([]);
 
   useEffect(() => {
@@ -229,9 +232,9 @@ function VarSearchOverlay({ varName, onClose }: { varName: string; onClose: () =
         borderRadius: 6, padding: "6px 14px", fontSize: 12,
         color: "var(--t-text-secondary)", pointerEvents: "none", whiteSpace: "nowrap",
       }}>
-        {rects.length} element{rects.length !== 1 ? "s" : ""} use{" "}
+        {t("themeCreator.varSearch.usage", { count: rects.length })}{" "}
         <code style={{ color: "var(--t-accent)" }}>{varName}</code>
-        {" — "}<kbd style={{ color: "var(--t-text-primary)" }}>Esc</kbd> or click to close
+        {" — "}<kbd style={{ color: "var(--t-text-primary)" }}>{t("themeCreator.escKey")}</kbd> {t("themeCreator.varSearch.suffix")}
       </div>
     </>,
     document.body
@@ -249,6 +252,11 @@ function ColorEditor({
   setDraft: React.Dispatch<React.SetStateAction<AppTheme>>;
   pickedFields: Set<string>;
 }) {
+  const { t } = useTranslation();
+  const uiGroups = getUiGroups(t);
+  const terminalGroups = getTerminalGroups(t);
+  const fieldLabels = getFieldLabels(t);
+
   const setUiColor = (field: keyof UITheme, value: string) =>
     setDraft((d) => ({ ...d, ui: { ...d.ui, [field]: value } }));
   const setTermColor = (field: keyof TerminalTheme, value: string) =>
@@ -284,9 +292,9 @@ function ColorEditor({
     <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-5">
       {/* General */}
       <div className="space-y-2">
-        <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">General</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{t("themeCreator.editor.general")}</p>
         <label className="block">
-          <span className="text-xs text-(--t-text-muted)">Name</span>
+          <span className="text-xs text-(--t-text-muted)">{t("themeCreator.editor.name")}</span>
           <input
             value={draft.name}
             onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
@@ -297,9 +305,9 @@ function ColorEditor({
 
       {/* App Font */}
       <div className="space-y-2">
-        <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">App Font</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{t("themeCreator.editor.appFont")}</p>
         <div>
-          <span className="text-xs text-(--t-text-muted)">Family</span>
+          <span className="text-xs text-(--t-text-muted)">{t("themeCreator.editor.family")}</span>
           <FontPicker
             value={draft.uiFontFamily}
             onChange={(v) => setDraft((d) => ({ ...d, uiFontFamily: v }))}
@@ -307,7 +315,7 @@ function ColorEditor({
           />
         </div>
         <label className="block">
-          <span className="text-xs text-(--t-text-muted)">Size (px)</span>
+          <span className="text-xs text-(--t-text-muted)">{t("themeCreator.editor.sizePx")}</span>
           <input
             type="number" min={10} max={20} value={draft.uiFontSize}
             onChange={(e) => setDraft((d) => ({ ...d, uiFontSize: Number(e.target.value) }))}
@@ -316,7 +324,7 @@ function ColorEditor({
         </label>
       </div>
 
-      {UI_GROUPS.map((group) => (
+      {uiGroups.map((group) => (
         <div key={group.label} className="space-y-1.5">
           <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{group.label}</p>
           {group.fields.map((field) => (
@@ -331,11 +339,11 @@ function ColorEditor({
                 value={ui[field as string]}
                 onChange={(hex) => setUiColor(field, hex)}
               />
-              <span className="text-xs flex-1 text-(--t-text-secondary)">{FIELD_LABELS[field] ?? field}</span>
+              <span className="text-xs flex-1 text-(--t-text-secondary)">{fieldLabels[field] ?? field}</span>
               <code className="text-xs font-mono text-(--t-text-muted)">{ui[field as string]}</code>
               <button
                 onClick={() => setSearchVar(searchVar === fieldToVar(field as string) ? null : fieldToVar(field as string))}
-                title={`Highlight elements using ${fieldToVar(field as string)}`}
+                title={t("themeCreator.editor.highlightUsing", { varName: fieldToVar(field as string) })}
                 style={{
                   display: "flex", alignItems: "center", justifyContent: "center",
                   width: 18, height: 18, borderRadius: 4, border: "1px solid",
@@ -356,9 +364,9 @@ function ColorEditor({
 
       {/* Terminal Font */}
       <div className="space-y-2">
-        <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">Terminal Font</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{t("themeCreator.editor.terminalFont")}</p>
         <div>
-          <span className="text-xs text-(--t-text-muted)">Family</span>
+          <span className="text-xs text-(--t-text-muted)">{t("themeCreator.editor.family")}</span>
           <FontPicker
             value={draft.terminalFontFamily}
             onChange={(v) => setDraft((d) => ({ ...d, terminalFontFamily: v }))}
@@ -366,7 +374,7 @@ function ColorEditor({
           />
         </div>
         <label className="block">
-          <span className="text-xs text-(--t-text-muted)">Size (px)</span>
+          <span className="text-xs text-(--t-text-muted)">{t("themeCreator.editor.sizePx")}</span>
           <input
             type="number" min={8} max={24} value={draft.terminalFontSize}
             onChange={(e) => setDraft((d) => ({ ...d, terminalFontSize: Number(e.target.value) }))}
@@ -375,7 +383,7 @@ function ColorEditor({
         </label>
       </div>
 
-      {TERMINAL_GROUPS.map((group) => (
+      {terminalGroups.map((group) => (
         <div key={group.label} className="space-y-1.5">
           <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{group.label}</p>
           {group.fields.map((field) => (
@@ -391,7 +399,7 @@ function ColorEditor({
                   ? term[field as string].slice(0, 7) : "#000000"}
                 onChange={(hex) => setTermColor(field, hex)}
               />
-              <span className="text-xs flex-1 text-(--t-text-secondary)">{FIELD_LABELS[field] ?? field}</span>
+              <span className="text-xs flex-1 text-(--t-text-secondary)">{fieldLabels[field] ?? field}</span>
               <code className="text-xs font-mono text-(--t-text-muted)">{term[field as string].slice(0, 7)}</code>
             </div>
           ))}
@@ -405,6 +413,7 @@ function ColorEditor({
 // ── Pick-mode overlay ─────────────────────────────────────────────────────────
 
 function PickOverlay({ rect }: { rect: DOMRect | null }) {
+  const { t } = useTranslation();
   if (!rect) return null;
   return createPortal(
     <>
@@ -435,7 +444,7 @@ function PickOverlay({ rect }: { rect: DOMRect | null }) {
         color: "var(--t-text-secondary)",
         pointerEvents: "none",
       }}>
-        Click any element — <kbd style={{ color: "var(--t-text-primary)" }}>Esc</kbd> to cancel
+        {t("themeCreator.pickOverlay.prefix")} <kbd style={{ color: "var(--t-text-primary)" }}>{t("themeCreator.escKey")}</kbd> {t("themeCreator.pickOverlay.suffix")}
       </div>
     </>,
     document.body
@@ -445,6 +454,7 @@ function PickOverlay({ rect }: { rect: DOMRect | null }) {
 // ── ThemeCreator ──────────────────────────────────────────────────────────────
 
 export default function ThemeCreator() {
+  const { t } = useTranslation();
   const { themeCreatorOpen, themeCreatorEditId, closeThemeCreator } = useUIStore();
   const { getActiveTheme, saveCustomTheme, setTheme, customThemes } = useThemeStore();
 
@@ -617,13 +627,13 @@ export default function ThemeCreator() {
         {/* Panel header */}
         <div className="flex items-center gap-2 px-4 py-3 shrink-0 border-b border-(--t-border)">
           <span className="text-sm font-medium flex-1 text-(--t-text-bright)">
-            {themeCreatorEditId ? "Edit Theme" : "New Theme"}
+            {themeCreatorEditId ? t("themeCreator.header.editTheme") : t("themeCreator.header.newTheme")}
           </span>
 
           {/* Pipette / pick button */}
           <button
             onClick={() => setPickMode((m) => !m)}
-            title="Pick element to inspect its CSS variables"
+            title={t("themeCreator.header.pickTooltip")}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
               width: 28, height: 28, borderRadius: 6, border: "1px solid",
@@ -640,13 +650,13 @@ export default function ThemeCreator() {
             onClick={handleCancel}
             className="btn btn-secondary px-3 py-1 rounded-md text-xs font-medium"
           >
-            Cancel
+            {t("common.action.cancel")}
           </button>
           <button
             onClick={handleSave}
             className="btn btn-primary px-3 py-1 rounded-md text-xs font-medium"
           >
-            Save
+            {t("common.action.save")}
           </button>
         </div>
 

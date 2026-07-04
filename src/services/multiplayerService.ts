@@ -41,7 +41,7 @@ export interface SessionCallbacks {
 export type SessionKey = Uint8Array;
 
 export async function importSessionKey(rawBytes: Uint8Array): Promise<SessionKey> {
-  if (rawBytes.length !== 32) throw new Error("Session key must be 32 bytes");
+  if (rawBytes.length !== 32) throw new Error(i18n.t("common.error.invalidSessionKey"));
   return new Uint8Array(rawBytes);
 }
 

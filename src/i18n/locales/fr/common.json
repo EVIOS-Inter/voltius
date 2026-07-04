@@ -64,6 +64,7 @@
     "error": {
       "notConnectedToServer": "Non connecté au serveur",
       "notAuthenticated": "Non authentifié",
+      "invalidSessionKey": "La clé de session doit faire 32 octets",
       "sessionExpired": "Session expirée — veuillez vous reconnecter",
       "vaultLocked": "Le coffre est verrouillé",
       "rateLimited": "Trop de requêtes — réessayez dans {{seconds}}s",

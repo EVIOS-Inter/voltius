@@ -1,0 +1,34 @@
+{
+  "notifications": {
+    "bell": {
+      "title": "Notifications",
+      "clearHistory": "Clear history",
+      "noNotifications": "No notifications"
+    },
+    "emailVerification": {
+      "banner": {
+        "message": "Verify your email to unlock cloud features. We sent a link to {{email}}.",
+        "yourEmail": "your email",
+        "resend": "Resend email",
+        "resending": "Sending...",
+        "verified": "I've verified",
+        "checking": "Checking...",
+        "dismissAriaLabel": "Dismiss email verification banner"
+      },
+      "modal": {
+        "title": "Verify your email first",
+        "body": "Cloud upgrades require a verified email address. Check your inbox for the verification link, or send a new one.",
+        "resend": "Resend email",
+        "resending": "Sending..."
+      },
+      "toast": {
+        "sent": "Verification email sent.",
+        "sendFailed": "Could not resend verification email.",
+        "refreshFailed": "Could not refresh session."
+      }
+    },
+    "progressToast": {
+      "timedOut": "Operation timed out"
+    }
+  }
+}

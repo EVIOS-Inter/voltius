@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import type { ToastEntry } from "@/stores/notificationStore";
 
@@ -15,6 +16,7 @@ const SEVERITY_COLORS: Record<string, string> = {
 };
 
 export function ProgressToast({ toast, onDismiss, pluginUnloaded }: Props) {
+  const { t } = useTranslation();
   const isFinished = toast.finished;
   const displaySeverity = isFinished ? (toast.finishedSeverity ?? "success") : toast.severity;
   const borderColor = SEVERITY_COLORS[displaySeverity] ?? SEVERITY_COLORS.info;
@@ -100,7 +102,7 @@ export function ProgressToast({ toast, onDismiss, pluginUnloaded }: Props) {
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--t-status-error)"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-muted)"; }}
             >
-              Cancel
+              {t("common.action.cancel")}
             </button>
           )}
         </div>

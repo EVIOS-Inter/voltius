@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { useNotificationStore } from "@/stores/notificationStore";
 import type { BannerEntry, HistoryEntry } from "@/stores/notificationStore";
@@ -99,6 +100,7 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
 }
 
 export function NotificationBell() {
+  const { t } = useTranslation();
   const banners = useNotificationStore((s) => s.banners);
   const history = useNotificationStore((s) => s.history);
   const unreadCount = useNotificationStore((s) => s.unreadCount);
@@ -148,7 +150,7 @@ export function NotificationBell() {
             color: open ? "var(--t-text-bright)" : "var(--t-text-dim)",
             background: open ? "var(--t-bg-elevated)" : "transparent",
           }}
-          title="Notifications"
+          title={t("notifications.bell.title")}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.background = "var(--t-bg-elevated)";
             (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-bright)";
@@ -197,7 +199,7 @@ export function NotificationBell() {
             className="flex items-center justify-between px-3 py-2.5"
             style={{ borderBottom: "1px solid var(--t-border)" }}
           >
-            <span className="text-sm font-semibold text-(--t-text-primary)">Notifications</span>
+            <span className="text-sm font-semibold text-(--t-text-primary)">{t("notifications.bell.title")}</span>
             <button
               onClick={clearHistory}
               disabled={history.length === 0}
@@ -209,7 +211,7 @@ export function NotificationBell() {
               onMouseEnter={(e) => { if (history.length > 0) (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-primary)"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = history.length === 0 ? "var(--t-text-dim)" : "var(--t-text-muted)"; }}
             >
-              Clear history
+              {t("notifications.bell.clearHistory")}
             </button>
           </div>
 
@@ -217,7 +219,7 @@ export function NotificationBell() {
             {!hasItems ? (
               <div className="flex flex-col items-center gap-2 py-8 px-4">
                 <Icon icon="lucide:bell-off" width={24} style={{ color: "var(--t-text-dim)" }} />
-                <span className="text-sm" style={{ color: "var(--t-text-dim)" }}>No notifications</span>
+                <span className="text-sm" style={{ color: "var(--t-text-dim)" }}>{t("notifications.bell.noNotifications")}</span>
               </div>
             ) : (
               <div className="flex flex-col gap-0.5 p-2">

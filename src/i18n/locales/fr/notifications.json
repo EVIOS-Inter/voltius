@@ -1,0 +1,34 @@
+{
+  "notifications": {
+    "bell": {
+      "title": "Notifications",
+      "clearHistory": "Effacer l'historique",
+      "noNotifications": "Aucune notification"
+    },
+    "emailVerification": {
+      "banner": {
+        "message": "Vérifiez votre e-mail pour débloquer les fonctionnalités cloud. Nous avons envoyé un lien à {{email}}.",
+        "yourEmail": "votre e-mail",
+        "resend": "Renvoyer l'e-mail",
+        "resending": "Envoi...",
+        "verified": "J'ai vérifié",
+        "checking": "Vérification...",
+        "dismissAriaLabel": "Fermer la bannière de vérification d'e-mail"
+      },
+      "modal": {
+        "title": "Vérifiez d'abord votre e-mail",
+        "body": "Les mises à niveau cloud nécessitent une adresse e-mail vérifiée. Consultez votre boîte de réception pour le lien de vérification, ou envoyez-en un nouveau.",
+        "resend": "Renvoyer l'e-mail",
+        "resending": "Envoi..."
+      },
+      "toast": {
+        "sent": "E-mail de vérification envoyé.",
+        "sendFailed": "Impossible de renvoyer l'e-mail de vérification.",
+        "refreshFailed": "Impossible d'actualiser la session."
+      }
+    },
+    "progressToast": {
+      "timedOut": "L'opération a expiré"
+    }
+  }
+}

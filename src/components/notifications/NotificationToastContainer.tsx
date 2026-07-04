@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { useNotificationStore } from "@/stores/notificationStore";
 import { ProgressToast } from "./ProgressToast";
@@ -121,6 +122,7 @@ function RegularToast({
 }
 
 export function NotificationToastContainer() {
+  const { t } = useTranslation();
   const toasts = useNotificationStore((s) => s.toasts);
   const dismissToast = useNotificationStore((s) => s.dismissToast);
   const updateToast = useNotificationStore((s) => s.updateToast);
@@ -191,7 +193,7 @@ export function NotificationToastContainer() {
       const now = Date.now();
       for (const toast of useNotificationStore.getState().toasts) {
         if (toast.type === "progress" && !toast.finished && toast.timedOutAt && now > toast.timedOutAt) {
-          updateToast(toast.id, { finished: true, finishedSeverity: "error", message: "Operation timed out" });
+          updateToast(toast.id, { finished: true, finishedSeverity: "error", message: t("notifications.progressToast.timedOut") });
         }
       }
     }, 30_000);

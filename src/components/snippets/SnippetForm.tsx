@@ -27,10 +27,11 @@ import {
   formLabelClass,
   formLabelStyle,
 } from "@/components/shared/Panel";
-import type { Snippet, SnippetFormData } from "@/types";
+import type { Snippet, SnippetFormData, SnippetStep } from "@/types";
 import { getShortcutHint } from "@/stores/shortcutStore";
 import { parseVariables } from "@/services/snippetParser";
 import { snippetScriptText } from "@/services/snippetSteps";
+import { StepListEditor } from "@/components/snippets/StepListEditor";
 
 const DYNAMIC_VAR_DEF_KEYS: { value: string; descKey: string }[] = [
   { value: "connection.host",     descKey: "snippets.form.dynamicVars.connectionHost" },
@@ -72,7 +73,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
   );
 
   const [name, setName]         = useState(initial?.name ?? "");
-  const [content, setContent]   = useState(initial ? snippetScriptText(initial) : "");
+  const [steps, setSteps]       = useState<SnippetStep[]>(initial?.steps ?? [{ kind: "script", content: "" }]);
   const [description, setDesc]  = useState(initial?.description ?? "");
   const [folderId, setFolderId] = useState<string | null>(initial?.folder_id ?? null);
   const [tags, setTags]         = useState<string[]>(initial?.tags ?? []);
@@ -84,10 +85,16 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
   const [vaultId, setVaultId]   = useState(initial?.vault_id ?? defaultVaultId);
   const vaultTouched = useRef(false);
 
+  // Single-script fast path: keep the plain textarea when the snippet is just one script step.
+  const [forceSequence, setForceSequence] = useState(false);
+  const singleStep = steps.length === 1 && steps[0].kind === "script" ? steps[0] : null;
+  const showStepList = forceSequence || !singleStep;
+  const content = singleStep?.content ?? "";
+
   const contentRef = useRef<HTMLTextAreaElement>(null);
   const [varQuery, setVarQuery] = useState<string | null>(null);
   const [varSuggestIdx, setVarSuggestIdx] = useState(0);
-  const detectedVars = useMemo(() => parseVariables(content), [content]);
+  const detectedVars = useMemo(() => parseVariables(snippetScriptText({ steps })), [steps]);
 
   function syncVarQuery(el: HTMLTextAreaElement) {
     const before = el.value.slice(0, el.selectionStart);
@@ -115,7 +122,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
       newCursor = cursor + varName.length + 4;
     }
     markDirty();
-    setContent(newVal);
+    setSteps([{ kind: "script", content: newVal }]);
     setVarQuery(null);
     requestAnimationFrame(() => { el.focus(); el.setSelectionRange(newCursor, newCursor); });
   }
@@ -131,7 +138,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
   const buildData = (): SnippetFormData => ({
     // "Untitled snippet" is the persisted default name when left blank; kept in English until all creation sites are localized together (see i18n issue #14)
     name: name.trim() || "Untitled snippet",
-    steps: [{ kind: "script", content }],
+    steps,
     description: description.trim() || undefined,
     tags,
     folder_id: folderId ?? undefined,
@@ -143,7 +150,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
 
   const { schedule, markDirty: _markDirty, flushAndClose, flush, saveState } = useAutosave({
     onSave: () => onSubmit(buildData()) ?? undefined,
-    canSave: () => !!content.trim(),
+    canSave: () => steps.length > 0 && steps.some((s) => s.kind !== "script" || s.content.trim()),
   });
   const markDirty = useCallback(() => {
     if (isDirtyRef) isDirtyRef.current = true;
@@ -151,7 +158,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
   }, [_markDirty, isDirtyRef]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => schedule(), [name, content, description, folderId, tags, connTags, distros, favorite, vaultId]);
+  useEffect(() => schedule(), [name, steps, description, folderId, tags, connTags, distros, favorite, vaultId]);
 
   const handleClose = () => flushAndClose(onClose);
 
@@ -216,50 +223,71 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
           </div>
 
           <div>
-            <label className={formLabelClass} style={formLabelStyle}>{t("snippets.form.contentLabel")}</label>
-            <div className="relative">
-              <textarea
-                ref={contentRef}
-                value={content}
-                onChange={(e) => { markDirty(); setContent(e.target.value); syncVarQuery(e.target); }}
-                onSelect={(e) => syncVarQuery(e.currentTarget)}
-                onKeyDown={(e) => {
-                  if (varSuggestions.length === 0) return;
-                  if (e.key === "ArrowDown") { e.preventDefault(); setVarSuggestIdx((i) => Math.min(i + 1, varSuggestions.length - 1)); }
-                  else if (e.key === "ArrowUp") { e.preventDefault(); setVarSuggestIdx((i) => Math.max(i - 1, 0)); }
-                  else if ((e.key === "Enter" || e.key === "Tab") && varQuery !== null) { e.preventDefault(); insertVar(varSuggestions[varSuggestIdx]?.value ?? ""); }
-                  else if (e.key === "Escape") { setVarQuery(null); }
-                }}
-                onBlur={() => setTimeout(() => setVarQuery(null), 100)}
-                // Sample shell command syntax, not prose UI copy — left untranslated like snippet body content
-                placeholder="echo Hello, {{name}}!"
-                rows={6}
-                className={`${formInputClass} font-mono resize-y`}
-                style={{ ...formInputStyle, minHeight: "7rem" }}
-              />
-
-              {/* Autocomplete dropdown */}
-              {varSuggestions.length > 0 && (
-                <div
-                  className="absolute top-full left-0 z-50 w-full mt-1 rounded-lg shadow-lg overflow-hidden"
-                  style={{ background: "var(--t-bg-card)", border: "1px solid var(--t-border)" }}
+            <div className="flex items-center justify-between mb-1.5">
+              <label className={formLabelClass} style={{ ...formLabelStyle, marginBottom: 0 }}>{t("snippets.form.contentLabel")}</label>
+              {!showStepList && (
+                <button
+                  type="button"
+                  onClick={() => { markDirty(); setForceSequence(true); }}
+                  className="text-xs transition-colors"
+                  style={{ color: "var(--t-text-dim)" }}
                 >
-                  {varSuggestions.map((s, i) => (
-                    <button
-                      key={s.value}
-                      type="button"
-                      onMouseDown={(e) => { e.preventDefault(); insertVar(s.value); }}
-                      className={`flex items-center justify-between w-full px-3 py-1.5 text-xs text-left transition-colors ${
-                        i === varSuggestIdx ? "bg-(--t-bg-elevated)" : "hover:bg-(--t-bg-elevated)"
-                      }`}
-                    >
-                      <code className="font-mono" style={{ color: "var(--t-accent)" }}>{`{{${s.value}}}`}</code>
-                      <span style={{ color: "var(--t-text-dim)" }}>{s.desc}</span>
-                    </button>
-                  ))}
-                </div>
+                  {t("snippets.step.addStep")}
+                </button>
               )}
             </div>
+
+            {showStepList ? (
+              <StepListEditor
+                value={steps}
+                onChange={(next) => { markDirty(); setSteps(next); }}
+                snippets={useSnippetStore.getState().snippets.filter((s) => s.id !== initial?.id)}
+              />
+            ) : (
+              <div className="relative">
+                <textarea
+                  ref={contentRef}
+                  value={content}
+                  onChange={(e) => { markDirty(); setSteps([{ kind: "script", content: e.target.value }]); syncVarQuery(e.target); }}
+                  onSelect={(e) => syncVarQuery(e.currentTarget)}
+                  onKeyDown={(e) => {
+                    if (varSuggestions.length === 0) return;
+                    if (e.key === "ArrowDown") { e.preventDefault(); setVarSuggestIdx((i) => Math.min(i + 1, varSuggestions.length - 1)); }
+                    else if (e.key === "ArrowUp") { e.preventDefault(); setVarSuggestIdx((i) => Math.max(i - 1, 0)); }
+                    else if ((e.key === "Enter" || e.key === "Tab") && varQuery !== null) { e.preventDefault(); insertVar(varSuggestions[varSuggestIdx]?.value ?? ""); }
+                    else if (e.key === "Escape") { setVarQuery(null); }
+                  }}
+                  onBlur={() => setTimeout(() => setVarQuery(null), 100)}
+                  // Sample shell command syntax, not prose UI copy — left untranslated like snippet body content
+                  placeholder="echo Hello, {{name}}!"
+                  rows={6}
+                  className={`${formInputClass} font-mono resize-y`}
+                  style={{ ...formInputStyle, minHeight: "7rem" }}
+                />
+
+                {/* Autocomplete dropdown */}
+                {varSuggestions.length > 0 && (
+                  <div
+                    className="absolute top-full left-0 z-50 w-full mt-1 rounded-lg shadow-lg overflow-hidden"
+                    style={{ background: "var(--t-bg-card)", border: "1px solid var(--t-border)" }}
+                  >
+                    {varSuggestions.map((s, i) => (
+                      <button
+                        key={s.value}
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); insertVar(s.value); }}
+                        className={`flex items-center justify-between w-full px-3 py-1.5 text-xs text-left transition-colors ${
+                          i === varSuggestIdx ? "bg-(--t-bg-elevated)" : "hover:bg-(--t-bg-elevated)"
+                        }`}
+                      >
+                        <code className="font-mono" style={{ color: "var(--t-accent)" }}>{`{{${s.value}}}`}</code>
+                        <span style={{ color: "var(--t-text-dim)" }}>{s.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Detected variables */}
             {detectedVars.length > 0 && (
@@ -283,11 +311,13 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
             )}
 
             {/* Syntax hint */}
-            <p className="mt-1.5 text-xs leading-relaxed" style={{ color: "var(--t-text-dim)" }}>
-              {t("snippets.form.syntaxHintType")} <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>{"{{"}</code> {t("snippets.form.syntaxHintForAutocomplete")}
-              {" "}{t("snippets.form.syntaxHintCustomPrompts")} <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>{"{{name:type}}"}</code>
-              {" "}{t("snippets.form.syntaxHintTypesList")} <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>choice:a,b</code>
-            </p>
+            {!showStepList && (
+              <p className="mt-1.5 text-xs leading-relaxed" style={{ color: "var(--t-text-dim)" }}>
+                {t("snippets.form.syntaxHintType")} <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>{"{{"}</code> {t("snippets.form.syntaxHintForAutocomplete")}
+                {" "}{t("snippets.form.syntaxHintCustomPrompts")} <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>{"{{name:type}}"}</code>
+                {" "}{t("snippets.form.syntaxHintTypesList")} <code className="font-mono bg-(--t-bg-elevated) px-1 rounded-sm" style={{ color: "var(--t-text)" }}>choice:a,b</code>
+              </p>
+            )}
           </div>
 
           <div>

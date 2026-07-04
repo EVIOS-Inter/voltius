@@ -65,6 +65,30 @@
         "clipboard": "Current clipboard contents"
       }
     },
+    "step": {
+      "kind": {
+        "script": "Script",
+        "transfer": "Transfer",
+        "snippet": "Call snippet"
+      },
+      "direction": {
+        "upload": "Upload",
+        "download": "Download"
+      },
+      "file": "File",
+      "folder": "Folder",
+      "localPath": "Local path",
+      "remotePath": "Remote path",
+      "browse": "Browse",
+      "selectSnippet": "Select a snippet...",
+      "addScript": "+ Script",
+      "addTransfer": "+ Transfer",
+      "addSnippet": "+ Call snippet",
+      "addStep": "Add step",
+      "moveUp": "Move step up",
+      "moveDown": "Move step down",
+      "remove": "Remove step"
+    },
     "page": {
       "emptyState": {
         "title": "No snippets yet",

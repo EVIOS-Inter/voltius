@@ -65,6 +65,30 @@
         "clipboard": "Contenu actuel du presse-papiers"
       }
     },
+    "step": {
+      "kind": {
+        "script": "Script",
+        "transfer": "Transfert",
+        "snippet": "Appeler un snippet"
+      },
+      "direction": {
+        "upload": "Envoi",
+        "download": "Téléchargement"
+      },
+      "file": "Fichier",
+      "folder": "Dossier",
+      "localPath": "Chemin local",
+      "remotePath": "Chemin distant",
+      "browse": "Parcourir",
+      "selectSnippet": "Sélectionner un snippet...",
+      "addScript": "+ Script",
+      "addTransfer": "+ Transfert",
+      "addSnippet": "+ Appeler un snippet",
+      "addStep": "Ajouter une étape",
+      "moveUp": "Déplacer l'étape vers le haut",
+      "moveDown": "Déplacer l'étape vers le bas",
+      "remove": "Supprimer l'étape"
+    },
     "page": {
       "emptyState": {
         "title": "Aucun snippet pour l'instant",

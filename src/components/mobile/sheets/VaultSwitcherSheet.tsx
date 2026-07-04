@@ -21,7 +21,7 @@ export default function VaultSwitcherSheet() {
   const linkedTeamIds = new Set(vaults.map((v) => v.teamId).filter(Boolean));
   const entries = [
     ...vaults.map((v) => ({ id: v.id, name: v.name, icon: "lucide:vault" })),
-    ...teams.filter((t) => !linkedTeamIds.has(t.id)).map((t) => ({ id: t.id, name: t.name, icon: "lucide:users-round" })),
+    ...teams.filter((team) => !linkedTeamIds.has(team.id)).map((team) => ({ id: team.id, name: team.name, icon: "lucide:users-round" })),
   ];
 
   const create = () => {

@@ -1,0 +1,123 @@
+{
+  "members": {
+    "roles": "Rôles",
+    "info": "Infos",
+    "memberSince": "Membre depuis",
+    "invitedBy": "Invité par",
+    "dangerZone": "Zone de danger",
+    "confirmRemoval": "Cliquer à nouveau pour confirmer le retrait",
+    "removeFromTeam": "Retirer de l'équipe",
+    "newRole": "Nouveau rôle",
+    "you": "Vous",
+    "youBadge": "vous",
+    "kick": "Expulser",
+    "morePermissions": "+{{count}} de plus",
+    "noRole": "Aucun rôle",
+    "noRoleAddPrompt": "Aucun rôle · Ajouter →",
+    "ownerRoleLabel": "propriétaire",
+    "count_one": "{{count}} membre",
+    "count_other": "{{count}} membres",
+    "loading": "Chargement des membres…",
+    "noMatch": "Aucun membre ne correspond à « {{search}} »",
+    "revokeInvitationTitle": "Révoquer l'invitation",
+    "pendingBadge": "En attente",
+    "openInSettingsVaults": "Voir dans Paramètres › Coffres-forts",
+    "toolbar": {
+      "filterPlaceholder": "Filtrer les membres…",
+      "sortByRole": "Par rôle",
+      "selectedCount": "{{count}} sélectionnés",
+      "inviteBtn": "Inviter",
+      "clear": "Effacer"
+    },
+    "heading": {
+      "members": "Membres",
+      "pendingInvitations": "Invitations en attente"
+    },
+    "permission": {
+      "VIEW_SECRETS": "Voir les secrets",
+      "COPY_SECRETS": "Copier les secrets",
+      "CONNECT": "Se connecter",
+      "EDIT_CONNECTIONS": "Modifier les connexions",
+      "EDIT_IDENTITIES": "Modifier les identités",
+      "EDIT_KEYS": "Modifier les clés",
+      "EDIT_SNIPPETS": "Modifier les snippets",
+      "EDIT_FOLDERS": "Modifier les dossiers",
+      "VIEW_AUDIT_LOG": "Voir le journal d'audit",
+      "INVITE_MEMBERS": "Inviter des membres",
+      "MANAGE_MEMBERS": "Gérer les membres",
+      "CREATE_CUSTOM_ROLES": "Gérer les rôles (hérité)",
+      "MANAGE_ROLES": "Gérer les rôles",
+      "MANAGE_VAULT": "Gérer le coffre-fort",
+      "START_TERMINAL_SESSION": "Démarrer des sessions",
+      "JOIN_TERMINAL_SESSION": "Rejoindre des sessions",
+      "VIEW_TERMINAL_SESSIONS": "Voir les sessions"
+    },
+    "invite": {
+      "title": "Inviter un membre",
+      "seatsLabel": "Postes",
+      "seatsSummary": "{{used}} utilisés · {{available}} disponibles · {{total}} au total",
+      "buySeats": "Acheter des postes",
+      "initialRoles": "Rôles initiaux",
+      "initialRole": "Rôle initial",
+      "searchOrEmailLabel": "Rechercher ou saisir un e-mail",
+      "searchByEmailLabel": "Rechercher par e-mail",
+      "searchByEmailPlaceholder": "Rechercher par e-mail…",
+      "addWithRole": "Ajouter ({{role}})",
+      "addAsRole": "Ajouter en tant que {{role}}",
+      "noRoleFallback": "aucun rôle",
+      "sendInviteLabel": "Envoyer une invitation à",
+      "inviteArrow": "Inviter →"
+    },
+    "toast": {
+      "removingRoleFrom": "Suppression du rôle {{role}} de {{name}}…",
+      "roleRemovedFrom": "Rôle {{role}} supprimé de {{name}}",
+      "assigningRoleTo": "Attribution du rôle {{role}} à {{name}}…",
+      "roleAssignedTo": "Rôle {{role}} attribué à {{name}}",
+      "removingMember": "Suppression de {{name}}…",
+      "memberRemoved": "{{name}} supprimé",
+      "revokingInvitation": "Révocation de l'invitation pour {{name}}…",
+      "invitationRevoked": "Invitation révoquée pour {{name}}",
+      "invitingUser": "Invitation de {{name}}…",
+      "invitationSentToUser": "Invitation envoyée à {{name}}",
+      "userAdded": "{{name}} ajouté",
+      "invitingEmail": "Invitation de {{email}}…",
+      "invitationSentToEmail": "Invitation envoyée à {{email}}"
+    },
+    "error": {
+      "cannotRemoveOwnerRole": "Impossible de retirer le rôle de propriétaire au propriétaire de l'équipe",
+      "failedToUpdateRole": "Échec de la mise à jour du rôle",
+      "failedToRemoveMember": "Échec de la suppression du membre",
+      "failedToAddMember": "Échec de l'ajout du membre"
+    },
+    "history": {
+      "removeRole": "Retirer le rôle : {{name}}",
+      "assignRole": "Attribuer un rôle : {{name}}",
+      "remove": "Retirer : {{name}}",
+      "assignRoleBulk": "Attribuer un rôle ×{{count}}",
+      "removeRoleBulk": "Retirer un rôle ×{{count}}",
+      "removeBulk": "Retirer ×{{count}}"
+    },
+    "contextMenu": {
+      "inviteToSession": "Inviter à la session",
+      "noActiveSessions": "Aucune session active",
+      "assignRoleBulk": "Attribuer un rôle ({{count}})",
+      "removeRoleBulk": "Retirer le rôle ({{count}})",
+      "kickBulk_one": "Expulser {{count}} membre",
+      "kickBulk_other": "Expulser {{count}} membres"
+    },
+    "empty": {
+      "noVaultTitle": "Aucun coffre-fort sélectionné",
+      "noVaultDesc": "Sélectionnez un coffre-fort dans la barre latérale pour gérer ses membres.",
+      "signInToInvite": "Connectez-vous pour inviter des collègues dans ce coffre-fort.",
+      "vaultNotFound": "Coffre-fort introuvable."
+    },
+    "cta": {
+      "signInTitle": "Connectez-vous pour utiliser les fonctionnalités d'équipe",
+      "signInDesc": "Les membres, invitations et l'accès partagé aux coffres-forts nécessitent un compte cloud avant de pouvoir mettre à niveau ou gérer une équipe.",
+      "signInBtn": "Se connecter ou créer un compte cloud →",
+      "upgradeTitle": "Les coffres-forts d'équipe nécessitent Teams",
+      "upgradeDesc": "Invitez des membres, attribuez des rôles et partagez des identifiants en toute sécurité avec votre équipe.",
+      "upgradeBtn": "Passer à Teams →"
+    }
+  }
+}

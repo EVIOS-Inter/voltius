@@ -1,0 +1,123 @@
+{
+  "members": {
+    "roles": "Roles",
+    "info": "Info",
+    "memberSince": "Member since",
+    "invitedBy": "Invited by",
+    "dangerZone": "Danger Zone",
+    "confirmRemoval": "Click again to confirm removal",
+    "removeFromTeam": "Remove from team",
+    "newRole": "New role",
+    "you": "You",
+    "youBadge": "you",
+    "kick": "Kick",
+    "morePermissions": "+{{count}} more",
+    "noRole": "No role",
+    "noRoleAddPrompt": "No role · Add →",
+    "ownerRoleLabel": "owner",
+    "count_one": "{{count}} member",
+    "count_other": "{{count}} members",
+    "loading": "Loading members…",
+    "noMatch": "No members match \"{{search}}\"",
+    "revokeInvitationTitle": "Revoke invitation",
+    "pendingBadge": "Pending",
+    "openInSettingsVaults": "Open in Settings › Vaults",
+    "toolbar": {
+      "filterPlaceholder": "Filter members…",
+      "sortByRole": "By role",
+      "selectedCount": "{{count}} selected",
+      "inviteBtn": "Invite",
+      "clear": "Clear"
+    },
+    "heading": {
+      "members": "Members",
+      "pendingInvitations": "Pending Invitations"
+    },
+    "permission": {
+      "VIEW_SECRETS": "View secrets",
+      "COPY_SECRETS": "Copy secrets",
+      "CONNECT": "Connect",
+      "EDIT_CONNECTIONS": "Edit connections",
+      "EDIT_IDENTITIES": "Edit identities",
+      "EDIT_KEYS": "Edit keys",
+      "EDIT_SNIPPETS": "Edit snippets",
+      "EDIT_FOLDERS": "Edit folders",
+      "VIEW_AUDIT_LOG": "View audit log",
+      "INVITE_MEMBERS": "Invite members",
+      "MANAGE_MEMBERS": "Manage members",
+      "CREATE_CUSTOM_ROLES": "Manage roles (legacy)",
+      "MANAGE_ROLES": "Manage roles",
+      "MANAGE_VAULT": "Manage vault",
+      "START_TERMINAL_SESSION": "Start sessions",
+      "JOIN_TERMINAL_SESSION": "Join sessions",
+      "VIEW_TERMINAL_SESSIONS": "View sessions"
+    },
+    "invite": {
+      "title": "Invite member",
+      "seatsLabel": "Seats",
+      "seatsSummary": "{{used}} used · {{available}} available · {{total}} total",
+      "buySeats": "Buy seats",
+      "initialRoles": "Initial Roles",
+      "initialRole": "Initial Role",
+      "searchOrEmailLabel": "Search or enter email",
+      "searchByEmailLabel": "Search by email",
+      "searchByEmailPlaceholder": "Search by email…",
+      "addWithRole": "Add ({{role}})",
+      "addAsRole": "Add as {{role}}",
+      "noRoleFallback": "no role",
+      "sendInviteLabel": "Send invite to",
+      "inviteArrow": "Invite →"
+    },
+    "toast": {
+      "removingRoleFrom": "Removing {{role}} from {{name}}...",
+      "roleRemovedFrom": "{{role}} removed from {{name}}",
+      "assigningRoleTo": "Assigning {{role}} to {{name}}...",
+      "roleAssignedTo": "{{role}} assigned to {{name}}",
+      "removingMember": "Removing {{name}}...",
+      "memberRemoved": "{{name}} removed",
+      "revokingInvitation": "Revoking invitation for {{name}}...",
+      "invitationRevoked": "Invitation revoked for {{name}}",
+      "invitingUser": "Inviting {{name}}...",
+      "invitationSentToUser": "Invitation sent to {{name}}",
+      "userAdded": "{{name}} added",
+      "invitingEmail": "Inviting {{email}}...",
+      "invitationSentToEmail": "Invitation sent to {{email}}"
+    },
+    "error": {
+      "cannotRemoveOwnerRole": "Cannot remove the owner role from the team owner",
+      "failedToUpdateRole": "Failed to update role",
+      "failedToRemoveMember": "Failed to remove member",
+      "failedToAddMember": "Failed to add member"
+    },
+    "history": {
+      "removeRole": "Remove role: {{name}}",
+      "assignRole": "Assign role: {{name}}",
+      "remove": "Remove: {{name}}",
+      "assignRoleBulk": "Assign role ×{{count}}",
+      "removeRoleBulk": "Remove role ×{{count}}",
+      "removeBulk": "Remove ×{{count}}"
+    },
+    "contextMenu": {
+      "inviteToSession": "Invite to Session",
+      "noActiveSessions": "No active sessions",
+      "assignRoleBulk": "Assign Role ({{count}})",
+      "removeRoleBulk": "Remove Role ({{count}})",
+      "kickBulk_one": "Kick {{count}} member",
+      "kickBulk_other": "Kick {{count}} members"
+    },
+    "empty": {
+      "noVaultTitle": "No vault selected",
+      "noVaultDesc": "Select a vault in the sidebar to manage its members.",
+      "signInToInvite": "Sign in to invite teammates to this vault.",
+      "vaultNotFound": "Vault not found."
+    },
+    "cta": {
+      "signInTitle": "Sign in to use team features",
+      "signInDesc": "Members, invites, and shared vault access require a cloud account before you can upgrade or manage a team.",
+      "signInBtn": "Sign in or create cloud account →",
+      "upgradeTitle": "Team Vaults require Teams",
+      "upgradeDesc": "Invite members, assign roles, and share credentials securely with your team.",
+      "upgradeBtn": "Upgrade to Teams →"
+    }
+  }
+}

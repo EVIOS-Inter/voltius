@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useVaultStore } from "@/stores/vaultStore";
 import { useTeamStore } from "@/stores/teamStore";
 import type { TeamMember, TeamRole } from "@/stores/teamStore";
@@ -67,13 +68,17 @@ function Avatar({ name, size = 32 }: { name: string; size?: number }) {
 }
 
 function RoleChip({ role }: { role: TeamRole }) {
+  const { t } = useTranslation();
   const [showTip, setShowTip] = useState(false);
   const meta = ROLE_META[role.name];
   const color = role.color ?? meta?.color ?? avatarColor(role.name);
   const bg = meta?.bg ?? `${color}1a`;
 
   const grantedPerms = Object.entries(PERM_BITS).filter(([, bit]) => (role.permissions & bit) !== 0);
-  const permLabels = grantedPerms.map(([p]) => PERM_META[p as keyof typeof PERM_META]?.label ?? p);
+  const permLabels = grantedPerms.map(([p]) => {
+    const key = p as keyof typeof PERM_META;
+    return t(`members.permission.${key}`, { defaultValue: PERM_META[key]?.label ?? p });
+  });
 
   return (
     <span className="relative inline-flex items-center" style={{ verticalAlign: "middle" }}>
@@ -107,7 +112,7 @@ function RoleChip({ role }: { role: TeamRole }) {
               </li>
             ))}
             {permLabels.length > 8 && (
-              <li style={{ color: "var(--t-text-dim)" }}>+{permLabels.length - 8} more</li>
+              <li style={{ color: "var(--t-text-dim)" }}>{t("members.morePermissions", { count: permLabels.length - 8 })}</li>
             )}
           </ul>
         </div>
@@ -124,6 +129,7 @@ function RoleBadges({
   canManage?: boolean;
   onAddRole?: () => void;
 }) {
+  const { t } = useTranslation();
   const memberRoles = member.role_ids
     .map((rid) => roles.find((r) => r.id === rid))
     .filter(Boolean) as TeamRole[];
@@ -138,11 +144,11 @@ function RoleBadges({
           onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--t-accent)"; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-dim)"; }}
         >
-          No role · Add →
+          {t("members.noRoleAddPrompt")}
         </button>
       );
     }
-    return <span className="text-[10px] text-(--t-text-dim)">No role</span>;
+    return <span className="text-[10px] text-(--t-text-dim)">{t("members.noRole")}</span>;
   }
   return (
     <div className="flex flex-wrap gap-1">
@@ -183,6 +189,7 @@ function MembersToolbar({
   selectedCount,
   vaultTabs, primaryVaultId, onSelectVault,
 }: MembersToolbarProps) {
+  const { t } = useTranslation();
   return (
     <div
       className="flex items-center gap-2 px-5 py-2.5 shrink-0"
@@ -210,13 +217,13 @@ function MembersToolbar({
         <ToolbarViewControls
           search={search}
           onSearchChange={onSearchChange}
-          filterPlaceholder="Filter members…"
+          filterPlaceholder={t("members.toolbar.filterPlaceholder")}
           filterShortcutId="filter"
           layoutMode={layoutMode}
           onLayoutModeChange={onLayoutModeChange}
           sortMode={sortMode}
           onSortModeChange={onSortModeChange}
-          extraSortOptions={[{ value: "role-asc", label: "By role", icon: "lucide:shield" }]}
+          extraSortOptions={[{ value: "role-asc", label: t("members.toolbar.sortByRole"), icon: "lucide:shield" }]}
           filterWidth={176}
         />
       </div>
@@ -224,7 +231,7 @@ function MembersToolbar({
       <div className="ml-auto flex items-center gap-2 shrink-0">
         {selectedCount > 1 && (
           <span className="text-xs text-(--t-text-dim) shrink-0">
-            {selectedCount} selected
+            {t("members.toolbar.selectedCount", { count: selectedCount })}
           </span>
         )}
 
@@ -239,7 +246,7 @@ function MembersToolbar({
             }}
           >
             <Icon icon="lucide:shield" width={13} />
-            Roles
+            {t("members.roles")}
           </button>
         )}
 
@@ -258,7 +265,7 @@ function MembersToolbar({
               onMouseLeave={(e) => (e.currentTarget.style.background = showInvitePanel ? "var(--t-accent-hover)" : "var(--t-accent)")}
             >
               <Icon icon="lucide:user-plus" width={13} />
-              Invite
+              {t("members.toolbar.inviteBtn")}
               {!!pendingCount && (
                 <span
                   className="absolute -top-1.5 -right-1.5 flex items-center justify-center text-[9px] font-bold rounded-full min-w-[16px] h-4 px-0.5"
@@ -309,6 +316,7 @@ function MemberCard({
   canManage, onAddRole,
   onSelect, onDoubleClick, contextMenuItems, bulkContextMenuItems,
 }: MemberCardProps) {
+  const { t } = useTranslation();
   if (layoutMode === "grid") {
     return (
       <BaseCard
@@ -334,7 +342,7 @@ function MemberCard({
           <div className="flex items-center gap-1 justify-center">
             <p className="text-xs font-medium truncate text-(--t-text-bright) max-w-[120px]">{member.display_name}</p>
             {isMe && (
-              <span className="text-[9px] px-1 py-0.5 rounded-sm shrink-0" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>you</span>
+              <span className="text-[9px] px-1 py-0.5 rounded-sm shrink-0" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>{t("members.youBadge")}</span>
             )}
           </div>
           <RoleBadges member={member} roles={roles} canManage={canManage} onAddRole={onAddRole} />
@@ -360,7 +368,7 @@ function MemberCard({
           <p className="text-sm font-medium truncate text-(--t-text-bright)">{member.display_name}</p>
           {isOwner && <Icon icon="lucide:crown" width={11} style={{ color: "#a78bfa", flexShrink: 0 }} />}
           {isMe && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded-sm shrink-0" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>you</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-sm shrink-0" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>{t("members.youBadge")}</span>
           )}
         </div>
       </div>
@@ -385,6 +393,7 @@ interface MemberDetailPanelProps {
 function MemberDetailPanel({
   member, isMe, teamId, teamRoles, canManageMembers, isTargetOwner, onClose, onUpdated,
 }: MemberDetailPanelProps) {
+  const { t } = useTranslation();
   const assignMemberRole = useTeamStore((s) => s.assignMemberRole);
   const removeMemberRole = useTeamStore((s) => s.removeMemberRole);
   const removeMember = useTeamStore((s) => s.removeMember);
@@ -404,7 +413,7 @@ function MemberDetailPanel({
     const hasRole = member.role_ids.includes(role.id);
     // Block removing the owner role from an owner
     if (hasRole && isTargetOwner && role.is_builtin && role.name === "owner") {
-      setError("Cannot remove the owner role from the team owner");
+      setError(t("members.error.cannotRemoveOwnerRole"));
       return;
     }
     setToggling(role.id);
@@ -412,12 +421,12 @@ function MemberDetailPanel({
     try {
       if (hasRole) {
         await runTeamAction({
-          pending: `Removing ${role.name} from ${member.display_name}...`,
-          success: `${role.name} removed from ${member.display_name}`,
+          pending: t("members.toast.removingRoleFrom", { role: role.name, name: member.display_name }),
+          success: t("members.toast.roleRemovedFrom", { role: role.name, name: member.display_name }),
           run: () => removeMemberRole(teamId, member.user_id, role.id),
         });
         push({
-          label: `Remove role: ${member.display_name}`,
+          label: t("members.history.removeRole", { name: member.display_name }),
           undo: async () => {
             await useTeamStore.getState().assignMemberRole(teamId, member.user_id, role.id);
             onUpdated();
@@ -429,12 +438,12 @@ function MemberDetailPanel({
         });
       } else {
         await runTeamAction({
-          pending: `Assigning ${role.name} to ${member.display_name}...`,
-          success: `${role.name} assigned to ${member.display_name}`,
+          pending: t("members.toast.assigningRoleTo", { role: role.name, name: member.display_name }),
+          success: t("members.toast.roleAssignedTo", { role: role.name, name: member.display_name }),
           run: () => assignMemberRole(teamId, member.user_id, role.id),
         });
         push({
-          label: `Assign role: ${member.display_name}`,
+          label: t("members.history.assignRole", { name: member.display_name }),
           undo: async () => {
             await useTeamStore.getState().removeMemberRole(teamId, member.user_id, role.id);
             onUpdated();
@@ -449,7 +458,7 @@ function MemberDetailPanel({
       setJustToggled(role.id);
       setTimeout(() => setJustToggled(null), 700);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to update role");
+      setError(e instanceof Error ? e.message : t("members.error.failedToUpdateRole"));
     } finally {
       setToggling(null);
     }
@@ -461,12 +470,12 @@ function MemberDetailPanel({
     setRemoving(true); setError("");
     try {
       await runTeamAction({
-        pending: `Removing ${member.display_name}...`,
-        success: `${member.display_name} removed`,
+        pending: t("members.toast.removingMember", { name: member.display_name }),
+        success: t("members.toast.memberRemoved", { name: member.display_name }),
         run: () => removeMember(teamId, member.user_id),
       });
       push({
-        label: `Remove: ${member.display_name}`,
+        label: t("members.history.remove", { name: member.display_name }),
         undo: async () => {
           await useTeamStore.getState().addMemberById(teamId, snapshot.user_id);
           for (const rid of snapshot.role_ids) {
@@ -482,7 +491,7 @@ function MemberDetailPanel({
       onClose();
       onUpdated();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to remove member");
+      setError(e instanceof Error ? e.message : t("members.error.failedToRemoveMember"));
       setRemoving(false);
       setConfirmRemove(false);
     }
@@ -511,7 +520,7 @@ function MemberDetailPanel({
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {/* Roles */}
-        <FormSection label="Roles">
+        <FormSection label={t("members.roles")}>
           {canChangeRoles ? (
             <div className="flex flex-wrap gap-2">
               {[...teamRoles]
@@ -560,7 +569,7 @@ function MemberDetailPanel({
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.7"; }}
               >
                 <Icon icon="lucide:plus" width={10} />
-                New role
+                {t("members.newRole")}
               </button>
             </div>
           ) : (
@@ -569,15 +578,15 @@ function MemberDetailPanel({
         </FormSection>
 
         {/* Info */}
-        <FormSection label="Info">
+        <FormSection label={t("members.info")}>
           <div className="space-y-2 text-xs">
             <div className="flex items-center justify-between">
-              <span className="text-(--t-text-dim)">Member since</span>
+              <span className="text-(--t-text-dim)">{t("members.memberSince")}</span>
               <span className="text-(--t-text-primary)">{joinedDate}</span>
             </div>
             {member.invited_by_display_name && (
               <div className="flex items-center justify-between gap-4">
-                <span className="text-(--t-text-dim) shrink-0">Invited by</span>
+                <span className="text-(--t-text-dim) shrink-0">{t("members.invitedBy")}</span>
                 <span className="text-(--t-text-primary) truncate">{member.invited_by_display_name}</span>
               </div>
             )}
@@ -586,7 +595,7 @@ function MemberDetailPanel({
 
         {/* Danger zone */}
         {canRemove && (
-          <FormSection label="Danger Zone">
+          <FormSection label={t("members.dangerZone")}>
             <button
               onClick={() => { if (!removing) void handleRemove(); }}
               disabled={removing}
@@ -604,7 +613,7 @@ function MemberDetailPanel({
                 ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin" />
                 : <Icon icon="lucide:user-minus" width={13} />
               }
-              {confirmRemove ? "Click again to confirm removal" : "Remove from team"}
+              {confirmRemove ? t("members.confirmRemoval") : t("members.removeFromTeam")}
             </button>
           </FormSection>
         )}
@@ -626,14 +635,15 @@ function PendingInviteCard({
   roles: TeamRole[];
   onRevoked: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const [revoking, setRevoking] = useState(false);
 
   const handleRevoke = async () => {
     setRevoking(true);
     try {
       await runTeamAction({
-        pending: `Revoking invitation for ${inv.display_name}...`,
-        success: `Invitation revoked for ${inv.display_name}`,
+        pending: t("members.toast.revokingInvitation", { name: inv.display_name }),
+        success: t("members.toast.invitationRevoked", { name: inv.display_name }),
         run: () => revokePendingInvitation(teamId, inv.id),
       });
       onRevoked(inv.id);
@@ -653,13 +663,13 @@ function PendingInviteCard({
         <p className="text-sm font-medium truncate text-(--t-text-bright)">{inv.display_name}</p>
       </div>
       <span className="text-[10px] px-2 py-0.5 rounded-full shrink-0" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>
-        Pending
+        {t("members.pendingBadge")}
       </span>
       <span className="text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0" style={{ color: chipColor, background: chipBg }}>
         {inv.role}
       </span>
       <button
-        title="Revoke invitation"
+        title={t("members.revokeInvitationTitle")}
         disabled={revoking}
         onClick={(e) => { e.stopPropagation(); void handleRevoke(); }}
         className="p-1.5 hidden group-hover:flex rounded-lg transition-colors"
@@ -693,6 +703,7 @@ interface InvitePanelProps {
 }
 
 function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }: InvitePanelProps) {
+  const { t } = useTranslation();
   const addMemberById = useTeamStore((s) => s.addMemberById);
   const assignMemberRole = useTeamStore((s) => s.assignMemberRole);
   const { usedSeats, totalSeats, load: reloadSubscription } = useSubscriptionStore();
@@ -738,8 +749,8 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
     const names = selectedRoleIds
       .map((id) => builtinRoles.find((r) => r.id === id)?.name)
       .filter(Boolean);
-    return names.length > 0 ? names.join(", ") : "no role";
-  }, [selectedRoleIds, builtinRoles]);
+    return names.length > 0 ? names.join(", ") : t("members.invite.noRoleFallback");
+  }, [selectedRoleIds, builtinRoles, t]);
 
   useEffect(() => { void reloadSubscription(); }, []);
   useEffect(() => { inputRef.current?.focus(); }, []);
@@ -771,8 +782,10 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
     setAdding(user.user_id); setError(""); setSuccess("");
     try {
       const result = await runTeamAction({
-        pending: `Inviting ${user.display_name}...`,
-        success: (r) => r.status === "pending" ? `Invitation sent to ${user.display_name}` : `${user.display_name} added`,
+        pending: t("members.toast.invitingUser", { name: user.display_name }),
+        success: (r) => r.status === "pending"
+          ? t("members.toast.invitationSentToUser", { name: user.display_name })
+          : t("members.toast.userAdded", { name: user.display_name }),
         run: () => addMemberById(teamId, user.user_id),
       });
       if (result.status === "pending") {
@@ -781,7 +794,9 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
         }
       }
       setQuery(""); setResults([]); setOpen(false);
-      setSuccess(result.status === "pending" ? `Invitation sent to ${user.display_name}` : `${user.display_name} added`);
+      setSuccess(result.status === "pending"
+        ? t("members.toast.invitationSentToUser", { name: user.display_name })
+        : t("members.toast.userAdded", { name: user.display_name }));
       await reloadSubscription();
       onMemberAdded();
     } catch (e) {
@@ -801,13 +816,13 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
     try {
       const invitedEmail = query;
       const result = await runTeamAction({
-        pending: `Inviting ${invitedEmail}...`,
-        success: () => `Invitation sent to ${invitedEmail}`,
+        pending: t("members.toast.invitingEmail", { email: invitedEmail }),
+        success: () => t("members.toast.invitationSentToEmail", { email: invitedEmail }),
         run: () => inviteByEmail(teamId, invitedEmail, primaryRoleName),
       });
       void result;
       setQuery(""); setResults([]); setOpen(false);
-      setSuccess(`Invitation sent to ${invitedEmail}`);
+      setSuccess(t("members.toast.invitationSentToEmail", { email: invitedEmail }));
       await reloadSubscription();
       onMemberAdded();
     } catch (e) {
@@ -841,13 +856,13 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
       <PanelShell>
         <PanelHeader
           icon="lucide:user-plus"
-          title="Invite member"
+          title={t("members.invite.title")}
           onClose={onClose}
         />
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* Seats usage */}
-          <FormSection label="Seats">
+          <FormSection label={t("members.invite.seatsLabel")}>
             <div className="flex items-center gap-3">
               <div className="flex-1 min-w-0">
                 <div className="h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background: "var(--t-bg-elevated)" }}>
@@ -860,7 +875,11 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
                   />
                 </div>
                 <p className="text-[11px] tabular-nums" style={{ color: isAtSeatLimit ? "var(--t-status-error)" : "var(--t-text-dim)" }}>
-                  {usedSeats ?? 0} used · {totalSeats != null ? Math.max(0, totalSeats - (usedSeats ?? 0)) : "?"} available · {totalSeats ?? "?"} total
+                  {t("members.invite.seatsSummary", {
+                    used: usedSeats ?? 0,
+                    available: totalSeats != null ? Math.max(0, totalSeats - (usedSeats ?? 0)) : "?",
+                    total: totalSeats ?? "?",
+                  })}
                 </p>
               </div>
               <button
@@ -869,13 +888,13 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
                 style={{ background: "var(--t-bg-elevated)", color: "var(--t-accent)", border: "1px solid var(--t-border)" }}
               >
                 <Icon icon="lucide:plus" width={11} />
-                Buy seats
+                {t("members.invite.buySeats")}
               </button>
             </div>
           </FormSection>
 
           {/* Role selector */}
-          <FormSection label="Initial Roles">
+          <FormSection label={t("members.invite.initialRoles")}>
             <div className="flex flex-wrap gap-2">
               {builtinRoles.map((r) => {
                 const meta = ROLE_META[r.name];
@@ -900,7 +919,7 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
           </FormSection>
 
           {/* Search input */}
-          <FormSection label="Search or enter email" className="overflow-visible">
+          <FormSection label={t("members.invite.searchOrEmailLabel")} className="overflow-visible">
             <div className="relative">
               <div
                 className="flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-colors"
@@ -913,7 +932,7 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
                 <input
                   ref={inputRef}
                   type="text"
-                  placeholder="Search by email…"
+                  placeholder={t("members.invite.searchByEmailPlaceholder")}
                   value={query}
                   onChange={(e) => { setQuery(e.target.value); setSuccess(""); }}
                   onFocus={() => { if (results.length > 0 || showEmailInviteOption) setOpen(true); }}
@@ -948,7 +967,7 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
                       {adding === user.user_id
                         ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                         : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
-                            Add ({selectedRoleLabel})
+                            {t("members.invite.addWithRole", { role: selectedRoleLabel })}
                           </span>
                       }
                     </button>
@@ -964,12 +983,12 @@ function InvitePanel({ teamId, existingIds, teamRoles, onClose, onMemberAdded }:
                     >
                       <Icon icon="lucide:mail" width={16} className="shrink-0" style={{ color: "var(--t-accent)" }} />
                       <span className="flex-1 text-sm">
-                        Send invite to <span className="font-medium">{query}</span>
+                        {t("members.invite.sendInviteLabel")} <span className="font-medium">{query}</span>
                       </span>
                       {sendingInvite
                         ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                         : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
-                            Invite →
+                            {t("members.invite.inviteArrow")}
                           </span>
                       }
                     </button>
@@ -1016,6 +1035,7 @@ function PrivateVaultInvitePanel({
   onAdd: (user: { user_id: string; display_name: string; public_key: string }, roleName: string) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const { usedSeats, totalSeats, load: reloadSubscription } = useSubscriptionStore();
   const [selectedRole, setSelectedRole] = useState("member");
   const isAtSeatLimit = totalSeats != null && usedSeats != null && usedSeats >= totalSeats;
@@ -1025,11 +1045,11 @@ function PrivateVaultInvitePanel({
 
   return (
     <PanelShell>
-      <PanelHeader icon="lucide:user-plus" title="Invite member" onClose={onClose} />
+      <PanelHeader icon="lucide:user-plus" title={t("members.invite.title")} onClose={onClose} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
 
         {/* Seats */}
-        <FormSection label="Seats">
+        <FormSection label={t("members.invite.seatsLabel")}>
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <div className="h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background: "var(--t-bg-elevated)" }}>
@@ -1042,14 +1062,18 @@ function PrivateVaultInvitePanel({
                 />
               </div>
               <p className="text-[11px] tabular-nums" style={{ color: isAtSeatLimit ? "var(--t-status-error)" : "var(--t-text-dim)" }}>
-                {usedSeats ?? 0} used · {totalSeats != null ? Math.max(0, totalSeats - (usedSeats ?? 0)) : "?"} available · {totalSeats ?? "?"} total
+                {t("members.invite.seatsSummary", {
+                  used: usedSeats ?? 0,
+                  available: totalSeats != null ? Math.max(0, totalSeats - (usedSeats ?? 0)) : "?",
+                  total: totalSeats ?? "?",
+                })}
               </p>
             </div>
           </div>
         </FormSection>
 
         {/* Role selector */}
-        <FormSection label="Initial Role">
+        <FormSection label={t("members.invite.initialRole")}>
           <div className="flex flex-wrap gap-2">
             {PRIVATE_VAULT_ROLES.map((name) => {
               const meta = ROLE_META[name];
@@ -1074,7 +1098,7 @@ function PrivateVaultInvitePanel({
         </FormSection>
 
         {/* Search input */}
-        <FormSection label="Search by email" className="overflow-visible">
+        <FormSection label={t("members.invite.searchByEmailLabel")} className="overflow-visible">
           <div className="relative">
             <div
               className="flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-colors"
@@ -1087,7 +1111,7 @@ function PrivateVaultInvitePanel({
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Search by email…"
+                placeholder={t("members.invite.searchByEmailPlaceholder")}
                 value={query}
                 onChange={(e) => { onQueryChange(e.target.value); }}
                 onFocus={() => { if (results.length > 0) setOpen(true); }}
@@ -1120,7 +1144,7 @@ function PrivateVaultInvitePanel({
                     {adding === user.user_id
                       ? <Icon icon="lucide:loader-circle" width={13} className="animate-spin shrink-0" style={{ color: "var(--t-text-dim)" }} />
                       : <span className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0" style={{ background: "var(--t-accent)", color: "#fff" }}>
-                          Add as {selectedRole}
+                          {t("members.invite.addAsRole", { role: selectedRole })}
                         </span>
                     }
                   </button>
@@ -1139,15 +1163,16 @@ function PrivateVaultInvitePanel({
 // ─── Upgrade CTA ──────────────────────────────────────────────────────────────
 
 function SignInToCloudCTA({ onSignIn }: { onSignIn: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center h-full min-h-[320px] gap-5">
       <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)" }}>
         <Icon icon="lucide:cloud" width={28} style={{ color: "var(--t-accent)" }} />
       </div>
       <div className="text-center">
-        <p className="text-sm font-medium mb-1 text-(--t-text-primary)">Sign in to use team features</p>
+        <p className="text-sm font-medium mb-1 text-(--t-text-primary)">{t("members.cta.signInTitle")}</p>
         <p className="text-xs max-w-[240px] text-(--t-text-dim)">
-          Members, invites, and shared vault access require a cloud account before you can upgrade or manage a team.
+          {t("members.cta.signInDesc")}
         </p>
       </div>
       <button
@@ -1155,13 +1180,14 @@ function SignInToCloudCTA({ onSignIn }: { onSignIn: () => void }) {
         className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
         style={{ background: "var(--t-accent)" }}
       >
-        Sign in or create cloud account →
+        {t("members.cta.signInBtn")}
       </button>
     </div>
   );
 }
 
 function UpgradeToTeamsCTA() {
+  const { t } = useTranslation();
   const openCheckout = async () => {
     await openBillingCheckout("teams");
   };
@@ -1172,9 +1198,9 @@ function UpgradeToTeamsCTA() {
         <Icon icon="lucide:users-round" width={28} style={{ color: "var(--t-accent)" }} />
       </div>
       <div className="text-center">
-        <p className="text-sm font-medium mb-1 text-(--t-text-primary)">Team Vaults require Teams</p>
+        <p className="text-sm font-medium mb-1 text-(--t-text-primary)">{t("members.cta.upgradeTitle")}</p>
         <p className="text-xs max-w-[220px] text-(--t-text-dim)">
-          Invite members, assign roles, and share credentials securely with your team.
+          {t("members.cta.upgradeDesc")}
         </p>
       </div>
       <button
@@ -1182,7 +1208,7 @@ function UpgradeToTeamsCTA() {
         className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
         style={{ background: "var(--t-accent)" }}
       >
-        Upgrade to Teams →
+        {t("members.cta.upgradeBtn")}
       </button>
     </div>
   );
@@ -1191,6 +1217,7 @@ function UpgradeToTeamsCTA() {
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function MembersPage() {
+  const { t } = useTranslation();
   const selectedVaultIds = useVaultStore((s) => s.selectedVaultIds);
   const vaults = useVaultStore((s) => s.vaults);
   const { teams, loadTeams, membersByTeam, loadMembers, rolesByTeam, loadRoles, pendingInvitationsByTeam, loadPendingInvitations } = useTeamStore();
@@ -1338,7 +1365,7 @@ export default function MembersPage() {
       }
       setPrivateQuery(""); setPrivateResults([]); setPrivateOpen(false);
     } catch (e) {
-      setPrivateError(e instanceof Error ? e.message : "Failed to add member");
+      setPrivateError(e instanceof Error ? e.message : t("members.error.failedToAddMember"));
     } finally { setPrivateAdding(null); }
   };
 
@@ -1409,7 +1436,7 @@ export default function MembersPage() {
         onClick: () => {
           void removeMemberRole(teamId!, member.user_id, r.id).then(() => {
             push({
-              label: `Remove role: ${member.display_name}`,
+              label: t("members.history.removeRole", { name: member.display_name }),
               undo: async () => { await assignMemberRole(teamId!, member.user_id, r.id); reload(); },
               redo: async () => { await removeMemberRole(teamId!, member.user_id, r.id); reload(); },
             });
@@ -1425,7 +1452,7 @@ export default function MembersPage() {
         onClick: () => {
           void assignMemberRole(teamId!, member.user_id, r.id).then(() => {
             push({
-              label: `Assign role: ${member.display_name}`,
+              label: t("members.history.assignRole", { name: member.display_name }),
               undo: async () => { await removeMemberRole(teamId!, member.user_id, r.id); reload(); },
               redo: async () => { await assignMemberRole(teamId!, member.user_id, r.id); reload(); },
             });
@@ -1437,7 +1464,7 @@ export default function MembersPage() {
       const roleChildren = [...assignedItems, ...unassignedItems];
       if (roleChildren.length > 0) {
         items.push({
-          label: "Roles",
+          label: t("members.roles"),
           icon: "lucide:shield",
           children: roleChildren,
         });
@@ -1446,7 +1473,7 @@ export default function MembersPage() {
 
 
     items.push({
-      label: "Invite to Session",
+      label: t("members.contextMenu.inviteToSession"),
       icon: "lucide:terminal",
       children: activeSessions.length > 0
         ? activeSessions.map((s) => ({
@@ -1461,12 +1488,12 @@ export default function MembersPage() {
               );
             },
           }))
-        : [{ label: "No active sessions", onClick: () => {} }],
+        : [{ label: t("members.contextMenu.noActiveSessions"), onClick: () => {} }],
     });
 
     if (canActOnMember) {
       items.push({
-        label: "Kick",
+        label: t("members.kick"),
         icon: "lucide:user-minus",
         danger: true,
         divider: true,
@@ -1474,7 +1501,7 @@ export default function MembersPage() {
           const snapshot = { ...member };
           void removeMember(teamId!, member.user_id).then(() => {
             push({
-              label: `Remove: ${member.display_name}`,
+              label: t("members.history.remove", { name: member.display_name }),
               undo: async () => {
                 await addMemberById(teamId!, snapshot.user_id);
                 for (const rid of snapshot.role_ids) {
@@ -1507,7 +1534,7 @@ export default function MembersPage() {
         .filter((r) => !(r.is_builtin && r.name === "owner"))
         .sort((a, b) => a.position - b.position);
       items.push({
-        label: `Assign Role (${selectedMembers.length})`,
+        label: t("members.contextMenu.assignRoleBulk", { count: selectedMembers.length }),
         icon: "lucide:shield",
         children: sortedBulkRoles.map((r) => ({
           label: r.name,
@@ -1515,7 +1542,7 @@ export default function MembersPage() {
             const prevRoleIds = selectedMembers.map((m) => ({ userId: m.user_id, roleIds: [...m.role_ids] }));
             void Promise.all(selectedMembers.map((m) => assignMemberRole(teamId!, m.user_id, r.id))).then(() => {
               push({
-                label: `Assign role ×${selectedMembers.length}`,
+                label: t("members.history.assignRoleBulk", { count: selectedMembers.length }),
                 undo: async () => {
                   await Promise.all(prevRoleIds.map(({ userId }) => removeMemberRole(teamId!, userId, r.id)));
                   reload();
@@ -1532,7 +1559,7 @@ export default function MembersPage() {
       });
 
       items.push({
-        label: `Remove Role (${selectedMembers.length})`,
+        label: t("members.contextMenu.removeRoleBulk", { count: selectedMembers.length }),
         icon: "lucide:shield-off",
         children: sortedBulkRoles.map((r) => ({
           label: r.name,
@@ -1543,7 +1570,7 @@ export default function MembersPage() {
                 .map((m) => removeMemberRole(teamId!, m.user_id, r.id))
             ).then(() => {
               push({
-                label: `Remove role ×${selectedMembers.length}`,
+                label: t("members.history.removeRoleBulk", { count: selectedMembers.length }),
                 undo: async () => {
                   await Promise.all(
                     selectedMembers.filter((m) => m.role_ids.includes(r.id)).map((m) => assignMemberRole(teamId!, m.user_id, r.id))
@@ -1566,7 +1593,7 @@ export default function MembersPage() {
 
     if (canManageMembers) {
       items.push({
-        label: `Kick ${selectedMembers.length} members`,
+        label: t("members.contextMenu.kickBulk", { count: selectedMembers.length }),
         icon: "lucide:user-minus",
         danger: true,
         divider: items.length > 0,
@@ -1574,7 +1601,7 @@ export default function MembersPage() {
           const snapshots = selectedMembers.map((m) => ({ ...m }));
           void Promise.all(selectedMembers.map((m) => removeMember(teamId!, m.user_id))).then(() => {
             push({
-              label: `Remove ×${selectedMembers.length}`,
+              label: t("members.history.removeBulk", { count: selectedMembers.length }),
               undo: async () => {
                 await Promise.all(snapshots.map((m) => addMemberById(teamId!, m.user_id)));
                 await Promise.all(
@@ -1595,7 +1622,7 @@ export default function MembersPage() {
 
     return items.length > 0 ? items : undefined;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedIdSet, sortedMembers, myUserId, canManageMembers, teamRoles, teamId]);
+  }, [selectedIdSet, sortedMembers, myUserId, canManageMembers, teamRoles, teamId, t]);
 
 const vaultTabs = selectedVaultIds.length > 1
     ? selectedVaultIds.map((vid) => {
@@ -1618,9 +1645,9 @@ const vaultTabs = selectedVaultIds.length > 1
           <Icon icon="lucide:users-round" width={36} />
         </div>
         <div className="flex flex-col items-center gap-1.5 text-center">
-          <span className="text-base font-semibold text-(--t-text-primary)">No vault selected</span>
+          <span className="text-base font-semibold text-(--t-text-primary)">{t("members.empty.noVaultTitle")}</span>
           <span className="text-sm text-(--t-text-dim) max-w-[18.667rem]">
-            Select a vault in the sidebar to manage its members.
+            {t("members.empty.noVaultDesc")}
           </span>
         </div>
       </div>
@@ -1673,7 +1700,7 @@ const vaultTabs = selectedVaultIds.length > 1
           {toolbar}
           <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
             <Icon icon="lucide:users-round" width={28} style={{ color: "var(--t-text-dim)" }} />
-            <p className="text-sm text-(--t-text-dim)">Sign in to invite teammates to this vault.</p>
+            <p className="text-sm text-(--t-text-dim)">{t("members.empty.signInToInvite")}</p>
           </div>
         </div>
       );
@@ -1705,7 +1732,7 @@ const vaultTabs = selectedVaultIds.length > 1
           {toolbar}
           <div className="flex-1 overflow-y-auto px-9 pt-5 pb-9">
           <div className="mb-6">
-            <p className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">Members</p>
+            <p className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">{t("members.heading.members")}</p>
             <div
               className={layoutMode === "grid" ? "grid gap-4" : "flex flex-col gap-1"}
               style={layoutMode === "grid" ? { gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))" } : undefined}
@@ -1717,11 +1744,11 @@ const vaultTabs = selectedVaultIds.length > 1
                     <div className="flex items-center gap-1 justify-center">
                       {myEmail === null
                         ? <div className="h-3.5 w-20 rounded-sm animate-pulse" style={{ background: "var(--t-bg-elevated)" }} />
-                        : <p className="text-xs font-medium truncate text-(--t-text-bright) max-w-[120px]">{myEmail || "You"}</p>
+                        : <p className="text-xs font-medium truncate text-(--t-text-bright) max-w-[120px]">{myEmail || t("members.you")}</p>
                       }
-                      <span className="text-[9px] px-1 py-0.5 rounded-sm shrink-0" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>you</span>
+                      <span className="text-[9px] px-1 py-0.5 rounded-sm shrink-0" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>{t("members.youBadge")}</span>
                     </div>
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ color: "#a78bfa", background: "rgba(167,139,250,0.12)" }}>owner</span>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ color: "#a78bfa", background: "rgba(167,139,250,0.12)" }}>{t("members.ownerRoleLabel")}</span>
                   </div>
                 </BaseCard>
               ) : (
@@ -1731,14 +1758,14 @@ const vaultTabs = selectedVaultIds.length > 1
                     <div className="flex items-center gap-1.5">
                       {myEmail === null
                         ? <div className="h-3.5 w-40 rounded-sm animate-pulse" style={{ background: "var(--t-bg-elevated)" }} />
-                        : <p className="text-sm font-medium truncate text-(--t-text-bright)">{myEmail || "You"}</p>
+                        : <p className="text-sm font-medium truncate text-(--t-text-bright)">{myEmail || t("members.you")}</p>
                       }
                       <span className="text-[10px] px-1.5 py-0.5 rounded-sm shrink-0" style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)" }}>
-                        you
+                        {t("members.youBadge")}
                       </span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ color: "#a78bfa", background: "rgba(167,139,250,0.12)" }}>owner</span>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ color: "#a78bfa", background: "rgba(167,139,250,0.12)" }}>{t("members.ownerRoleLabel")}</span>
                 </BaseCard>
               )}
             </div>
@@ -1754,7 +1781,7 @@ const vaultTabs = selectedVaultIds.length > 1
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center bg-(--t-bg-base)">
         <Icon icon="lucide:vault" width={28} style={{ color: "var(--t-text-dim)" }} />
-        <p className="text-sm text-(--t-text-dim)">Vault not found.</p>
+        <p className="text-sm text-(--t-text-dim)">{t("members.empty.vaultNotFound")}</p>
       </div>
     );
   }
@@ -1795,13 +1822,13 @@ const vaultTabs = selectedVaultIds.length > 1
               ? (
                 <PanelShell>
                   <PanelHeader
-                    title="Roles"
+                    title={t("members.roles")}
                     icon="lucide:shield"
                     onClose={() => setShowRolesPanel(false)}
                     actions={
                       <PanelHeaderIconButton
                         icon="lucide:external-link"
-                        title="Open in Settings › Vaults"
+                        title={t("members.openInSettingsVaults")}
                         onClick={() => openSettings("vaults")}
                       />
                     }
@@ -1874,7 +1901,7 @@ const vaultTabs = selectedVaultIds.length > 1
                     className="text-[10px] px-2 py-0.5 rounded-full transition-colors"
                     style={{ color: "var(--t-text-dim)", background: "var(--t-bg-elevated)", border: "1px solid var(--t-border)" }}
                   >
-                    Clear
+                    {t("members.toolbar.clear")}
                   </button>
                 )}
               </div>
@@ -1884,10 +1911,10 @@ const vaultTabs = selectedVaultIds.length > 1
             <div>
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">
-                  Members
+                  {t("members.heading.members")}
                 </p>
                 <span className="text-xs text-(--t-text-dim)">
-                  {members.length} member{members.length !== 1 ? "s" : ""}
+                  {t("members.count", { count: members.length })}
                   {myMember && (
                     <> · <RoleBadges member={myMember} roles={teamRoles} /></>
                   )}
@@ -1895,10 +1922,10 @@ const vaultTabs = selectedVaultIds.length > 1
               </div>
 
               {sortedMembers.length === 0 && members.length === 0 && (
-                <p className="text-xs py-3 text-(--t-text-dim)">Loading members…</p>
+                <p className="text-xs py-3 text-(--t-text-dim)">{t("members.loading")}</p>
               )}
               {sortedMembers.length === 0 && members.length > 0 && searchLower && (
-                <p className="text-xs py-3 text-(--t-text-dim)">No members match "{search}"</p>
+                <p className="text-xs py-3 text-(--t-text-dim)">{t("members.noMatch", { search })}</p>
               )}
 
               <div
@@ -1930,7 +1957,7 @@ const vaultTabs = selectedVaultIds.length > 1
             {pendingInvites.length > 0 && (
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">
-                  Pending Invitations
+                  {t("members.heading.pendingInvitations")}
                 </p>
                 <div className="flex flex-col gap-1.5">
                   {pendingInvites.map((inv) => (

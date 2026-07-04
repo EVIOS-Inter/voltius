@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { pickLocalPath } from "@/services/sftp";
 import { formInputClass, formInputStyle } from "@/components/shared/Panel";
+import { VariableTextarea } from "@/components/snippets/VariableTextarea";
 import type { SnippetStep, Snippet } from "@/types";
 
 interface Props {
@@ -39,12 +40,10 @@ export function StepListEditor({ value, onChange, snippets }: Props) {
           </div>
 
           {step.kind === "script" && (
-            <textarea
+            <VariableTextarea
               value={step.content}
-              onChange={(e) => update(i, { ...step, content: e.target.value })}
+              onChange={(v) => update(i, { ...step, content: v })}
               rows={3}
-              className={`${formInputClass} font-mono resize-y`}
-              style={formInputStyle}
             />
           )}
 

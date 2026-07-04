@@ -32,16 +32,7 @@ import { getShortcutHint } from "@/stores/shortcutStore";
 import { parseVariables } from "@/services/snippetParser";
 import { snippetScriptText } from "@/services/snippetSteps";
 import { StepListEditor } from "@/components/snippets/StepListEditor";
-
-const DYNAMIC_VAR_DEF_KEYS: { value: string; descKey: string }[] = [
-  { value: "connection.host",     descKey: "snippets.form.dynamicVars.connectionHost" },
-  { value: "connection.username", descKey: "snippets.form.dynamicVars.connectionUsername" },
-  { value: "connection.name",     descKey: "snippets.form.dynamicVars.connectionName" },
-  { value: "date",                descKey: "snippets.form.dynamicVars.date" },
-  { value: "datetime",            descKey: "snippets.form.dynamicVars.datetime" },
-  { value: "timestamp",           descKey: "snippets.form.dynamicVars.timestamp" },
-  { value: "clipboard",           descKey: "snippets.form.dynamicVars.clipboard" },
-];
+import { VariableTextarea } from "@/components/snippets/VariableTextarea";
 
 interface Props {
   initial?: Snippet;
@@ -54,10 +45,6 @@ interface Props {
 
 export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete, isDirtyRef }: Props) {
   const { t } = useTranslation();
-  const DYNAMIC_VAR_DEFS = useMemo(
-    () => DYNAMIC_VAR_DEF_KEYS.map((d) => ({ value: d.value, desc: t(d.descKey) })),
-    [t],
-  );
   const isNew = !initial;
   const pinSnippet = useSnippetStore((s) => s.pinSnippet);
   const effPinned = useEffectivePinned(initial ?? { id: "", favorite: false }, "snippet");
@@ -91,45 +78,7 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
   const showStepList = forceSequence || !singleStep;
   const content = singleStep?.content ?? "";
 
-  const contentRef = useRef<HTMLTextAreaElement>(null);
-  const [varQuery, setVarQuery] = useState<string | null>(null);
-  const [varSuggestIdx, setVarSuggestIdx] = useState(0);
   const detectedVars = useMemo(() => parseVariables(snippetScriptText({ steps })), [steps]);
-
-  function syncVarQuery(el: HTMLTextAreaElement) {
-    const before = el.value.slice(0, el.selectionStart);
-    const match = before.match(/\{\{([^}]*)$/);
-    const q = match ? match[1] : null;
-    setVarQuery(q);
-    if (q !== null) setVarSuggestIdx(0);
-  }
-
-  function insertVar(varName: string) {
-    const el = contentRef.current;
-    if (!el) return;
-    const cursor = el.selectionStart;
-    const before = el.value.slice(0, cursor);
-    const after = el.value.slice(el.selectionEnd);
-    const match = before.match(/\{\{([^}]*)$/);
-    let newVal: string;
-    let newCursor: number;
-    if (match) {
-      const start = cursor - match[1].length;
-      newVal = before.slice(0, start) + varName + "}}" + after;
-      newCursor = start + varName.length + 2;
-    } else {
-      newVal = before + "{{" + varName + "}}" + after;
-      newCursor = cursor + varName.length + 4;
-    }
-    markDirty();
-    setSteps([{ kind: "script", content: newVal }]);
-    setVarQuery(null);
-    requestAnimationFrame(() => { el.focus(); el.setSelectionRange(newCursor, newCursor); });
-  }
-
-  const varSuggestions = varQuery !== null
-    ? DYNAMIC_VAR_DEFS.filter((s) => s.value.startsWith(varQuery.toLowerCase()))
-    : [];
 
   useEffect(() => {
     if (isNew && !vaultTouched.current) setVaultId(defaultVaultId);
@@ -244,49 +193,14 @@ export function SnippetForm({ initial, onSubmit, onClose, onDuplicate, onDelete,
                 snippets={useSnippetStore.getState().snippets.filter((s) => s.id !== initial?.id)}
               />
             ) : (
-              <div className="relative">
-                <textarea
-                  ref={contentRef}
-                  value={content}
-                  onChange={(e) => { markDirty(); setSteps([{ kind: "script", content: e.target.value }]); syncVarQuery(e.target); }}
-                  onSelect={(e) => syncVarQuery(e.currentTarget)}
-                  onKeyDown={(e) => {
-                    if (varSuggestions.length === 0) return;
-                    if (e.key === "ArrowDown") { e.preventDefault(); setVarSuggestIdx((i) => Math.min(i + 1, varSuggestions.length - 1)); }
-                    else if (e.key === "ArrowUp") { e.preventDefault(); setVarSuggestIdx((i) => Math.max(i - 1, 0)); }
-                    else if ((e.key === "Enter" || e.key === "Tab") && varQuery !== null) { e.preventDefault(); insertVar(varSuggestions[varSuggestIdx]?.value ?? ""); }
-                    else if (e.key === "Escape") { setVarQuery(null); }
-                  }}
-                  onBlur={() => setTimeout(() => setVarQuery(null), 100)}
-                  // Sample shell command syntax, not prose UI copy — left untranslated like snippet body content
-                  placeholder="echo Hello, {{name}}!"
-                  rows={6}
-                  className={`${formInputClass} font-mono resize-y`}
-                  style={{ ...formInputStyle, minHeight: "7rem" }}
-                />
-
-                {/* Autocomplete dropdown */}
-                {varSuggestions.length > 0 && (
-                  <div
-                    className="absolute top-full left-0 z-50 w-full mt-1 rounded-lg shadow-lg overflow-hidden"
-                    style={{ background: "var(--t-bg-card)", border: "1px solid var(--t-border)" }}
-                  >
-                    {varSuggestions.map((s, i) => (
-                      <button
-                        key={s.value}
-                        type="button"
-                        onMouseDown={(e) => { e.preventDefault(); insertVar(s.value); }}
-                        className={`flex items-center justify-between w-full px-3 py-1.5 text-xs text-left transition-colors ${
-                          i === varSuggestIdx ? "bg-(--t-bg-elevated)" : "hover:bg-(--t-bg-elevated)"
-                        }`}
-                      >
-                        <code className="font-mono" style={{ color: "var(--t-accent)" }}>{`{{${s.value}}}`}</code>
-                        <span style={{ color: "var(--t-text-dim)" }}>{s.desc}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <VariableTextarea
+                value={content}
+                onChange={(v) => { markDirty(); setSteps([{ kind: "script", content: v }]); }}
+                rows={6}
+                // Sample shell command syntax, not prose UI copy — left untranslated like snippet body content
+                placeholder="echo Hello, {{name}}!"
+                style={{ minHeight: "7rem" }}
+              />
             )}
 
             {/* Detected variables */}

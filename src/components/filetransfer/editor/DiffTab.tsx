@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MergeView } from "@codemirror/merge";
 import { EditorView, keymap } from "@codemirror/view";
 import { history, historyKeymap } from "@codemirror/commands";
@@ -16,6 +17,7 @@ import { activeChunkIndex, nextChunkIndex, prevChunkIndex } from "./diffChunks";
 import "./diffRibbons.css";
 
 export function DiffTab({ doc }: { doc: DiffDoc }) {
+  const { t } = useTranslation();
   const maxBytes = useSftpSettingsStore((s) => s.editorMaxBytes);
   const setDiffDirty = useEditorStore((s) => s.setDiffDirty);
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -58,7 +60,7 @@ export function DiffTab({ doc }: { doc: DiffDoc }) {
         setReady({ a: a.content, b: b.content });
       })
       .catch(() => {
-        if (!cancelled) setError("Failed to load one or both files for diff.");
+        if (!cancelled) setError(t("fileTransfer.editor.diff.loadError"));
       });
     return () => {
       cancelled = true;
@@ -81,7 +83,7 @@ export function DiffTab({ doc }: { doc: DiffDoc }) {
       setDirty(false);
       setErr(null);
     } catch (e) {
-      setErr(typeof e === "string" ? e : "Save failed");
+      setErr(typeof e === "string" ? e : t("fileTransfer.editor.common.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -178,7 +180,7 @@ export function DiffTab({ doc }: { doc: DiffDoc }) {
   if (!ready)
     return (
       <div className="p-4 text-sm" style={{ color: "var(--t-text-dim)" }}>
-        Loading diff…
+        {t("fileTransfer.editor.diff.loading")}
       </div>
     );
 
@@ -195,7 +197,7 @@ export function DiffTab({ doc }: { doc: DiffDoc }) {
           <div className="flex shrink-0 items-center gap-1" style={{ color: "var(--t-text-dim)" }}>
             <IconBtn
               icon="lucide:chevron-up"
-              title="Previous change"
+              title={t("fileTransfer.editor.diff.previousChange")}
               onClick={() => {
                 const host = hostRef.current;
                 const tops = ribbonsRef.current?.chunkTops() ?? [];
@@ -206,7 +208,7 @@ export function DiffTab({ doc }: { doc: DiffDoc }) {
             <span className="tabular-nums">{nav.index + 1} / {nav.count}</span>
             <IconBtn
               icon="lucide:chevron-down"
-              title="Next change"
+              title={t("fileTransfer.editor.diff.nextChange")}
               onClick={() => {
                 const host = hostRef.current;
                 const tops = ribbonsRef.current?.chunkTops() ?? [];
@@ -243,11 +245,12 @@ function SideControls({
   onSave: () => void;
   alignEnd?: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <div className={`flex min-w-0 items-center gap-1 ${alignEnd ? "flex-row-reverse" : ""}`}>
       <IconBtn
         icon={saving ? "lucide:loader-circle" : "lucide:save"}
-        title={saving ? "Saving…" : "Save (Ctrl+S)"}
+        title={saving ? t("common.state.saving") : t("fileTransfer.editor.common.saveCtrlS")}
         onClick={() => { if (!saving) onSave(); }}
       />
       {dirty && <span className="shrink-0" style={{ color: "var(--t-accent-warn, #f59e0b)" }}>●</span>}
@@ -269,6 +272,7 @@ function SaveErrorBanner({
   onRetry: () => void;
   onDismiss: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className="flex flex-1 items-center gap-2 px-2 py-1 text-xs"
@@ -278,9 +282,9 @@ function SaveErrorBanner({
       }}
     >
       <span className="shrink-0">⚠</span>
-      <span className="truncate min-w-0">{label}: {msg}</span>
-      <button className="ml-auto shrink-0 px-1 rounded" title="Retry save" onClick={onRetry}>Retry</button>
-      <button className="shrink-0 px-1 rounded" title="Dismiss" onClick={onDismiss}>×</button>
+      <span className="truncate min-w-0">{t("fileTransfer.editor.diff.saveErrorLine", { label, msg })}</span>
+      <button className="ml-auto shrink-0 px-1 rounded" title={t("fileTransfer.editor.common.retrySave")} onClick={onRetry}>{t("fileTransfer.editor.common.retry")}</button>
+      <button className="shrink-0 px-1 rounded" title={t("fileTransfer.editor.common.dismiss")} onClick={onDismiss}>×</button>
     </div>
   );
 }

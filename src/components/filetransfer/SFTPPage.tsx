@@ -3,6 +3,7 @@ import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { invoke } from "@tauri-apps/api/core";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import {
   sftpConnect, ftpConnect, sftpClose,
   sftpUpload, sftpDownload, sftpUploadDir, sftpDownloadDir,
@@ -40,6 +41,7 @@ import { DiffTab } from "./editor/DiffTab";
 import { EditorDropOverlay } from "./editor/EditorDropOverlay";
 
 export default function SFTPPage() {
+  const { t } = useTranslation();
   const sftpPanelOpen = useUIStore((s) => s.sftpPanelOpen);
   const pendingSftpConnectionId = useUIStore((s) => s.pendingSftpConnectionId);
   const clearPendingSftpConnection = useUIStore((s) => s.clearPendingSftpConnection);
@@ -141,7 +143,7 @@ export default function SFTPPage() {
     const sftpId = leftPhase.sftpId;
     const unlisten = listen(`sftp-closed-${sftpId}`, () => {
       setLeftPhase((p) => p.tag === "connected" && p.sftpId === sftpId
-        ? { tag: "error", message: "Connection lost", host: leftHost ?? undefined }
+        ? { tag: "error", message: t("fileTransfer.page.connectionLost"), host: leftHost ?? undefined }
         : p);
     });
     return () => { unlisten.then((fn) => fn()); };
@@ -152,7 +154,7 @@ export default function SFTPPage() {
     const sftpId = rightPhase.sftpId;
     const unlisten = listen(`sftp-closed-${sftpId}`, () => {
       setRightPhase((p) => p.tag === "connected" && p.sftpId === sftpId
-        ? { tag: "error", message: "Connection lost", host: rightHost ?? undefined }
+        ? { tag: "error", message: t("fileTransfer.page.connectionLost"), host: rightHost ?? undefined }
         : p);
     });
     return () => { unlisten.then((fn) => fn()); };
@@ -212,7 +214,7 @@ export default function SFTPPage() {
     const dstBase    = targetFolder ?? dst.cwd;
     const srcIsLocal = srcHost?.kind === "local";
     const dstIsLocal = dstHost?.kind === "local";
-    const label      = files.length === 1 ? files[0].name : `${files.length} items`;
+    const label      = files.length === 1 ? files[0].name : t("fileTransfer.common.itemsCount", { count: files.length });
 
     if (srcIsLocal && dstIsLocal) {
       for (const file of files) {
@@ -363,7 +365,7 @@ export default function SFTPPage() {
     const phase = side === "left" ? leftPhase : rightPhase;
     const host  = side === "left" ? leftHost  : rightHost;
     if (phase.tag !== "connected") return;
-    const paths = await pickLocalPaths({ title: "Select files to upload" });
+    const paths = await pickLocalPaths({ title: t("fileTransfer.page.selectFilesToUpload") });
     if (paths.length === 0) return;
     const items: FileEntry[] = [];
     for (const path of paths) {
@@ -382,7 +384,7 @@ export default function SFTPPage() {
     const phase = side === "left" ? leftPhase : rightPhase;
     const host  = side === "left" ? leftHost  : rightHost;
     if (phase.tag !== "connected" || host?.kind === "local" || !phase.sftpId || files.length === 0) return;
-    const dstDir = await pickLocalPath({ directory: true, title: "Download to folder" });
+    const dstDir = await pickLocalPath({ directory: true, title: t("fileTransfer.page.downloadToFolder") });
     if (!dstDir) return;
     const sftpId = phase.sftpId;
     const base = dstDir.replace(/[\\/]$/, "");
@@ -424,12 +426,16 @@ export default function SFTPPage() {
   const rightSelected = rightPhase.tag === "connected" ? rightPhase.selected : [];
   const canTransferLR = leftSelected.length  > 0 && rightPhase.tag === "connected";
   const canTransferRL = rightSelected.length > 0 && leftPhase.tag  === "connected";
-  const transferLRTitle = canTransferLR ? (leftSelected.length  === 1 ? `Transfer "${leftSelected[0].name}" →`  : `Transfer ${leftSelected.length} items →`)  : "Select a file on the left";
-  const transferRLTitle = canTransferRL ? (rightSelected.length === 1 ? `Transfer "${rightSelected[0].name}" ←` : `Transfer ${rightSelected.length} items ←`) : "Select a file on the right";
+  const transferLRTitle = canTransferLR
+    ? t("fileTransfer.page.transferLeftToRight", { count: leftSelected.length, name: leftSelected[0]?.name })
+    : t("fileTransfer.page.selectFileLeft");
+  const transferRLTitle = canTransferRL
+    ? t("fileTransfer.page.transferRightToLeft", { count: rightSelected.length, name: rightSelected[0]?.name })
+    : t("fileTransfer.page.selectFileRight");
 
   const hostLabelFor = (host: HostChoice | null) =>
-    host == null ? "remote"
-    : host.kind === "local" ? (host.wslDistro ?? "Local Machine")
+    host == null ? t("fileTransfer.common.remoteFallback")
+    : host.kind === "local" ? (host.wslDistro ?? t("fileTransfer.common.localMachine"))
     : host.connection.name?.trim() || `${host.connection.username}@${host.connection.host}`;
 
   const leftSingleFile  = leftSelected.length  === 1 && !leftSelected[0].isDir  ? leftSelected[0]  : null;
@@ -491,7 +497,7 @@ export default function SFTPPage() {
           <div className="flex flex-col gap-1.5 p-1.5 rounded-xl border border-(--t-border) bg-(--t-bg-elevated)">
             <TransferBtn icon="lucide:arrow-right" title={transferLRTitle} disabled={!canTransferLR} onClick={() => transfer("LR")} />
             <TransferBtn icon="lucide:arrow-left"  title={transferRLTitle} disabled={!canTransferRL} onClick={() => transfer("RL")} />
-            <TransferBtn icon="lucide:diff"        title={canCompare ? `Compare "${leftSingleFile!.name}" ↔ "${rightSingleFile!.name}"` : "Select one file on each side to compare"} disabled={!canCompare} onClick={handleCompare} />
+            <TransferBtn icon="lucide:diff"        title={canCompare ? t("fileTransfer.page.compareTitle", { leftName: leftSingleFile!.name, rightName: rightSingleFile!.name }) : t("fileTransfer.page.compareHint")} disabled={!canCompare} onClick={handleCompare} />
           </div>
         </div>
 

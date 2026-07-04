@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useEditorStore, type EditorTab } from "@/stores/editorStore";
 import { ConfirmModal } from "@/components/shared/ConfirmModal";
 import { tabIcon } from "./tabIcon";
@@ -12,6 +13,7 @@ function tabLabel(t: EditorTab): string {
 }
 
 export function EditorTabStrip() {
+  const { t } = useTranslation();
   const tabs = useEditorStore((s) => s.tabs);
   const activeTabId = useEditorStore((s) => s.activeTabId);
   const setActiveTab = useEditorStore((s) => s.setActiveTab);
@@ -34,12 +36,12 @@ export function EditorTabStrip() {
     if (tab && tab.dirty) setPendingClose(id);
     else closeTab(id);
   };
-  const pendingTab = pendingClose ? tabs.find((t) => t.id === pendingClose) : null;
+  const pendingTab = pendingClose ? tabs.find((tab) => tab.id === pendingClose) : null;
   const pendingName = !pendingTab
-    ? "this file"
+    ? t("fileTransfer.editor.tabStrip.pendingNameFallback")
     : pendingTab.kind === "file"
       ? (pendingTab.path.split("/").pop() ?? pendingTab.path)
-      : "this diff";
+      : t("fileTransfer.editor.tabStrip.pendingNameDiffFallback");
 
   if (tabs.length === 0) return null;
 
@@ -56,7 +58,7 @@ export function EditorTabStrip() {
       <button
         ref={activeTabId === null ? setActiveRef : undefined}
         className="shrink-0 flex items-center justify-center px-3 transition-colors"
-        title="Files"
+        title={t("fileTransfer.editor.tabStrip.filesTab")}
         style={{
           color: activeTabId === null ? "var(--t-accent)" : "var(--t-text-dim)",
           background: activeTabId === null ? "var(--t-bg-card)" : "transparent",
@@ -69,18 +71,18 @@ export function EditorTabStrip() {
       </button>
 
       <div className="flex items-stretch min-w-0 overflow-x-auto">
-        {tabs.map((t, i) => {
-          const active = activeTabId === t.id;
-          const name = tabLabel(t);
-          const diffTarget = drag?.target?.kind === "diff" && drag.target.targetId === t.id;
+        {tabs.map((tab, i) => {
+          const active = activeTabId === tab.id;
+          const name = tabLabel(tab);
+          const diffTarget = drag?.target?.kind === "diff" && drag.target.targetId === tab.id;
           return (
-            <Fragment key={t.id}>
+            <Fragment key={tab.id}>
               {reorderIndex === i && (
                 <div className="shrink-0 self-stretch" style={{ width: 2, background: "var(--t-accent)" }} />
               )}
               <div
                 ref={active ? setActiveRef : undefined}
-                data-tab-id={t.id}
+                data-tab-id={tab.id}
                 className="group relative flex items-center gap-1.5 shrink-0 pl-2.5 pr-1.5 cursor-pointer transition-colors"
                 style={{
                   maxWidth: "200px",
@@ -90,21 +92,21 @@ export function EditorTabStrip() {
                   borderRight: "1px solid var(--t-border)",
                   boxShadow: diffTarget ? "inset 0 0 0 2px var(--t-accent)" : undefined,
                 }}
-                title={t.kind === "diff" ? `diff: ${name}` : name}
-                onClick={() => setActiveTab(t.id)}
+                title={tab.kind === "diff" ? t("fileTransfer.editor.tabStrip.diffTitlePrefix", { name }) : name}
+                onClick={() => setActiveTab(tab.id)}
                 onPointerDown={(e) => {
                   if (e.button !== 0) return;
                   startTabDragGesture({
-                    id: t.id,
+                    id: tab.id,
                     label: name,
-                    canDiff: t.kind === "file",
+                    canDiff: tab.kind === "file",
                     startX: e.clientX,
                     startY: e.clientY,
                   });
                 }}
               >
-                <Icon icon={tabIcon(t)} width={14} className="shrink-0" style={{ opacity: 0.8 }} />
-                {t.dirty && (
+                <Icon icon={tabIcon(tab)} width={14} className="shrink-0" style={{ opacity: 0.8 }} />
+                {tab.dirty && (
                   <span
                     className="shrink-0"
                     style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--t-accent-warn, #f59e0b)" }}
@@ -113,10 +115,10 @@ export function EditorTabStrip() {
                 <span className="truncate min-w-0">{name}</span>
                 <button
                   className="shrink-0 ml-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Close"
+                  title={t("common.action.close")}
                   style={{ color: "var(--t-text-dim)" }}
                   onPointerDown={(e) => e.stopPropagation()}
-                  onClick={(e) => { e.stopPropagation(); requestClose(t.id); }}
+                  onClick={(e) => { e.stopPropagation(); requestClose(tab.id); }}
                 >
                   <Icon icon="lucide:x" width={13} />
                 </button>
@@ -131,9 +133,9 @@ export function EditorTabStrip() {
 
       {pendingClose && (
         <ConfirmModal
-          title="Discard unsaved changes?"
-          message={`"${pendingName}" has unsaved changes. Closing this tab will discard them.`}
-          confirmLabel="Discard"
+          title={t("fileTransfer.editor.tabStrip.discardTitle")}
+          message={t("fileTransfer.editor.tabStrip.discardMessage", { name: pendingName })}
+          confirmLabel={t("fileTransfer.editor.tabStrip.discard")}
           onConfirm={() => { closeTab(pendingClose); setPendingClose(null); }}
           onCancel={() => setPendingClose(null)}
         />

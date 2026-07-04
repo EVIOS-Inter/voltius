@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, Fragment } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useDragSelection } from "@/hooks/useDragSelection";
 import { DragSelectSurface } from "@/components/shared/DragSelectSurface";
@@ -59,7 +61,7 @@ export function IconBtn({ icon, title, onClick }: { icon: string; title: string;
 const DEFAULT_VISIBLE_COLS: VisibleCols = { size: true, modified: true, permissions: true };
 
 export function FilePane({
-  sftpId, isLocal, cwd, homeCwd, hostLabel = "remote",
+  sftpId, isLocal, cwd, homeCwd, hostLabel,
   onNavigate, onSelect, onRefresh, refreshTick, side, onDropFiles, onMoveWithin,
   onTransferToTarget, canTransferToTarget, onChangeHost,
   filter = "", onRegisterMenuOpener, onRegisterViewMenuOpener, onOpenInTerminal,
@@ -94,6 +96,8 @@ export function FilePane({
   /** Optional override for Edit action (panel embedding: also opens SFTP panel). */
   onEdit?: (path: string) => void;
 }) {
+  const { t } = useTranslation();
+  const resolvedHostLabel = hostLabel ?? t("fileTransfer.common.remoteFallback");
   const [autoRefreshEnabled] = useToggle("sftp-autorefresh");
   const autoRefreshIntervalMs = useSftpSettingsStore((s) => s.autoRefreshIntervalMs);
 
@@ -239,8 +243,10 @@ export function FilePane({
   const handleDelete = async (files: FileEntry[]) => {
     if (files.length === 0) return;
     if (!isLocal && !sftpId) return;
-    const title = "Confirm delete";
-    const msg = files.length === 1 ? `Delete "${files[0].name}"?` : `Delete ${files.length} items?`;
+    const title = t("fileTransfer.pane.confirmDelete.title");
+    const msg = files.length === 1
+      ? t("fileTransfer.pane.confirmDelete.messageSingle", { name: files[0].name })
+      : t("fileTransfer.pane.confirmDelete.messageMulti", { count: files.length });
     const ok = await appConfirm(title, msg);
     if (!ok) return;
     try {
@@ -325,7 +331,7 @@ export function FilePane({
   };
 
   const handlePickLocal = async () => {
-    const path = await pickLocalPath({ directory: true, title: "Select folder" });
+    const path = await pickLocalPath({ directory: true, title: t("fileTransfer.pane.toolbar.selectFolder") });
     if (path) onNavigate(path);
   };
 
@@ -339,7 +345,7 @@ export function FilePane({
   };
 
   const selectionActionsCtx: SelectionActionsCtx = {
-    isLocal, sftpId, hostLabel, canTransferToTarget: canTransferToTarget ?? false,
+    isLocal, sftpId, hostLabel: resolvedHostLabel, canTransferToTarget: canTransferToTarget ?? false,
     onTransferToTarget, onStartRename: startRename, onDelete: handleDelete,
     onCompress: handleCompress, onExtract: handleExtract,
     onOpenInTerminal, onPanelDownload, onEdit, setSelection, onRefresh,
@@ -365,7 +371,7 @@ export function FilePane({
         >
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-(--t-bg-card) border border-(--t-accent)">
             <Icon icon="lucide:arrow-down-to-line" width={14} className="text-(--t-accent)" />
-            <span className="text-xs font-medium text-(--t-accent)">Drop to transfer</span>
+            <span className="text-xs font-medium text-(--t-accent)">{t("fileTransfer.pane.dropToTransfer")}</span>
           </div>
         </div>
       )}
@@ -379,16 +385,16 @@ export function FilePane({
             ? { background: "color-mix(in srgb, var(--t-accent) 35%, transparent)", boxShadow: "0 0 0 1px color-mix(in srgb, var(--t-accent) 70%, transparent)" }
             : undefined}
         >
-          <IconBtn icon="lucide:arrow-up" title="Parent directory" onClick={goUp} />
+          <IconBtn icon="lucide:arrow-up" title={t("fileTransfer.pane.toolbar.parentDirectory")} onClick={goUp} />
         </span>
-        <IconBtn icon="lucide:house" title="Home directory" onClick={handleGoHome} />
+        <IconBtn icon="lucide:house" title={t("fileTransfer.pane.toolbar.homeDirectory")} onClick={handleGoHome} />
         <div className="flex-1 flex items-center min-w-0 px-1.5 rounded-md">
           <PathBreadcrumb cwd={cwd} isLocal={isLocal} onNavigate={onNavigate} dropFolderPath={dropFolderPath} />
-          {isLocal && <IconBtn icon="lucide:folder-open" title="Browse…" onClick={handlePickLocal} />}
+          {isLocal && <IconBtn icon="lucide:folder-open" title={t("fileTransfer.pane.toolbar.browse")} onClick={handlePickLocal} />}
         </div>
-        <IconBtn icon="lucide:folder-plus" title="New folder" onClick={handleMkdir} />
-        <IconBtn icon="lucide:file-plus" title="New file" onClick={handleNewFile} />
-        <IconBtn icon="lucide:refresh-cw" title="Refresh" onClick={onRefresh} />
+        <IconBtn icon="lucide:folder-plus" title={t("fileTransfer.pane.toolbar.newFolder")} onClick={handleMkdir} />
+        <IconBtn icon="lucide:file-plus" title={t("fileTransfer.pane.toolbar.newFile")} onClick={handleNewFile} />
+        <IconBtn icon="lucide:refresh-cw" title={t("fileTransfer.pane.toolbar.refresh")} onClick={onRefresh} />
       </div>
 
       <ColumnHeaders
@@ -424,7 +430,7 @@ export function FilePane({
         <div className="flex items-center gap-2 px-3 py-1 shrink-0 border-t border-(--t-border) bg-(--t-bg-elevated)">
           <Icon icon="lucide:square-check-big" width={11} className="text-(--t-accent) shrink-0" />
           <span className="text-xs text-(--t-text-secondary)">
-            {selectedIdSet.size} selected
+            {t("fileTransfer.pane.selection.selected", { count: selectedIdSet.size })}
             {selectedEntries.some((f) => !f.isDir) && (
               <span className="text-(--t-text-dim)"> · {formatSize(selectedEntries.filter((f) => !f.isDir).reduce((acc, f) => acc + f.size, 0))}</span>
             )}
@@ -436,7 +442,7 @@ export function FilePane({
             onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--t-text-dim)"; }}
             onClick={() => setSelection([])}
           >
-            Clear
+            {t("fileTransfer.pane.selection.clear")}
           </button>
         </div>
       )}
@@ -449,7 +455,7 @@ export function FilePane({
             selectedEntries, entryIds,
             selectionActionsCtx,
             handleMkdir, handleNewFile, setSelection, onChangeHost, cwd,
-            onPanelUpload,
+            onPanelUpload, t,
           })}
         />
       )}
@@ -457,14 +463,14 @@ export function FilePane({
         <ContextMenu
           pos={viewMenuPos}
           onClose={() => setViewMenuPos(null)}
-          items={buildViewMenuItems({ showHidden, setShowHidden, visibleCols, setVisibleCols, isLocal })}
+          items={buildViewMenuItems({ showHidden, setShowHidden, visibleCols, setVisibleCols, isLocal, t })}
         />
       )}
       {confirmDialog && (
         <ConfirmModal
           title={confirmDialog.title}
           message={confirmDialog.message}
-          confirmLabel="Delete"
+          confirmLabel={t("common.action.delete")}
           onConfirm={() => { const r = confirmDialog.resolve; setConfirmDialog(null); r(true); }}
           onCancel={() => { const r = confirmDialog.resolve; setConfirmDialog(null); r(false); }}
         />
@@ -500,24 +506,22 @@ export function openFileForEdit(
 // Single source of truth for file-level actions. Used by both the per-item
 // right-click context menu and the pane ellipsis menu.
 
-function buildSelectionActions(files: FileEntry[], ctx: SelectionActionsCtx): ContextMenuItem[] {
+function buildSelectionActions(files: FileEntry[], ctx: SelectionActionsCtx, t: TFunction): ContextMenuItem[] {
   const items: ContextMenuItem[] = [];
   const single = files.length === 1 ? files[0] : null;
 
   // Download (panel embedding only — remote → local disk)
   if (ctx.onPanelDownload && files.length > 0) {
-    const multiLabel = files.length > 1 ? ` ${files.length} items` : "";
-    items.push({ label: `Download${multiLabel}`, icon: "lucide:download", onClick: () => ctx.onPanelDownload!(files) });
+    items.push({ label: t("fileTransfer.pane.menu.download", { count: files.length }), icon: "lucide:download", onClick: () => ctx.onPanelDownload!(files) });
   }
 
   // Transfer
   if (ctx.canTransferToTarget && files.length > 0) {
-    const multiLabel = files.length > 1 ? ` ${files.length} items` : "";
-    items.push({ label: `Copy${multiLabel} to target`, icon: "lucide:copy", onClick: () => ctx.onTransferToTarget?.(files) });
+    items.push({ label: t("fileTransfer.pane.menu.copyToTarget", { count: files.length }), icon: "lucide:copy", onClick: () => ctx.onTransferToTarget?.(files) });
     if (!ctx.isLocal && ctx.sftpId) {
       const sid = ctx.sftpId;
       items.push({
-        label: `Move${multiLabel} to target`, icon: "lucide:scissors",
+        label: t("fileTransfer.pane.menu.moveToTarget", { count: files.length }), icon: "lucide:scissors",
         onClick: async () => {
           ctx.onTransferToTarget?.(files);
           for (const f of files) await sftpDelete(sid, f.path).catch(() => {});
@@ -531,32 +535,32 @@ function buildSelectionActions(files: FileEntry[], ctx: SelectionActionsCtx): Co
   // Edit (single non-dir file — local or remote)
   if (single && !single.isDir && (ctx.isLocal || ctx.sftpId)) {
     items.push({
-      label: "Edit",
+      label: t("common.action.edit"),
       icon: "lucide:file-pen",
       onClick: () => { openFileForEdit(single, ctx); },
     });
   }
 
   // Rename / Delete
-  if (single) items.push({ label: "Rename", icon: "lucide:pencil", onClick: () => ctx.onStartRename(single) });
+  if (single) items.push({ label: t("common.action.rename"), icon: "lucide:pencil", onClick: () => ctx.onStartRename(single) });
   if (files.length > 0) {
     items.push({
-      label: files.length === 1 ? "Delete" : `Delete ${files.length} items`,
+      label: t("fileTransfer.pane.menu.delete", { count: files.length }),
       icon: "lucide:trash-2", onClick: () => void ctx.onDelete(files), danger: true,
     });
   }
 
   // Archive (single file only)
   if (single) {
-    items.push({ label: "Compress to .tar.gz", icon: "lucide:archive", onClick: () => ctx.onCompress(single), divider: true });
+    items.push({ label: t("fileTransfer.pane.menu.compress"), icon: "lucide:archive", onClick: () => ctx.onCompress(single), divider: true });
     if (!single.isDir && /\.(tar\.gz|tgz)$/i.test(single.name)) {
-      items.push({ label: "Extract here", icon: "lucide:package-open", onClick: () => ctx.onExtract(single) });
+      items.push({ label: t("fileTransfer.pane.menu.extractHere"), icon: "lucide:package-open", onClick: () => ctx.onExtract(single) });
     }
   }
 
   // Terminal (single dir only)
   if (ctx.onOpenInTerminal && single?.isDir) {
-    items.push({ label: "Open in terminal", icon: "lucide:terminal", onClick: () => ctx.onOpenInTerminal!(single.path) });
+    items.push({ label: t("fileTransfer.pane.menu.openInTerminal"), icon: "lucide:terminal", onClick: () => ctx.onOpenInTerminal!(single.path) });
   }
 
   return items;
@@ -568,13 +572,14 @@ function buildViewMenuItems(ctx: {
   showHidden: boolean; setShowHidden: (v: boolean) => void;
   visibleCols: VisibleCols; setVisibleCols: React.Dispatch<React.SetStateAction<VisibleCols>>;
   isLocal: boolean;
+  t: TFunction;
 }): ContextMenuItem[] {
-  const { showHidden, setShowHidden, visibleCols, setVisibleCols, isLocal } = ctx;
+  const { showHidden, setShowHidden, visibleCols, setVisibleCols, isLocal, t } = ctx;
   const items: ContextMenuItem[] = [];
-  items.push({ label: showHidden ? "Hide hidden files" : "Show hidden files", icon: showHidden ? "lucide:eye" : "lucide:eye-off", onClick: () => setShowHidden(!showHidden) });
-  items.push({ label: "Size column",        icon: visibleCols.size        ? "lucide:square-check-big" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, size:        !v.size        })) });
-  items.push({ label: "Date column",        icon: visibleCols.modified    ? "lucide:square-check-big" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, modified:    !v.modified    })) });
-  if (!isLocal) items.push({ label: "Permissions column", icon: visibleCols.permissions ? "lucide:square-check-big" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, permissions: !v.permissions })) });
+  items.push({ label: showHidden ? t("fileTransfer.pane.menu.hideHiddenFiles") : t("fileTransfer.pane.menu.showHiddenFiles"), icon: showHidden ? "lucide:eye" : "lucide:eye-off", onClick: () => setShowHidden(!showHidden) });
+  items.push({ label: t("fileTransfer.pane.menu.sizeColumn"),        icon: visibleCols.size        ? "lucide:square-check-big" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, size:        !v.size        })) });
+  items.push({ label: t("fileTransfer.pane.menu.dateColumn"),        icon: visibleCols.modified    ? "lucide:square-check-big" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, modified:    !v.modified    })) });
+  if (!isLocal) items.push({ label: t("fileTransfer.pane.menu.permissionsColumn"), icon: visibleCols.permissions ? "lucide:square-check-big" : "lucide:square", onClick: () => setVisibleCols((v) => ({ ...v, permissions: !v.permissions })) });
   return items;
 }
 
@@ -587,37 +592,38 @@ function buildPaneMenuItems(ctx: {
   onChangeHost?: () => void;
   cwd: string;
   onPanelUpload?: () => void;
+  t: TFunction;
 }): ContextMenuItem[] {
   const { selectedEntries, entryIds, selectionActionsCtx,
-    handleMkdir, handleNewFile, setSelection, onChangeHost, cwd, onPanelUpload } = ctx;
+    handleMkdir, handleNewFile, setSelection, onChangeHost, cwd, onPanelUpload, t } = ctx;
   const sel = selectedEntries;
   const items: ContextMenuItem[] = [];
 
   // ── Upload (panel embedding only — shown when nothing is selected)
   if (onPanelUpload && sel.length === 0) {
-    items.push({ label: "Upload files", icon: "lucide:upload", onClick: onPanelUpload });
+    items.push({ label: t("fileTransfer.pane.menu.uploadFiles"), icon: "lucide:upload", onClick: onPanelUpload });
   }
 
   // ── File actions (delegated to shared builder)
-  const fileActions = buildSelectionActions(sel, selectionActionsCtx);
+  const fileActions = buildSelectionActions(sel, selectionActionsCtx, t);
   if (fileActions.length > 0) { fileActions[0].divider = true; items.push(...fileActions); }
 
   // ── Directory
   const dirActions: ContextMenuItem[] = [];
-  dirActions.push({ label: "New folder", icon: "lucide:folder-plus", onClick: handleMkdir });
-  dirActions.push({ label: "New file",   icon: "lucide:file-plus",   onClick: handleNewFile });
-  dirActions.push({ label: "Select All", icon: "lucide:list-checks", onClick: () => setSelection(entryIds) });
-  if (sel.length > 0) dirActions.push({ label: "Deselect", icon: "lucide:square", onClick: () => setSelection([]) });
+  dirActions.push({ label: t("fileTransfer.pane.toolbar.newFolder"), icon: "lucide:folder-plus", onClick: handleMkdir });
+  dirActions.push({ label: t("fileTransfer.pane.toolbar.newFile"),   icon: "lucide:file-plus",   onClick: handleNewFile });
+  dirActions.push({ label: t("fileTransfer.pane.menu.selectAll"), icon: "lucide:list-checks", onClick: () => setSelection(entryIds) });
+  if (sel.length > 0) dirActions.push({ label: t("fileTransfer.pane.menu.deselect"), icon: "lucide:square", onClick: () => setSelection([]) });
   dirActions[0].divider = true; items.push(...dirActions);
 
   // ── Terminal for cwd (single-dir case is handled inside buildSelectionActions)
   const { onOpenInTerminal } = selectionActionsCtx;
   if (onOpenInTerminal && !(sel.length === 1 && sel[0].isDir)) {
-    items.push({ label: "Open in terminal", icon: "lucide:terminal", onClick: () => onOpenInTerminal(cwd), divider: true });
+    items.push({ label: t("fileTransfer.pane.menu.openInTerminal"), icon: "lucide:terminal", onClick: () => onOpenInTerminal(cwd), divider: true });
   }
 
   // ── Connection
-  if (onChangeHost) items.push({ label: "Disconnect", icon: "lucide:unplug", onClick: onChangeHost, divider: !onOpenInTerminal || (sel.length === 1 && sel[0].isDir) });
+  if (onChangeHost) items.push({ label: t("fileTransfer.pane.menu.disconnect"), icon: "lucide:unplug", onClick: onChangeHost, divider: !onOpenInTerminal || (sel.length === 1 && sel[0].isDir) });
 
   return items;
 }
@@ -811,6 +817,7 @@ function ColumnHeaders({ sortCol, sortDir, isLocal, colWidths, visibleCols, onSo
   onSort: (col: SortCol) => void;
   onResize: (col: FileColumn, w: number) => void;
 }) {
+  const { t } = useTranslation();
   const chevron = (col: SortCol) => sortCol === col
     ? <Icon icon={sortDir === "asc" ? "lucide:chevron-up" : "lucide:chevron-down"} width={9} className="shrink-0" style={{ opacity: 0.7 }} />
     : null;
@@ -828,13 +835,13 @@ function ColumnHeaders({ sortCol, sortDir, isLocal, colWidths, visibleCols, onSo
         onMouseEnter={(e) => { e.currentTarget.style.color = "var(--t-text-secondary)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.color = nameActive ? "var(--t-text-secondary)" : "var(--t-text-dim)"; }}
       >
-        <span className="truncate" style={labelStyle}>Name</span>
+        <span className="truncate" style={labelStyle}>{t("fileTransfer.pane.columns.name")}</span>
         {chevron("name")}
         <ResizeHandle column="name" width={colWidths.name} onWidth={(w) => onResize("name", w)} />
       </button>
 
       {dataColumns.map((col) => {
-        const label = col === "size" ? "Size" : col === "modified" ? "Modified" : "Perms";
+        const label = col === "size" ? t("fileTransfer.pane.columns.size") : col === "modified" ? t("fileTransfer.pane.columns.modified") : t("fileTransfer.pane.columns.permissions");
         const active = sortCol === (col as SortCol);
         return (
           <button
@@ -886,6 +893,7 @@ function VirtualFileList({
   onMoveWithin?: (files: FileEntry[], targetFolder: string) => void;
   selectionActionsCtx: SelectionActionsCtx;
 }) {
+  const { t } = useTranslation();
   const rowVirtualizer = useVirtualizer({
     count: entries.length,
     getScrollElement: () => itemAreaRef.current,
@@ -906,7 +914,7 @@ function VirtualFileList({
           if (e.key === "Enter") commitCreate();
           if (e.key === "Escape") onCancelCreate();
         }}
-        placeholder={creatingFolder ? "Folder name" : "File name"}
+        placeholder={creatingFolder ? t("fileTransfer.pane.placeholder.folderName") : t("fileTransfer.pane.placeholder.fileName")}
         className="flex-1 text-sm bg-transparent outline-hidden text-(--t-text-primary) placeholder:text-(--t-text-dim)"
       />
     </div>
@@ -931,7 +939,7 @@ function VirtualFileList({
       <div ref={itemAreaRef} data-drag-surface="true" className="h-full overflow-y-auto">
         {inlineCreateRow}
         {!creatingFolder && !creatingFile && (
-          <div className="flex items-center justify-center h-16 text-xs text-(--t-text-dim)">Empty directory</div>
+          <div className="flex items-center justify-center h-16 text-xs text-(--t-text-dim)">{t("fileTransfer.pane.emptyDirectory")}</div>
         )}
       </div>
     );
@@ -966,7 +974,7 @@ function VirtualFileList({
           }
 
           const filesToDelete = isSelected && selectedEntries.length > 1 ? selectedEntries : [file];
-          const contextActions = buildSelectionActions(filesToDelete, selectionActionsCtx);
+          const contextActions = buildSelectionActions(filesToDelete, selectionActionsCtx, t);
 
           return (
             <div

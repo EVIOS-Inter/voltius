@@ -1,0 +1,159 @@
+{
+  "fileTransfer": {
+    "common": {
+      "localMachine": "Machine locale",
+      "remoteFallback": "distant",
+      "itemsCount_one": "{{count}} élément",
+      "itemsCount_other": "{{count}} éléments"
+    },
+    "acceleratedBadge": {
+      "title": "Accélération tar",
+      "description": "Regroupé dans une seule archive et extrait de l'autre côté — bien moins d'allers-retours que fichier par fichier.",
+      "howItWorks": "Comment ça marche"
+    },
+    "conflict": {
+      "title": "Ce fichier existe déjà",
+      "conflictOf": "Conflit {{number}} sur {{total}}",
+      "description": "Un élément portant ce nom existe déjà à la destination. Que voulez-vous faire ?",
+      "skip": "Ignorer",
+      "skipAll": "Tout ignorer",
+      "overwrite": "Écraser",
+      "overwriteAll": "Tout écraser"
+    },
+    "pane": {
+      "toolbar": {
+        "parentDirectory": "Dossier parent",
+        "homeDirectory": "Dossier personnel",
+        "browse": "Parcourir…",
+        "selectFolder": "Sélectionner un dossier",
+        "newFolder": "Nouveau dossier",
+        "newFile": "Nouveau fichier",
+        "refresh": "Actualiser"
+      },
+      "dropToTransfer": "Déposer pour transférer",
+      "placeholder": {
+        "folderName": "Nom du dossier",
+        "fileName": "Nom du fichier"
+      },
+      "emptyDirectory": "Dossier vide",
+      "selection": {
+        "selected": "{{count}} sélectionné(s)",
+        "clear": "Effacer"
+      },
+      "confirmDelete": {
+        "title": "Confirmer la suppression",
+        "messageSingle": "Supprimer « {{name}} » ?",
+        "messageMulti": "Supprimer {{count}} éléments ?"
+      },
+      "menu": {
+        "download_one": "Télécharger",
+        "download_other": "Télécharger {{count}} éléments",
+        "copyToTarget_one": "Copier vers la cible",
+        "copyToTarget_other": "Copier {{count}} éléments vers la cible",
+        "moveToTarget_one": "Déplacer vers la cible",
+        "moveToTarget_other": "Déplacer {{count}} éléments vers la cible",
+        "delete_one": "Supprimer",
+        "delete_other": "Supprimer {{count}} éléments",
+        "compress": "Compresser en .tar.gz",
+        "extractHere": "Extraire ici",
+        "openInTerminal": "Ouvrir dans un terminal",
+        "uploadFiles": "Envoyer des fichiers",
+        "selectAll": "Tout sélectionner",
+        "deselect": "Désélectionner",
+        "disconnect": "Déconnecter",
+        "hideHiddenFiles": "Masquer les fichiers cachés",
+        "showHiddenFiles": "Afficher les fichiers cachés",
+        "sizeColumn": "Colonne Taille",
+        "dateColumn": "Colonne Date",
+        "permissionsColumn": "Colonne Permissions"
+      },
+      "columns": {
+        "name": "Nom",
+        "size": "Taille",
+        "modified": "Modifié",
+        "permissions": "Droits"
+      }
+    },
+    "side": {
+      "chooseHost": "Choisir un hôte…",
+      "back": "Précédent",
+      "forward": "Suivant",
+      "filterPlaceholder": "Filtrer…",
+      "uploadHere": "Envoyer des fichiers ici",
+      "selectFilesToDownload": "Sélectionner des fichiers à télécharger",
+      "download_one": "Télécharger « {{name}} »",
+      "download_other": "Télécharger {{count}} éléments",
+      "viewOptions": "Options d'affichage",
+      "moreOptions": "Plus d'options",
+      "tryAgain": "Réessayer",
+      "sparkline": {
+        "min": "min {{value}}ms",
+        "avg": "moy {{value}}ms",
+        "max": "max {{value}}ms"
+      }
+    },
+    "page": {
+      "transferLeftToRight_one": "Transférer « {{name}} » →",
+      "transferLeftToRight_other": "Transférer {{count}} éléments →",
+      "transferRightToLeft_one": "Transférer « {{name}} » ←",
+      "transferRightToLeft_other": "Transférer {{count}} éléments ←",
+      "selectFileLeft": "Sélectionnez un fichier à gauche",
+      "selectFileRight": "Sélectionnez un fichier à droite",
+      "compareTitle": "Comparer « {{leftName}} » ↔ « {{rightName}} »",
+      "compareHint": "Sélectionnez un fichier de chaque côté pour comparer",
+      "selectFilesToUpload": "Sélectionner des fichiers à envoyer",
+      "downloadToFolder": "Télécharger vers un dossier",
+      "connectionLost": "Connexion perdue"
+    },
+    "queue": {
+      "title": "Transferts",
+      "transferCount_one": "{{count}} transfert",
+      "transferCount_other": "{{count}} transferts",
+      "activeSuffix_one": " · {{count}} actif",
+      "activeSuffix_other": " · {{count}} actifs",
+      "combinedThroughput": "Débit combiné",
+      "cancelAll": "Annuler tous les transferts",
+      "clearFinished": "Effacer les transferts terminés",
+      "cancelTransfer": "Annuler le transfert",
+      "status": {
+        "done": "Terminé",
+        "error": "Erreur",
+        "cancelled": "Annulé"
+      }
+    },
+    "editor": {
+      "common": {
+        "saveCtrlS": "Enregistrer (Ctrl+S)",
+        "saveFailed": "Échec de l'enregistrement",
+        "retrySave": "Réessayer l'enregistrement",
+        "retry": "Réessayer",
+        "dismiss": "Ignorer"
+      },
+      "diff": {
+        "loadError": "Échec du chargement d'un des fichiers (ou des deux) pour la comparaison.",
+        "loading": "Chargement de la comparaison…",
+        "previousChange": "Modification précédente",
+        "nextChange": "Modification suivante",
+        "saveErrorLine": "{{label}} : {{msg}}"
+      },
+      "tab": {
+        "autoSave": "Enregistrement automatique",
+        "saveFailedReason": "Échec de l'enregistrement : {{error}}",
+        "error": {
+          "default": "Échec de l'ouverture du fichier.",
+          "tooLarge": "Fichier trop volumineux ({{size}} octets, limite {{limit}}). Téléchargez-le à la place.",
+          "binary": "Fichier binaire — édition impossible. Téléchargez-le à la place."
+        }
+      },
+      "tabStrip": {
+        "filesTab": "Fichiers",
+        "pendingNameFallback": "ce fichier",
+        "pendingNameDiffFallback": "cette comparaison",
+        "diffTitlePrefix": "diff : {{name}}",
+        "discardTitle": "Abandonner les modifications non enregistrées ?",
+        "discardMessage": "« {{name}} » contient des modifications non enregistrées. Fermer cet onglet les abandonnera.",
+        "discard": "Abandonner"
+      }
+    }
+  }
+}

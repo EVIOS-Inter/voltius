@@ -1,0 +1,159 @@
+{
+  "fileTransfer": {
+    "common": {
+      "localMachine": "Local Machine",
+      "remoteFallback": "remote",
+      "itemsCount_one": "{{count}} item",
+      "itemsCount_other": "{{count}} items"
+    },
+    "acceleratedBadge": {
+      "title": "Tar acceleration",
+      "description": "Bundled into one archive and extracted on the other side — far fewer round trips than file-by-file.",
+      "howItWorks": "How it works"
+    },
+    "conflict": {
+      "title": "File already exists",
+      "conflictOf": "Conflict {{number}} of {{total}}",
+      "description": "An item with this name already exists at the destination. What would you like to do?",
+      "skip": "Skip",
+      "skipAll": "Skip All",
+      "overwrite": "Overwrite",
+      "overwriteAll": "Overwrite All"
+    },
+    "pane": {
+      "toolbar": {
+        "parentDirectory": "Parent directory",
+        "homeDirectory": "Home directory",
+        "browse": "Browse…",
+        "selectFolder": "Select folder",
+        "newFolder": "New folder",
+        "newFile": "New file",
+        "refresh": "Refresh"
+      },
+      "dropToTransfer": "Drop to transfer",
+      "placeholder": {
+        "folderName": "Folder name",
+        "fileName": "File name"
+      },
+      "emptyDirectory": "Empty directory",
+      "selection": {
+        "selected": "{{count}} selected",
+        "clear": "Clear"
+      },
+      "confirmDelete": {
+        "title": "Confirm delete",
+        "messageSingle": "Delete \"{{name}}\"?",
+        "messageMulti": "Delete {{count}} items?"
+      },
+      "menu": {
+        "download_one": "Download",
+        "download_other": "Download {{count}} items",
+        "copyToTarget_one": "Copy to target",
+        "copyToTarget_other": "Copy {{count}} items to target",
+        "moveToTarget_one": "Move to target",
+        "moveToTarget_other": "Move {{count}} items to target",
+        "delete_one": "Delete",
+        "delete_other": "Delete {{count}} items",
+        "compress": "Compress to .tar.gz",
+        "extractHere": "Extract here",
+        "openInTerminal": "Open in terminal",
+        "uploadFiles": "Upload files",
+        "selectAll": "Select All",
+        "deselect": "Deselect",
+        "disconnect": "Disconnect",
+        "hideHiddenFiles": "Hide hidden files",
+        "showHiddenFiles": "Show hidden files",
+        "sizeColumn": "Size column",
+        "dateColumn": "Date column",
+        "permissionsColumn": "Permissions column"
+      },
+      "columns": {
+        "name": "Name",
+        "size": "Size",
+        "modified": "Modified",
+        "permissions": "Perms"
+      }
+    },
+    "side": {
+      "chooseHost": "Choose host…",
+      "back": "Back",
+      "forward": "Forward",
+      "filterPlaceholder": "Filter…",
+      "uploadHere": "Upload files here",
+      "selectFilesToDownload": "Select files to download",
+      "download_one": "Download \"{{name}}\"",
+      "download_other": "Download {{count}} items",
+      "viewOptions": "View options",
+      "moreOptions": "More options",
+      "tryAgain": "Try again",
+      "sparkline": {
+        "min": "min {{value}}ms",
+        "avg": "avg {{value}}ms",
+        "max": "max {{value}}ms"
+      }
+    },
+    "page": {
+      "transferLeftToRight_one": "Transfer \"{{name}}\" →",
+      "transferLeftToRight_other": "Transfer {{count}} items →",
+      "transferRightToLeft_one": "Transfer \"{{name}}\" ←",
+      "transferRightToLeft_other": "Transfer {{count}} items ←",
+      "selectFileLeft": "Select a file on the left",
+      "selectFileRight": "Select a file on the right",
+      "compareTitle": "Compare \"{{leftName}}\" ↔ \"{{rightName}}\"",
+      "compareHint": "Select one file on each side to compare",
+      "selectFilesToUpload": "Select files to upload",
+      "downloadToFolder": "Download to folder",
+      "connectionLost": "Connection lost"
+    },
+    "queue": {
+      "title": "Transfers",
+      "transferCount_one": "{{count}} transfer",
+      "transferCount_other": "{{count}} transfers",
+      "activeSuffix_one": " · {{count}} active",
+      "activeSuffix_other": " · {{count}} active",
+      "combinedThroughput": "Combined throughput",
+      "cancelAll": "Cancel all transfers",
+      "clearFinished": "Clear finished transfers",
+      "cancelTransfer": "Cancel transfer",
+      "status": {
+        "done": "Done",
+        "error": "Error",
+        "cancelled": "Cancelled"
+      }
+    },
+    "editor": {
+      "common": {
+        "saveCtrlS": "Save (Ctrl+S)",
+        "saveFailed": "Save failed",
+        "retrySave": "Retry save",
+        "retry": "Retry",
+        "dismiss": "Dismiss"
+      },
+      "diff": {
+        "loadError": "Failed to load one or both files for diff.",
+        "loading": "Loading diff…",
+        "previousChange": "Previous change",
+        "nextChange": "Next change",
+        "saveErrorLine": "{{label}}: {{msg}}"
+      },
+      "tab": {
+        "autoSave": "Auto-save",
+        "saveFailedReason": "Save failed: {{error}}",
+        "error": {
+          "default": "Failed to open file.",
+          "tooLarge": "File too large ({{size}} bytes, limit {{limit}}). Download it instead.",
+          "binary": "Binary file — can't edit. Download it instead."
+        }
+      },
+      "tabStrip": {
+        "filesTab": "Files",
+        "pendingNameFallback": "this file",
+        "pendingNameDiffFallback": "this diff",
+        "diffTitlePrefix": "diff: {{name}}",
+        "discardTitle": "Discard unsaved changes?",
+        "discardMessage": "\"{{name}}\" has unsaved changes. Closing this tab will discard them.",
+        "discard": "Discard"
+      }
+    }
+  }
+}

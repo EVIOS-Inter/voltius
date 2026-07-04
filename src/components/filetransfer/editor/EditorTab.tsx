@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CodeMirror from "@uiw/react-codemirror";
 import { readEditorFile, writeEditorFile, type EditorReadError } from "@/services/sftp";
 import { useSftpSettingsStore } from "@/stores/sftpSettingsStore";
@@ -43,6 +44,7 @@ export function createDebouncedSaver(
 }
 
 export function EditorTab({ doc }: { doc: EditorDoc }) {
+  const { t } = useTranslation();
   const maxBytes = useSftpSettingsStore((s) => s.editorMaxBytes);
   const setDirty = useEditorStore((s) => s.setDirty);
   const setDocAutoSave = useEditorStore((s) => s.setDocAutoSave);
@@ -77,7 +79,7 @@ export function EditorTab({ doc }: { doc: EditorDoc }) {
       setDirty(doc.id, false);
       setSaveError(null);
     } catch (e) {
-      setSaveError(typeof e === "string" ? e : "Save failed");
+      setSaveError(typeof e === "string" ? e : t("fileTransfer.editor.common.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -132,7 +134,7 @@ export function EditorTab({ doc }: { doc: EditorDoc }) {
   }, [content]);
 
   if (error) return <EditorError error={error} sftpId={doc.sftpId} path={doc.path} />;
-  if (loading) return <div className="p-4 text-sm" style={{ color: "var(--t-text-dim)" }}>Loading…</div>;
+  if (loading) return <div className="p-4 text-sm" style={{ color: "var(--t-text-dim)" }}>{t("common.state.loading")}</div>;
 
   return (
     <div className="flex h-full flex-col">
@@ -152,13 +154,13 @@ export function EditorTab({ doc }: { doc: EditorDoc }) {
           className="ml-auto flex items-center gap-2 shrink-0 select-none"
           style={{ color: "var(--t-text-secondary)" }}
         >
-          <span>Auto-save</span>
+          <span>{t("fileTransfer.editor.tab.autoSave")}</span>
           <Toggle checked={doc.autoSave} onChange={(v) => setDocAutoSave(doc.id, v)} />
         </div>
         {/* Save button — styled like FilePane toolbar buttons */}
         <IconBtn
           icon={saving ? "lucide:loader-circle" : "lucide:save"}
-          title={saving ? "Saving…" : "Save (Ctrl+S)"}
+          title={saving ? t("common.state.saving") : t("fileTransfer.editor.common.saveCtrlS")}
           onClick={() => { if (!saving) void doSave(content); }}
         />
       </div>
@@ -173,17 +175,17 @@ export function EditorTab({ doc }: { doc: EditorDoc }) {
           }}
         >
           <span className="shrink-0">⚠</span>
-          <span className="truncate min-w-0">Save failed: {saveError}</span>
+          <span className="truncate min-w-0">{t("fileTransfer.editor.tab.saveFailedReason", { error: saveError })}</span>
           <button
             className="ml-auto shrink-0 px-1 rounded"
-            title="Retry save"
+            title={t("fileTransfer.editor.common.retrySave")}
             onClick={() => { if (!saving) void doSave(content); }}
           >
-            Retry
+            {t("fileTransfer.editor.common.retry")}
           </button>
           <button
             className="shrink-0 px-1 rounded"
-            title="Dismiss"
+            title={t("fileTransfer.editor.common.dismiss")}
             onClick={() => setSaveError(null)}
           >
             ×
@@ -211,12 +213,13 @@ function EditorError({
   sftpId: string | null;
   path: string;
 }) {
-  let msg = "Failed to open file.";
+  const { t } = useTranslation();
+  let msg = t("fileTransfer.editor.tab.error.default");
   if (typeof error !== "string") {
     if (error.kind === "too_large")
-      msg = `File too large (${error.size} bytes, limit ${error.limit}). Download it instead.`;
+      msg = t("fileTransfer.editor.tab.error.tooLarge", { size: error.size, limit: error.limit });
     else if (error.kind === "binary")
-      msg = "Binary file — can't edit. Download it instead.";
+      msg = t("fileTransfer.editor.tab.error.binary");
     else if (error.kind === "io")
       msg = error.message;
   } else {

@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { invoke } from "@tauri-apps/api/core";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { getConnectionIcon, getConnectionIconColor } from "@/utils/icons";
 import { AvatarTile } from "@/components/shared/AvatarTile";
 import { type HostChoice, type SidePhase, type FileEntry } from "./SFTPTypes";
@@ -60,9 +61,10 @@ export function SidePane({
   onDownloadFiles?: (files: FileEntry[]) => void;
   onMoveWithin?: (files: FileEntry[], targetFolder: string) => void;
 }) {
+  const { t } = useTranslation();
   const hostLabel =
     host == null ? null
-    : host.kind === "local" ? (host.wslDistro ?? "Local Machine")
+    : host.kind === "local" ? (host.wslDistro ?? t("fileTransfer.common.localMachine"))
     : host.connection.name?.trim() || `${host.connection.username}@${host.connection.host}`;
 
   const hostIcon =
@@ -206,7 +208,7 @@ export function SidePane({
             }
           </AvatarTile>
           <span className="text-xs font-medium pr-0.5" style={{ color: hostLabel ? "var(--t-text-primary)" : "var(--t-text-dim)" }}>
-            {hostLabel ?? "Choose host…"}
+            {hostLabel ?? t("fileTransfer.side.chooseHost")}
           </span>
         </button>
 
@@ -226,25 +228,25 @@ export function SidePane({
 
         {phase.tag === "connected" && (
           <div className="ml-auto flex items-center gap-1">
-            <NavBtn icon="lucide:arrow-left"  title="Back"    disabled={!histState.canBack}    onClick={goBack} />
-            <NavBtn icon="lucide:arrow-right" title="Forward" disabled={!histState.canForward} onClick={goForward} />
-            <FilterInput value={filterQuery} onChange={setFilterQuery} placeholder="Filter…" width={128} shortcutId="filter" />
+            <NavBtn icon="lucide:arrow-left"  title={t("fileTransfer.side.back")}    disabled={!histState.canBack}    onClick={goBack} />
+            <NavBtn icon="lucide:arrow-right" title={t("fileTransfer.side.forward")} disabled={!histState.canForward} onClick={goForward} />
+            <FilterInput value={filterQuery} onChange={setFilterQuery} placeholder={t("fileTransfer.side.filterPlaceholder")} width={128} shortcutId="filter" />
             {onUpload && (
-              <NavBtn icon="lucide:upload" title="Upload files here" disabled={false} onClick={onUpload} />
+              <NavBtn icon="lucide:upload" title={t("fileTransfer.side.uploadHere")} disabled={false} onClick={onUpload} />
             )}
             {onDownloadFiles && (
               <NavBtn
                 icon="lucide:download"
                 title={selected.length > 0
-                  ? `Download ${selected.length === 1 ? `"${selected[0].name}"` : `${selected.length} items`}`
-                  : "Select files to download"}
+                  ? t("fileTransfer.side.download", { count: selected.length, name: selected[0]?.name })
+                  : t("fileTransfer.side.selectFilesToDownload")}
                 disabled={selected.length === 0}
                 onClick={() => onDownloadFiles(selected)}
               />
             )}
             <button
               ref={viewBtnRef}
-              title="View options"
+              title={t("fileTransfer.side.viewOptions")}
               onClick={() => viewBtnRef.current && viewMenuOpener?.(viewBtnRef.current)}
               className="flex items-center justify-center w-6 h-6 rounded-md shrink-0 transition-colors text-(--t-text-dim)"
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--t-bg-elevated)"; e.currentTarget.style.color = "var(--t-text-primary)"; }}
@@ -254,7 +256,7 @@ export function SidePane({
             </button>
             <button
               ref={menuBtnRef}
-              title="More options"
+              title={t("fileTransfer.side.moreOptions")}
               onClick={() => menuBtnRef.current && menuOpener?.(menuBtnRef.current)}
               className="flex items-center justify-center w-6 h-6 rounded-md shrink-0 transition-colors text-(--t-text-dim)"
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--t-bg-elevated)"; e.currentTarget.style.color = "var(--t-text-primary)"; }}
@@ -275,7 +277,7 @@ export function SidePane({
           const phaseIcon = h.kind === "local" ? (h.wslDistro ? getConnectionIcon(h.wslDistro.split(/[-_ ]/)[0]) : "lucide:monitor")
             : h.kind === "remote" && (h.connection.icon || h.connection.distro) ? (getConnectionIcon(h.connection.icon || h.connection.distro!) ?? "lucide:server")
             : "lucide:server";
-          const phaseName = h.kind === "local" ? (h.wslDistro ?? "Local Machine")
+          const phaseName = h.kind === "local" ? (h.wslDistro ?? t("fileTransfer.common.localMachine"))
             : h.connection.name?.trim() || `${h.connection.username}@${h.connection.host}`;
           const phaseSubtitle = h.kind === "remote"
             ? `${h.connection.username}@${h.connection.host}:${h.connection.port}`
@@ -305,7 +307,7 @@ export function SidePane({
               onMouseEnter={(e) => (e.currentTarget.style.background = "var(--t-bg-card-hover)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "var(--t-bg-elevated)")}
             >
-              Try again
+              {t("fileTransfer.side.tryAgain")}
             </button>
           </div>
         )}
@@ -316,7 +318,7 @@ export function SidePane({
             isLocal={host.kind === "local"}
             cwd={phase.cwd}
             homeCwd={homeCwdRef.current || undefined}
-            hostLabel={hostLabel ?? "remote"}
+            hostLabel={hostLabel ?? t("fileTransfer.common.remoteFallback")}
             onNavigate={navigate}
             onSelect={onSelect}
             onRefresh={onRefresh}
@@ -360,9 +362,9 @@ export function SidePane({
                 <polyline points={spPoints} fill="none" stroke={latencyColor(spAvg)} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
               </svg>
               <div style={{ marginTop: 4, display: "flex", gap: 8, color: "var(--t-text-dim)", fontSize: 10, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-                <span>min {spMin}ms</span>
-                <span>avg {spAvg}ms</span>
-                <span>max {spMax}ms</span>
+                <span>{t("fileTransfer.side.sparkline.min", { value: spMin })}</span>
+                <span>{t("fileTransfer.side.sparkline.avg", { value: spAvg })}</span>
+                <span>{t("fileTransfer.side.sparkline.max", { value: spMax })}</span>
               </div>
             </div>
           );

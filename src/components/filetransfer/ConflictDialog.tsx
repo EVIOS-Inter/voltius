@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { Modal, ModalCard } from "@/components/shared/Modal";
 import { type FileEntry, type ConflictResolution, formatSize } from "./SFTPTypes";
 
@@ -8,6 +9,7 @@ export function ConflictDialog({ conflict, conflictNumber, totalConflicts, onRes
   totalConflicts: number;
   onResolve: (r: ConflictResolution) => void;
 }) {
+  const { t } = useTranslation();
   const hasMore = totalConflicts > 1;
 
   return (
@@ -21,10 +23,10 @@ export function ConflictDialog({ conflict, conflictNumber, totalConflicts, onRes
             <Icon icon="lucide:triangle-alert" width={16} className="text-[#f59e0b]" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-(--t-text-primary)">File already exists</p>
+            <p className="text-sm font-semibold text-(--t-text-primary)">{t("fileTransfer.conflict.title")}</p>
             {hasMore && (
               <p className="text-xs text-(--t-text-dim)">
-                Conflict {conflictNumber} of {totalConflicts}
+                {t("fileTransfer.conflict.conflictOf", { number: conflictNumber, total: totalConflicts })}
               </p>
             )}
           </div>
@@ -39,7 +41,7 @@ export function ConflictDialog({ conflict, conflictNumber, totalConflicts, onRes
             </div>
           </div>
           <p className="text-xs mt-2 text-(--t-text-dim)">
-            An item with this name already exists at the destination. What would you like to do?
+            {t("fileTransfer.conflict.description")}
           </p>
         </div>
 
@@ -48,35 +50,35 @@ export function ConflictDialog({ conflict, conflictNumber, totalConflicts, onRes
             onClick={() => onResolve("cancel")}
             className="btn btn-ghost px-3 py-1.5 rounded-lg text-xs"
           >
-            Cancel
+            {t("common.action.cancel")}
           </button>
           <div className="flex-1" />
           <button
             onClick={() => onResolve("skip")}
             className="btn btn-secondary px-3 py-1.5 rounded-lg text-xs"
           >
-            Skip
+            {t("fileTransfer.conflict.skip")}
           </button>
           {hasMore && (
             <button
               onClick={() => onResolve("skip-all")}
               className="btn btn-secondary px-3 py-1.5 rounded-lg text-xs"
             >
-              Skip All
+              {t("fileTransfer.conflict.skipAll")}
             </button>
           )}
           <button
             onClick={() => onResolve("overwrite")}
             className="btn btn-primary px-3 py-1.5 rounded-lg text-xs font-medium"
           >
-            Overwrite
+            {t("fileTransfer.conflict.overwrite")}
           </button>
           {hasMore && (
             <button
               onClick={() => onResolve("overwrite-all")}
               className="btn btn-primary px-3 py-1.5 rounded-lg text-xs font-medium"
             >
-              Overwrite All
+              {t("fileTransfer.conflict.overwriteAll")}
             </button>
           )}
         </div>

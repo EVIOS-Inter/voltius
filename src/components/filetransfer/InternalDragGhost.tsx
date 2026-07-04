@@ -1,8 +1,10 @@
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useMoveDragState, useSemanticDragState } from "./internalDrag";
 
 export function InternalDragGhost() {
+  const { t } = useTranslation();
   const semantic = useSemanticDragState();
   const move = useMoveDragState();
   // OS-originated drags supply their own cursor visualization, so we suppress
@@ -12,7 +14,7 @@ export function InternalDragGhost() {
   const count = semantic.files.length;
   const hasDir = semantic.files.some((f) => f.isDir);
   const single = count === 1 ? semantic.files[0] : null;
-  const label = single ? single.name : `${count} items`;
+  const label = single ? single.name : t("fileTransfer.common.itemsCount", { count });
   const iconName = single
     ? (single.isDir ? "lucide:folder" : "lucide:file")
     : (hasDir ? "lucide:folder" : "lucide:file");

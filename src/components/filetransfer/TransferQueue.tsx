@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { type Transfer, formatSize, formatTransferProgress } from "./SFTPTypes";
 import { AcceleratedBadge } from "./AcceleratedBadge";
 
@@ -11,32 +12,33 @@ export function TransferQueue({ transfers, onClear, onCancel, onCancelAll, colla
   /** When true the list collapses to a compact header and expands on hover. */
   collapsible?: boolean;
 }) {
+  const { t } = useTranslation();
   const [hovered, setHovered] = useState(false);
   if (transfers.length === 0) return null;
 
   const expanded = !collapsible || hovered;
 
   // ── Aggregates for the compact header ──────────────────────────────────────
-  const active = transfers.filter((t) => t.status === "running");
-  const totalSpeed = active.reduce((acc, t) => acc + (t.speed ?? 0), 0);
-  const aggTransferred = active.reduce((acc, t) => acc + t.transferred, 0);
-  const aggTotal = active.reduce((acc, t) => acc + t.total, 0);
+  const active = transfers.filter((tr) => tr.status === "running");
+  const totalSpeed = active.reduce((acc, tr) => acc + (tr.speed ?? 0), 0);
+  const aggTransferred = active.reduce((acc, tr) => acc + tr.transferred, 0);
+  const aggTotal = active.reduce((acc, tr) => acc + tr.total, 0);
   const overallPct = aggTotal > 0 ? Math.min(100, Math.round((aggTransferred / aggTotal) * 100)) : 0;
   const hasActive = active.length > 0;
   const badgeCount = hasActive ? active.length : transfers.length;
 
-  function statusIcon(t: Transfer) {
-    if (t.status === "done") return { icon: "lucide:circle-check-big", color: "var(--t-status-connected)", spin: false };
-    if (t.status === "error") return { icon: "lucide:circle-alert", color: "var(--t-status-error)", spin: false };
-    if (t.status === "cancelled") return { icon: "lucide:ban", color: "var(--t-text-dim)", spin: false };
+  function statusIcon(tr: Transfer) {
+    if (tr.status === "done") return { icon: "lucide:circle-check-big", color: "var(--t-status-connected)", spin: false };
+    if (tr.status === "error") return { icon: "lucide:circle-alert", color: "var(--t-status-error)", spin: false };
+    if (tr.status === "cancelled") return { icon: "lucide:ban", color: "var(--t-text-dim)", spin: false };
     return { icon: "lucide:loader-circle", color: "var(--t-text-dim)", spin: true };
   }
 
-  function statusLabel(t: Transfer) {
-    if (t.status === "done") return "Done";
-    if (t.status === "error") return "Error";
-    if (t.status === "cancelled") return "Cancelled";
-    return formatTransferProgress(t);
+  function statusLabel(transfer: Transfer) {
+    if (transfer.status === "done") return t("fileTransfer.queue.status.done");
+    if (transfer.status === "error") return t("fileTransfer.queue.status.error");
+    if (transfer.status === "cancelled") return t("fileTransfer.queue.status.cancelled");
+    return formatTransferProgress(transfer);
   }
 
   return (
@@ -54,14 +56,14 @@ export function TransferQueue({ transfers, onClear, onCancel, onCancelAll, colla
             className={`shrink-0 ${hasActive ? "animate-spin" : ""}`}
             style={{ color: hasActive ? "var(--t-accent)" : "var(--t-text-dim)" }}
           />
-          <span className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">Transfers</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{t("fileTransfer.queue.title")}</span>
           <span
             className="shrink-0 min-w-[1.1rem] h-[1.1rem] px-1 inline-flex items-center justify-center rounded-full text-[0.625rem] font-bold tabular-nums leading-none"
             style={{
               background: hasActive ? "color-mix(in srgb, var(--t-accent) 18%, transparent)" : "var(--t-bg-card)",
               color: hasActive ? "var(--t-accent)" : "var(--t-text-dim)",
             }}
-            title={`${transfers.length} transfer${transfers.length === 1 ? "" : "s"}${hasActive ? ` · ${active.length} active` : ""}`}
+            title={`${t("fileTransfer.queue.transferCount", { count: transfers.length })}${hasActive ? t("fileTransfer.queue.activeSuffix", { count: active.length }) : ""}`}
           >
             {badgeCount}
           </span>
@@ -69,7 +71,7 @@ export function TransferQueue({ transfers, onClear, onCancel, onCancelAll, colla
 
         <div className="flex items-center gap-2 shrink-0">
           {hasActive && totalSpeed > 0 && (
-            <span className="text-xs font-mono tabular-nums text-(--t-text-dim)" title="Combined throughput">
+            <span className="text-xs font-mono tabular-nums text-(--t-text-dim)" title={t("fileTransfer.queue.combinedThroughput")}>
               {formatSize(Math.round(totalSpeed))}/s
             </span>
           )}
@@ -84,7 +86,7 @@ export function TransferQueue({ transfers, onClear, onCancel, onCancelAll, colla
           {hasActive && (
             <button
               onClick={onCancelAll}
-              title="Cancel all transfers"
+              title={t("fileTransfer.queue.cancelAll")}
               className="flex items-center justify-center w-6 h-6 rounded-md shrink-0 transition-colors text-(--t-text-dim)"
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--t-bg-card-hover)"; e.currentTarget.style.color = "var(--t-status-error)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--t-text-dim)"; }}
@@ -94,7 +96,7 @@ export function TransferQueue({ transfers, onClear, onCancel, onCancelAll, colla
           )}
           <button
             onClick={onClear}
-            title="Clear finished transfers"
+            title={t("fileTransfer.queue.clearFinished")}
             className="flex items-center justify-center w-6 h-6 rounded-md shrink-0 transition-colors text-(--t-text-dim)"
             onMouseEnter={(e) => { e.currentTarget.style.background = "var(--t-bg-card-hover)"; e.currentTarget.style.color = "var(--t-text-primary)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--t-text-dim)"; }}
@@ -121,22 +123,22 @@ export function TransferQueue({ transfers, onClear, onCancel, onCancelAll, colla
             className="max-h-36 overflow-y-auto pb-2 px-3 flex flex-col gap-2 transition-opacity duration-200"
             style={{ opacity: expanded ? 1 : 0 }}
           >
-            {transfers.map((t) => {
-              const { icon, color, spin } = statusIcon(t);
+            {transfers.map((tr) => {
+              const { icon, color, spin } = statusIcon(tr);
               return (
-                <div key={t.id}>
+                <div key={tr.id}>
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <div className="flex items-center gap-1.5 min-w-0">
                       <Icon icon={icon} width={12} className={`${spin ? "animate-spin" : ""} shrink-0`} style={{ color }} />
-                      {t.accelerated && <AcceleratedBadge />}
-                      <span className="text-xs truncate text-(--t-text-primary)">{t.direction} {t.label}</span>
+                      {tr.accelerated && <AcceleratedBadge />}
+                      <span className="text-xs truncate text-(--t-text-primary)">{tr.direction} {tr.label}</span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-xs text-(--t-text-dim)">{statusLabel(t)}</span>
-                      {t.status === "running" && (
+                      <span className="text-xs text-(--t-text-dim)">{statusLabel(tr)}</span>
+                      {tr.status === "running" && (
                         <button
-                          onClick={() => onCancel(t.id)}
-                          title="Cancel transfer"
+                          onClick={() => onCancel(tr.id)}
+                          title={t("fileTransfer.queue.cancelTransfer")}
                           className="flex items-center justify-center w-4 h-4 rounded-sm transition-colors text-(--t-text-dim)"
                           onMouseEnter={(e) => (e.currentTarget.style.color = "var(--t-status-error)")}
                           onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t-text-dim)")}
@@ -146,16 +148,16 @@ export function TransferQueue({ transfers, onClear, onCancel, onCancelAll, colla
                       )}
                     </div>
                   </div>
-                  {t.status === "running" && t.total > 0 && (
+                  {tr.status === "running" && tr.total > 0 && (
                     <div className="h-0.5 rounded-full overflow-hidden bg-(--t-border)">
                       <div
                         className="h-full rounded-full transition-all duration-150 bg-(--t-accent)"
-                        style={{ width: `${Math.round((t.transferred / t.total) * 100)}%` }}
+                        style={{ width: `${Math.round((tr.transferred / tr.total) * 100)}%` }}
                       />
                     </div>
                   )}
-                  {t.status === "error" && t.error && (
-                    <p className="text-xs mt-0.5 leading-snug text-(--t-status-error)">{t.error}</p>
+                  {tr.status === "error" && tr.error && (
+                    <p className="text-xs mt-0.5 leading-snug text-(--t-status-error)">{tr.error}</p>
                   )}
                 </div>
               );

@@ -1,5 +1,6 @@
 import { writeClipboard } from "../../utils/clipboard";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import { useTeamStore } from "@/stores/teamStore";
@@ -21,6 +22,7 @@ interface ShareMenuProps {
 }
 
 export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectionName, connectionVaultId, isLoggedIn, tier, onSignIn, onUpgrade }: ShareMenuProps) {
+  const { t } = useTranslation();
   const menuRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const [tab, setTab] = useState<"team" | "invite">("team");
@@ -134,8 +136,8 @@ export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectio
       const msg = err instanceof Error ? err.message : "";
       setError(
         msg.includes("429") || msg.includes("Too Many")
-          ? "Session limit reached for your plan."
-          : msg || "Failed to share",
+          ? t("terminal.share.sessionLimitReached")
+          : msg || t("terminal.share.failedToShare"),
       );
     } finally {
       setLoading(false);
@@ -152,8 +154,8 @@ export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectio
       const msg = err instanceof Error ? err.message : "";
       setError(
         msg.includes("429") || msg.includes("Too Many")
-          ? "Session limit reached for your plan."
-          : msg || "Failed to generate link",
+          ? t("terminal.share.sessionLimitReached")
+          : msg || t("terminal.share.failedToGenerateLink"),
       );
     } finally {
       setLoading(false);
@@ -199,10 +201,10 @@ export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectio
           </div>
           <div>
             <p className="text-xs font-semibold mb-1" style={{ color: "var(--t-text-primary)" }}>
-              Sign in to share
+              {t("terminal.share.signInToShare")}
             </p>
             <p className="text-[11px] leading-relaxed" style={{ color: "var(--t-text-secondary)" }}>
-              Connect a server account to share your terminal with teammates.
+              {t("terminal.share.signInDescription")}
             </p>
           </div>
           <button
@@ -213,7 +215,7 @@ export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectio
             onClick={onSignIn}
           >
             <Icon icon="lucide:log-in" width={12} />
-            Sign in / Sign up
+            {t("terminal.share.signInButton")}
           </button>
         </div>
       ) : tier === "free" && teamsLoading ? (
@@ -232,18 +234,14 @@ export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectio
           </div>
           <div>
             <p className="text-xs font-semibold mb-1" style={{ color: "var(--t-text-primary)" }}>
-              Pro required
+              {t("terminal.share.proRequired")}
             </p>
             <p className="text-[11px] leading-relaxed" style={{ color: "var(--t-text-secondary)" }}>
-              Terminal sharing is available on Pro and above.
+              {t("terminal.share.proRequiredDescription")}
             </p>
           </div>
           <div className="w-full flex flex-col gap-1 text-left">
-            {[
-              "1 invite-link session · 1 participant",
-              "Real-time cloud sync",
-              "Teams: 5 sessions · 10 participants + shared vaults",
-            ].map((feat) => (
+            {(t("terminal.share.features", { returnObjects: true }) as string[]).map((feat) => (
               <div key={feat} className="flex items-start gap-2 text-[11px]" style={{ color: "var(--t-text-secondary)" }}>
                 <Icon icon="lucide:check" width={11} className="mt-0.5 shrink-0" style={{ color: "var(--t-accent)" }} />
                 <span>{feat}</span>
@@ -257,7 +255,7 @@ export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectio
             onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             onClick={onUpgrade}
           >
-            Upgrade to Pro
+            {t("terminal.share.upgradeToPro")}
           </button>
         </div>
       ) : isSharing ? (
@@ -278,7 +276,7 @@ export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectio
           {/* Header */}
           <div className="px-3 pt-3 pb-2">
             <p className="text-xs font-semibold mb-2" style={{ color: "var(--t-text-primary)" }}>
-              Share terminal
+              {t("terminal.share.shareTerminal")}
             </p>
             <input
               className="w-full text-xs px-2.5 py-1.5 rounded-md outline-hidden"
@@ -287,7 +285,7 @@ export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectio
                 border: "1px solid var(--t-border)",
                 color: "var(--t-text-primary)",
               }}
-              placeholder="Session name…"
+              placeholder={t("terminal.share.sessionNamePlaceholder")}
               value={sessionName}
               onChange={(e) => setSessionName(e.target.value)}
             />
@@ -296,18 +294,18 @@ export function ShareMenu({ anchorRef, open, onClose, activeSessionId, connectio
           {/* Tabs — Team tab hidden for Pro (no team vaults) */}
           {availableTabs.length > 1 && (
             <div className="flex px-3 gap-1 mb-2">
-              {availableTabs.map((t) => (
+              {availableTabs.map((tabId) => (
                 <button
-                  key={t}
+                  key={tabId}
                   className="flex-1 py-1 rounded-md text-xs font-medium transition-colors"
                   style={{
-                    background: tab === t ? "var(--t-bg-elevated)" : "transparent",
-                    color: tab === t ? "var(--t-text-primary)" : "var(--t-text-dim)",
-                    border: tab === t ? "1px solid var(--t-border)" : "1px solid transparent",
+                    background: tab === tabId ? "var(--t-bg-elevated)" : "transparent",
+                    color: tab === tabId ? "var(--t-text-primary)" : "var(--t-text-dim)",
+                    border: tab === tabId ? "1px solid var(--t-border)" : "1px solid transparent",
                   }}
-                  onClick={() => setTab(t)}
+                  onClick={() => setTab(tabId)}
                 >
-                  {t === "team" ? "Team" : "Invite Link"}
+                  {tabId === "team" ? t("terminal.share.tabTeam") : t("terminal.share.tabInviteLink")}
                 </button>
               ))}
             </div>
@@ -370,6 +368,7 @@ function ActiveSharingView({
   onStop: () => void;
   onUpgrade: () => void;
 }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const participantCount = activeMp.participants.filter((p) => p.user_id !== activeMp.myUserId).length;
   const atCap = participantCount >= guestCap;
@@ -389,20 +388,20 @@ function ActiveSharingView({
           {connectionName}
         </span>
         <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: "color-mix(in srgb, var(--t-accent) 15%, transparent)", color: "var(--t-accent)" }}>
-          Live
+          {t("terminal.share.live")}
         </span>
       </div>
 
       <div className="flex items-center gap-2 mb-3 text-xs" style={{ color: atCap ? "#f59e0b" : "var(--t-text-secondary)" }}>
         <Icon icon="lucide:users" width={13} />
-        <span>{participantCount} / {guestCap} participant{guestCap !== 1 ? "s" : ""}</span>
+        <span>{t("terminal.share.participantsRatio", { count: guestCap, participantCount, guestCap })}</span>
         {atCap && tier !== "business" && (
           <button
             className="text-[10px] underline ml-auto"
             style={{ background: "none", border: "none", cursor: "pointer", color: "#f59e0b" }}
             onClick={onUpgrade}
           >
-            {tier === "pro" ? "Upgrade to Teams" : "Upgrade to Business"}
+            {tier === "pro" ? t("terminal.share.upgradeToTeams") : t("terminal.share.upgradeToBusiness")}
           </button>
         )}
       </div>
@@ -420,7 +419,7 @@ function ActiveSharingView({
                 color: p.user_id === activeMp.controlHolder ? "var(--t-accent)" : "var(--t-text-secondary)",
                 border: "1px solid var(--t-border)",
               }}
-              title={p.user_id === activeMp.controlHolder ? "Has control" : undefined}
+              title={p.user_id === activeMp.controlHolder ? t("terminal.share.hasControl") : undefined}
             >
               {p.user_id === activeMp.controlHolder && <Icon icon="lucide:pencil" width={9} />}
               {p.display_name}
@@ -452,7 +451,7 @@ function ActiveSharingView({
             onClick={handleCopy}
           >
             <Icon icon={copied ? "lucide:check" : "lucide:copy"} width={12} />
-            {copied ? "Copied" : "Copy"}
+            {copied ? t("terminal.shared.copied") : t("common.action.copy")}
           </button>
         </div>
       )}
@@ -470,7 +469,7 @@ function ActiveSharingView({
         {loading
           ? <Icon icon="lucide:loader-circle" width={12} className="animate-spin" />
           : <Icon icon="lucide:circle-stop" width={12} />}
-        Stop sharing
+        {t("terminal.share.stopSharing")}
       </button>
     </div>
   );
@@ -495,12 +494,13 @@ function TeamTab({
   onToggleRole: (vaultId: string, role: string) => void;
   onShare: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div>
       <div className="max-h-48 overflow-y-auto px-2 pb-1">
         {teams.length === 0 ? (
           <p className="text-xs px-2 py-3 text-center" style={{ color: "var(--t-text-dim)" }}>
-            No vaults — create a team first
+            {t("terminal.share.noVaultsCreateTeamFirst")}
           </p>
         ) : (
           teams.map((team) => {
@@ -551,7 +551,7 @@ function TeamTab({
                       );
                     })}
                     <span className="text-[10px] self-center" style={{ color: "var(--t-text-dim)" }}>
-                      {activeRoles.size === 0 ? "all roles" : ""}
+                      {activeRoles.size === 0 ? t("terminal.share.allRoles") : ""}
                     </span>
                   </div>
                 )}
@@ -577,8 +577,8 @@ function TeamTab({
             ? <Icon icon="lucide:loader-circle" width={12} className="animate-spin" />
             : <Icon icon="lucide:radio" width={12} />}
           {selectedVaultIds.size > 0
-            ? `Start sharing with ${selectedVaultIds.size} vault${selectedVaultIds.size > 1 ? "s" : ""}`
-            : "Select a vault to share"}
+            ? t("terminal.share.startSharingWithVault", { count: selectedVaultIds.size })
+            : t("terminal.share.selectVaultToShare")}
         </button>
       </div>
     </div>
@@ -606,12 +606,13 @@ function InviteLinkTab({
   onCopy: () => void;
   onUpgrade: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="px-3 pb-3">
       {inviteLinkToken ? (
         <>
           <p className="text-[11px] mb-2" style={{ color: "var(--t-text-secondary)" }}>
-            Share this code — anyone with it can join:
+            {t("terminal.share.shareCodeDescription")}
           </p>
           <div className="flex items-center gap-2">
             <input
@@ -637,14 +638,14 @@ function InviteLinkTab({
               onClick={onCopy}
             >
               <Icon icon={inviteLinkCopied ? "lucide:check" : "lucide:copy"} width={12} />
-              {inviteLinkCopied ? "Copied" : "Copy"}
+              {inviteLinkCopied ? t("terminal.shared.copied") : t("common.action.copy")}
             </button>
           </div>
         </>
       ) : (
         <>
           <p className="text-[11px] mb-2" style={{ color: "var(--t-text-secondary)" }}>
-            Generate a one-time link. Anyone with a Voltius account can join.
+            {t("terminal.share.generateLinkDescription")}
           </p>
           <button
             className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-opacity"
@@ -659,10 +660,10 @@ function InviteLinkTab({
             {loading
               ? <Icon icon="lucide:loader-circle" width={12} className="animate-spin" />
               : <Icon icon="lucide:link" width={12} />}
-            Generate invite link
+            {t("terminal.share.generateInviteLink")}
           </button>
           <p className="text-[10px] mt-1.5 text-center" style={{ color: "var(--t-text-dim)" }}>
-            Up to {guestCap} participant{guestCap !== 1 ? "s" : ""}
+            {t("terminal.share.upToParticipants", { count: guestCap })}
           </p>
           {tier === "pro" && (
             <button
@@ -670,7 +671,7 @@ function InviteLinkTab({
               style={{ color: "var(--t-text-dim)", background: "none", border: "none", cursor: "pointer" }}
               onClick={onUpgrade}
             >
-              Upgrade to Teams for 10 participants + shared vaults
+              {t("terminal.share.upgradeToTeamsForParticipants")}
             </button>
           )}
         </>

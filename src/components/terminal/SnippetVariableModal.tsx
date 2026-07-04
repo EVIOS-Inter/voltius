@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import {
   resolveTemplate,
@@ -14,6 +15,7 @@ interface VarInputProps {
 }
 
 function VarInput({ variable, value, onChange }: VarInputProps) {
+  const { t } = useTranslation();
   const base = {
     background: "var(--t-bg-input)",
     borderColor: "var(--t-border)",
@@ -39,7 +41,7 @@ function VarInput({ variable, value, onChange }: VarInputProps) {
             icon={value === "true" ? "lucide:toggle-right" : "lucide:toggle-left"}
             width={16}
           />
-          {value === "true" ? "On" : "Off"}
+          {value === "true" ? t("terminal.snippetVariableModal.on") : t("terminal.snippetVariableModal.off")}
         </button>
       );
 
@@ -120,6 +122,7 @@ export function SnippetVariableModal({
   onInject,
   onClose,
 }: Props) {
+  const { t } = useTranslation();
   const [values, setValues] = useState<Record<string, string>>(initialValues);
 
   const firstInputRef = useRef<HTMLDivElement>(null);
@@ -186,7 +189,7 @@ export function SnippetVariableModal({
                     className="ml-1.5 text-[10px] px-1 py-0.5 rounded-sm"
                     style={{ background: "var(--t-bg-input)", color: "var(--t-text-muted)" }}
                   >
-                    masked
+                    {t("terminal.snippetVariableModal.masked")}
                   </span>
                 )}
               </label>
@@ -209,7 +212,7 @@ export function SnippetVariableModal({
           }}
         >
           <span className="text-[10px] font-sans block mb-1" style={{ color: "var(--t-text-muted)" }}>
-            Preview
+            {t("terminal.snippetVariableModal.preview")}
           </span>
           {preview}
         </div>
@@ -223,7 +226,7 @@ export function SnippetVariableModal({
             onClick={onClose}
             className="btn btn-ghost px-3 py-1.5 text-xs rounded-lg"
           >
-            Cancel
+            {t("common.action.cancel")}
           </button>
           <button
             disabled={!allFilled}
@@ -231,7 +234,7 @@ export function SnippetVariableModal({
             className="btn btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg"
           >
             <Icon icon="lucide:arrow-down-to-line" width={12} />
-            Insert
+            {t("terminal.shared.insert")}
           </button>
           <button
             disabled={!allFilled}
@@ -239,7 +242,7 @@ export function SnippetVariableModal({
             className="btn btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg"
           >
             <Icon icon="lucide:play" width={12} />
-            Execute
+            {t("terminal.snippetVariableModal.execute")}
           </button>
         </div>
       </div>

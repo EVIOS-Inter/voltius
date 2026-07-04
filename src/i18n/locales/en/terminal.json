@@ -1,0 +1,195 @@
+{
+  "terminal": {
+    "shared": {
+      "copied": "Copied",
+      "insert": "Insert",
+      "insertAndExecute": "Insert & execute",
+      "noActiveSession": "No active session"
+    },
+    "historyPanel": {
+      "relativeTime": {
+        "justNow": "just now",
+        "secondsAgo": "{{count}}s ago",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago"
+      },
+      "removeFromHistory": "Remove from history",
+      "searchPlaceholder": "Search history…",
+      "showCurrentOnly": "Showing current connection only",
+      "showAllConnections": "Show all connections",
+      "clearAllTitle": "Clear all history",
+      "noCommandsMatch": "No commands match",
+      "noHistoryForConnection": "No history for this connection yet",
+      "noHistoryYet": "No command history yet.\nCommands you type will appear here."
+    },
+    "multiplayerBar": {
+      "ended": "Ended",
+      "sharing": "Sharing",
+      "watching": "Watching",
+      "requestControl": "Request Control",
+      "youHaveControl": "You have control",
+      "controlRequested": "Control requested",
+      "grant": "Grant",
+      "deny": "Deny",
+      "revoke": "Revoke",
+      "stopSharingTitle": "Stop sharing",
+      "leaveSessionTitle": "Leave session",
+      "stop": "Stop",
+      "leave": "Leave"
+    },
+    "sftp": {
+      "hostLabel": {
+        "remote": "remote",
+        "localMachine": "Local Machine"
+      },
+      "uploadDialogTitle": "Select files to upload",
+      "downloadDialogTitle": "Download to folder",
+      "waitingForSession": "Waiting for session",
+      "connecting": "Connecting…",
+      "followPinned": "Following terminal cwd · click to unpin",
+      "followWaiting": "Following terminal cwd · waiting for shell to report cwd (requires shell integration)",
+      "followTitle": "Follow terminal cwd",
+      "uploadFiles": "Upload files",
+      "downloadTitle_one": "Download \"{{name}}\"",
+      "downloadTitle_other": "Download {{count}} items",
+      "selectFilesToDownload": "Select files to download",
+      "viewOptions": "View options",
+      "moreOptions": "More options"
+    },
+    "ports": {
+      "badge": {
+        "auto": "Auto",
+        "adHoc": "Ad-hoc"
+      },
+      "pauseForwarding": "Pause forwarding",
+      "resumeForwarding": "Resume forwarding",
+      "saveAsRule": "Save as rule",
+      "copyAddress": "Copy localhost:{{port}}",
+      "openUrl": "Open {{url}}",
+      "sshRequired": "Port forwarding requires an SSH session.",
+      "empty": "No forwarded ports. Ports detected on the remote host will appear here automatically.",
+      "sectionSaved": "SAVED",
+      "sectionActive": "ACTIVE",
+      "sectionSuppressed": "SUPPRESSED",
+      "header": {
+        "title": "Ports",
+        "activeCount": "{{count}} active",
+        "addTitle": "Forward a port"
+      },
+      "quickForwardPlaceholder": "Forward a Port (e.g. 3000 or 3000:8080)"
+    },
+    "rightPanel": {
+      "font": "Font",
+      "themes": "Themes",
+      "themeActive": "∞ active",
+      "themeBuiltin": "built-in",
+      "themeCustom": "custom",
+      "createNewTheme": "Create New Theme",
+      "closePanelTitle": "Close panel",
+      "sections": {
+        "history": "History",
+        "sftp": "SFTP"
+      }
+    },
+    "share": {
+      "signInToShare": "Sign in to share",
+      "signInDescription": "Connect a server account to share your terminal with teammates.",
+      "signInButton": "Sign in / Sign up",
+      "proRequired": "Pro required",
+      "proRequiredDescription": "Terminal sharing is available on Pro and above.",
+      "features": [
+        "1 invite-link session · 1 participant",
+        "Real-time cloud sync",
+        "Teams: 5 sessions · 10 participants + shared vaults"
+      ],
+      "upgradeToPro": "Upgrade to Pro",
+      "shareTerminal": "Share terminal",
+      "sessionNamePlaceholder": "Session name…",
+      "tabTeam": "Team",
+      "tabInviteLink": "Invite Link",
+      "sessionLimitReached": "Session limit reached for your plan.",
+      "failedToShare": "Failed to share",
+      "failedToGenerateLink": "Failed to generate link",
+      "noVaultsCreateTeamFirst": "No vaults — create a team first",
+      "allRoles": "all roles",
+      "startSharingWithVault_one": "Start sharing with {{count}} vault",
+      "startSharingWithVault_other": "Start sharing with {{count}} vaults",
+      "selectVaultToShare": "Select a vault to share",
+      "shareCodeDescription": "Share this code — anyone with it can join:",
+      "generateLinkDescription": "Generate a one-time link. Anyone with a Voltius account can join.",
+      "generateInviteLink": "Generate invite link",
+      "upToParticipants_one": "Up to {{count}} participant",
+      "upToParticipants_other": "Up to {{count}} participants",
+      "upgradeToTeamsForParticipants": "Upgrade to Teams for 10 participants + shared vaults",
+      "live": "Live",
+      "participantsRatio_one": "{{participantCount}} / {{guestCap}} participant",
+      "participantsRatio_other": "{{participantCount}} / {{guestCap}} participants",
+      "upgradeToTeams": "Upgrade to Teams",
+      "upgradeToBusiness": "Upgrade to Business",
+      "hasControl": "Has control",
+      "stopSharing": "Stop sharing"
+    },
+    "snippetVariableModal": {
+      "on": "On",
+      "off": "Off",
+      "masked": "masked",
+      "preview": "Preview",
+      "execute": "Execute"
+    },
+    "snippets": {
+      "renameFolder": "Rename folder",
+      "newFolder": "New folder",
+      "folderNamePlaceholder": "Folder name",
+      "notRelevantForConnection": "Not relevant for current connection",
+      "removeFromFavorites": "Remove from favorites",
+      "addToFavorites": "Add to favorites",
+      "duplicate": "Duplicate",
+      "moveToFolder": "Move to folder",
+      "back": "Back",
+      "unfiled": "Unfiled",
+      "searchPlaceholder": "Search snippets…",
+      "newSnippetTitle": "New snippet",
+      "favorites": "Favorites",
+      "recent": "Recent",
+      "noSnippetsMatch": "No snippets match",
+      "noSnippetsYet": "No snippets yet.\nClick + to create one."
+    },
+    "search": {
+      "placeholder": "Find",
+      "invalid": "Invalid",
+      "noResults": "No results",
+      "resultCounter": "{{index}} of {{count}}",
+      "matchCase": "Match Case (Alt+C)",
+      "matchWholeWord": "Match Whole Word (Alt+W)",
+      "useRegex": "Use Regular Expression (Alt+R)",
+      "previousMatch": "Previous Match (Shift+Enter)",
+      "nextMatch": "Next Match (Enter)",
+      "closeTitle": "Close (Escape)"
+    },
+    "statusBar": {
+      "badge": {
+        "ssh": "SSH",
+        "serial": "SERIAL",
+        "local": "LOCAL"
+      },
+      "localSystemFallback": "Local system",
+      "serialFallback": "serial",
+      "pingUp": "Up · {{ms}}ms",
+      "pingDown": "Down",
+      "pingUnknown": "Unknown",
+      "copyLabel": "Copy {{text}}",
+      "openPortsPanel": "Open ports panel",
+      "reconnectTitle": "Reconnect",
+      "systemMetricsTitle": "System metrics",
+      "activeTunnels_one": "{{count}} active tunnel",
+      "activeTunnels_other": "{{count}} active tunnels",
+      "cpu": "CPU {{pct}}%",
+      "copiedBang": "Copied!",
+      "loadingEllipsis": "loading…",
+      "sparklineMin": "min {{value}}ms",
+      "sparklineAvg": "avg {{value}}ms",
+      "sparklineMax": "max {{value}}ms"
+    }
+  }
+}

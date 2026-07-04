@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { useUIStore, type RightPanelSection } from "@/stores/uiStore";
 import { useSessionStore } from "@/stores/sessionStore";
@@ -16,6 +17,16 @@ const PANEL_WIDTH = 300;
 const TRANSITION = "width 180ms cubic-bezier(0.4, 0, 0.2, 1)";
 
 // ─── Theme preview thumbnail ──────────────────────────────────────────────────
+
+function getBuiltinSections(t: (key: string) => string): { id: RightPanelSection; icon: string; title: string }[] {
+  return [
+    { id: "snippets", icon: "lucide:braces",      title: t("common.entity.snippets") },
+    { id: "history",  icon: "lucide:clock",       title: t("terminal.rightPanel.sections.history") },
+    { id: "themes",   icon: "lucide:palette",     title: t("terminal.rightPanel.themes") },
+    { id: "ports",    icon: "lucide:network",     title: t("terminal.ports.header.title") },
+    { id: "sftp",     icon: "lucide:folder-tree", title: t("terminal.rightPanel.sections.sftp") },
+  ];
+}
 
 function ThemePreview({ theme }: { theme: AppTheme }) {
   const t = theme.terminal;
@@ -44,6 +55,7 @@ function ThemePreview({ theme }: { theme: AppTheme }) {
 // ─── Themes section ───────────────────────────────────────────────────────────
 
 function ThemesSection() {
+  const { t } = useTranslation();
   const { activeThemeId, customThemes, setTheme, deleteCustomTheme, getActiveTheme } = useThemeStore();
   const openThemeCreator = useUIStore((s) => s.openThemeCreator);
   const allThemes = [...BUILT_IN_THEMES, ...customThemes];
@@ -59,7 +71,7 @@ function ThemesSection() {
         <div className="flex items-center gap-3">
           <Icon icon="lucide:type" width={15} className="text-(--t-text-muted)" />
           <div>
-            <p className="text-sm font-medium text-(--t-text-primary)">Font</p>
+            <p className="text-sm font-medium text-(--t-text-primary)">{t("terminal.rightPanel.font")}</p>
             <p className="text-xs text-(--t-text-muted)">
               {getActiveTheme().terminalFontFamily.split(",")[0].replace(/'/g, "")} · {getActiveTheme().terminalFontSize}px
             </p>
@@ -69,7 +81,7 @@ function ThemesSection() {
       </div>
 
       <div className="px-4 pt-4 pb-2 shrink-0">
-        <p className="text-sm font-medium text-(--t-text-bright)">Themes</p>
+        <p className="text-sm font-medium text-(--t-text-bright)">{t("terminal.rightPanel.themes")}</p>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -95,7 +107,7 @@ function ThemesSection() {
                   {theme.name}
                 </p>
                 <p className="text-xs mt-0.5 text-(--t-text-muted)">
-                  {isActive ? "∞ active" : theme.builtIn ? "built-in" : "custom"}
+                  {isActive ? t("terminal.rightPanel.themeActive") : theme.builtIn ? t("terminal.rightPanel.themeBuiltin") : t("terminal.rightPanel.themeCustom")}
                 </p>
               </div>
               <div className="flex items-center gap-1 shrink-0">
@@ -106,7 +118,7 @@ function ThemesSection() {
                       className="p-1.5 rounded-sm transition-colors text-(--t-text-muted)"
                       onMouseEnter={(e) => (e.currentTarget.style.color = "var(--t-text-primary)")}
                       onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t-text-muted)")}
-                      title="Edit"
+                      title={t("common.action.edit")}
                     >
                       <Icon icon="lucide:pencil" width={12} />
                     </button>
@@ -115,7 +127,7 @@ function ThemesSection() {
                       className="p-1.5 rounded-sm transition-colors text-(--t-text-muted)"
                       onMouseEnter={(e) => (e.currentTarget.style.color = "var(--t-status-error)")}
                       onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t-text-muted)")}
-                      title="Delete"
+                      title={t("common.action.delete")}
                     >
                       <Icon icon="lucide:trash-2" width={12} />
                     </button>
@@ -133,7 +145,7 @@ function ThemesSection() {
           onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
         >
           <Icon icon="lucide:circle-plus" width={15} />
-          <span className="text-sm font-medium">Create New Theme</span>
+          <span className="text-sm font-medium">{t("terminal.rightPanel.createNewTheme")}</span>
         </button>
       </div>
     </div>
@@ -142,28 +154,21 @@ function ThemesSection() {
 
 // ─── Main RightPanel ──────────────────────────────────────────────────────────
 
-const BUILTIN_SECTIONS: { id: RightPanelSection; icon: string; title: string }[] = [
-  { id: "snippets", icon: "lucide:braces",      title: "Snippets" },
-  { id: "history",  icon: "lucide:clock",       title: "History"  },
-  { id: "themes",   icon: "lucide:palette",     title: "Themes"   },
-  { id: "ports",    icon: "lucide:network",     title: "Ports"    },
-  { id: "sftp",     icon: "lucide:folder-tree", title: "SFTP"     },
-];
-
 function PanelContent() {
+  const { t } = useTranslation();
   const rightPanelSection = useUIStore((s) => s.rightPanelSection);
   const toggleRightPanel = useUIStore((s) => s.toggleRightPanel);
   const pluginSections = usePluginStore((s) => s.rightPanelSections);
   const tunnelCount = useCurrentSessionTunnelCount();
 
   const allSections = useMemo(() => [
-    ...BUILTIN_SECTIONS,
+    ...getBuiltinSections(t),
     ...[...pluginSections.values()].map((s) => ({
       id: `plugin:${s.id}` as RightPanelSection,
       icon: s.icon ?? "lucide:puzzle",
       title: s.label,
     })),
-  ], [pluginSections]);
+  ], [pluginSections, t]);
 
   return (
     <div className="flex flex-row h-full">
@@ -204,7 +209,7 @@ function PanelContent() {
           className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-(--t-text-muted)"
           onMouseEnter={(e) => (e.currentTarget.style.color = "var(--t-text-primary)")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t-text-muted)")}
-          title="Close panel"
+          title={t("terminal.rightPanel.closePanelTitle")}
         >
           <Icon icon="lucide:x" width={13} />
         </button>

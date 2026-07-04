@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { writeClipboard } from "@/utils/clipboard";
@@ -51,6 +52,7 @@ export function PortRow({
   onRenameCancel?: () => void;
   defaultName?: string;
 }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [nameDraft, setNameDraft] = useState(defaultName ?? label);
   const renameInputRef = useRef<HTMLInputElement>(null);
@@ -111,7 +113,7 @@ export function PortRow({
                 ? "bg-purple-500/20 text-purple-400"
                 : "bg-(--t-bg-elevated) text-(--t-text-muted)"
             }`}>
-              {badge === "auto" ? "Auto" : "Ad-hoc"}
+              {badge === "auto" ? t("terminal.ports.badge.auto") : t("terminal.ports.badge.adHoc")}
             </span>
           )}
         </div>
@@ -131,7 +133,7 @@ export function PortRow({
       <button
         onClick={(e) => { e.stopPropagation(); onToggle(); }}
         disabled={isBusy}
-        title={isActive ? "Pause forwarding" : "Resume forwarding"}
+        title={isActive ? t("terminal.ports.pauseForwarding") : t("terminal.ports.resumeForwarding")}
         className={`w-5 h-5 flex items-center justify-center rounded shrink-0 transition-all
           opacity-0 group-hover:opacity-100
           ${isActive
@@ -152,7 +154,7 @@ export function PortRow({
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(); }}
         disabled={isDeleting}
-        title="Delete"
+        title={t("common.action.delete")}
         className="w-5 h-5 flex items-center justify-center rounded shrink-0 transition-all
           opacity-0 group-hover:opacity-100
           text-(--t-text-muted) hover:text-red-400 hover:bg-red-500/10"
@@ -169,7 +171,7 @@ export function PortRow({
         <button
           onClick={(e) => { e.stopPropagation(); onSaveAsRule(); }}
           disabled={isSaving}
-          title="Save as rule"
+          title={t("terminal.ports.saveAsRule")}
           className="w-5 h-5 flex items-center justify-center rounded shrink-0 transition-all
             opacity-0 group-hover:opacity-100
             text-(--t-text-muted) hover:text-(--t-accent) hover:bg-(--t-bg-elevated)"
@@ -186,7 +188,7 @@ export function PortRow({
       {isActive && localPort != null && (
         <button
           onClick={(e) => { e.stopPropagation(); void copyAddress(); }}
-          title={`Copy localhost:${localPort}`}
+          title={t("terminal.ports.copyAddress", { port: localPort })}
           className="w-5 h-5 flex items-center justify-center rounded shrink-0 transition-all
             text-(--t-text-muted) hover:text-(--t-text-primary) hover:bg-(--t-bg-elevated)"
         >
@@ -199,7 +201,7 @@ export function PortRow({
       {isActive && httpUrl && (
         <button
           onClick={(e) => { e.stopPropagation(); void openUrl(httpUrl); }}
-          title={`Open ${httpUrl}`}
+          title={t("terminal.ports.openUrl", { url: httpUrl })}
           className="w-5 h-5 flex items-center justify-center rounded shrink-0 transition-all
             text-(--t-text-muted) hover:text-blue-400 hover:bg-blue-500/10"
         >

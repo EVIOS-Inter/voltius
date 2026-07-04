@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
 import { Icon } from "@iconify/react";
 import { PortRow } from "@/components/terminal/PortRow";
@@ -25,6 +26,7 @@ interface PfStatePayload {
 }
 
 export function PortsPanel() {
+  const { t } = useTranslation();
   const { sessions, activeSessionId } = useSessionStore();
   const loadRules = usePortForwardingStore((s) => s.loadRules);
   const rules = useAllPortForwardingRules();
@@ -221,7 +223,7 @@ export function PortsPanel() {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-2 px-4 text-center text-(--t-text-dim)">
         <Icon icon="lucide:network" width={24} />
-        <span className="text-xs">Port forwarding requires an SSH session.</span>
+        <span className="text-xs">{t("terminal.ports.sshRequired")}</span>
       </div>
     );
   }
@@ -249,14 +251,14 @@ export function PortsPanel() {
       <div className="flex-1 min-h-0 overflow-y-auto">
       {isEmpty && (
         <div className="px-3 py-4 text-xs text-(--t-text-dim)">
-          No forwarded ports. Ports detected on the remote host will appear here automatically.
+          {t("terminal.ports.empty")}
         </div>
       )}
 
       {/* Saved rules */}
       {rules.length > 0 && (
         <div className="px-3 pt-2 pb-1 text-[10px] font-semibold tracking-wide text-(--t-text-dim)">
-          SAVED
+          {t("terminal.ports.sectionSaved")}
         </div>
       )}
       {rules.map((rule) => {
@@ -293,7 +295,7 @@ export function PortsPanel() {
         <>
           {visibleUnclaimed.length > 0 && (
             <div className="px-3 pt-2 pb-1 text-[10px] font-semibold tracking-wide text-(--t-text-dim)">
-              ACTIVE
+              {t("terminal.ports.sectionActive")}
             </div>
           )}
 
@@ -327,7 +329,7 @@ export function PortsPanel() {
 
           {suppressedRows.length > 0 && (
             <div className="px-3 pt-2 pb-1 text-[10px] font-semibold tracking-wide text-(--t-text-dim)">
-              SUPPRESSED
+              {t("terminal.ports.sectionSuppressed")}
             </div>
           )}
 

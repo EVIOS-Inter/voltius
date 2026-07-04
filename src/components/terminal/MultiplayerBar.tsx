@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { useTeamSessionStore } from "@/stores/teamSessionStore";
 import { useSessionStore } from "@/stores/sessionStore";
@@ -7,6 +8,7 @@ interface MultiplayerBarProps {
 }
 
 export function MultiplayerBar({ localSessionId }: MultiplayerBarProps) {
+  const { t } = useTranslation();
   const mpState = useTeamSessionStore((s) => s.connections[localSessionId]);
   const requestControl = useTeamSessionStore((s) => s.requestControl);
   const grantControl = useTeamSessionStore((s) => s.grantControl);
@@ -49,7 +51,7 @@ export function MultiplayerBar({ localSessionId }: MultiplayerBarProps) {
               style={{ background: "var(--t-status-error)" }}
             />
             <span className="text-xs font-semibold" style={{ color: "var(--t-status-error)" }}>
-              Ended
+              {t("terminal.multiplayerBar.ended")}
             </span>
           </>
         ) : (
@@ -59,7 +61,7 @@ export function MultiplayerBar({ localSessionId }: MultiplayerBarProps) {
               style={{ background: "var(--t-accent)" }}
             />
             <span className="text-xs font-semibold" style={{ color: "var(--t-accent)" }}>
-              {isHost ? "Sharing" : "Watching"}
+              {isHost ? t("terminal.multiplayerBar.sharing") : t("terminal.multiplayerBar.watching")}
             </span>
           </>
         )}
@@ -111,7 +113,7 @@ export function MultiplayerBar({ localSessionId }: MultiplayerBarProps) {
           onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-secondary)")}
         >
           <Icon icon="lucide:mouse-pointer-click" width={12} />
-          Request Control
+          {t("terminal.multiplayerBar.requestControl")}
         </button>
       )}
 
@@ -125,7 +127,7 @@ export function MultiplayerBar({ localSessionId }: MultiplayerBarProps) {
           }}
         >
           <Icon icon="lucide:pencil" width={12} />
-          You have control
+          {t("terminal.multiplayerBar.youHaveControl")}
         </span>
       )}
 
@@ -133,21 +135,21 @@ export function MultiplayerBar({ localSessionId }: MultiplayerBarProps) {
       {!mpState.ended && isHost && hasPendingRequest && (
         <div className="flex items-center gap-1.5">
           <span className="text-xs" style={{ color: "var(--t-text-secondary)" }}>
-            Control requested
+            {t("terminal.multiplayerBar.controlRequested")}
           </span>
           <button
             className="px-2 py-0.5 rounded-sm text-xs font-medium transition-colors"
             style={{ background: "var(--t-accent)", color: "white" }}
             onClick={() => grantControl(localSessionId, mpState.controlRequester!)}
           >
-            Grant
+            {t("terminal.multiplayerBar.grant")}
           </button>
           <button
             className="px-2 py-0.5 rounded-sm text-xs font-medium transition-colors"
             style={{ background: "var(--t-bg-elevated)", color: "var(--t-text-secondary)", border: "1px solid var(--t-border)" }}
             onClick={() => revokeControl(localSessionId)}
           >
-            Deny
+            {t("terminal.multiplayerBar.deny")}
           </button>
         </div>
       )}
@@ -166,7 +168,7 @@ export function MultiplayerBar({ localSessionId }: MultiplayerBarProps) {
           onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-secondary)")}
         >
           <Icon icon="lucide:x" width={11} />
-          Revoke
+          {t("terminal.multiplayerBar.revoke")}
         </button>
       )}
 
@@ -185,10 +187,10 @@ export function MultiplayerBar({ localSessionId }: MultiplayerBarProps) {
           (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-dim)";
           (e.currentTarget as HTMLButtonElement).style.background = "transparent";
         }}
-        title={isHost ? "Stop sharing" : "Leave session"}
+        title={isHost ? t("terminal.multiplayerBar.stopSharingTitle") : t("terminal.multiplayerBar.leaveSessionTitle")}
       >
         <Icon icon={isHost ? "lucide:circle-stop" : "lucide:log-out"} width={13} />
-        {isHost ? "Stop" : "Leave"}
+        {isHost ? t("terminal.multiplayerBar.stop") : t("terminal.multiplayerBar.leave")}
       </button>
     </div>
   );

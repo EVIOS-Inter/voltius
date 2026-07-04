@@ -1,4 +1,5 @@
 import { useState, type RefObject } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { parseQuickForward } from "@/utils/parseQuickForward";
 
@@ -9,6 +10,7 @@ export function QuickForwardRow({
   inputRef: RefObject<HTMLInputElement | null>;
   onSubmit: (remotePort: number, localPort?: number) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -41,7 +43,7 @@ export function QuickForwardRow({
             else if (e.key === "Escape") { setValue(""); setError(null); }
           }}
           disabled={busy}
-          placeholder="Forward a Port (e.g. 3000 or 3000:8080)"
+          placeholder={t("terminal.ports.quickForwardPlaceholder")}
           spellCheck={false}
           className="flex-1 min-w-0 bg-transparent outline-none text-xs text-(--t-text-primary)
             placeholder:text-(--t-text-dim)"

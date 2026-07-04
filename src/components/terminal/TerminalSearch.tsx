@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { getTerminalSearchController, type TerminalSearchController, type TerminalSearchSnapshot } from "@/hooks/useTerminal";
 
@@ -15,6 +16,7 @@ const EMPTY: TerminalSearchSnapshot = {
 };
 
 export function TerminalSearch({ sessionId }: { sessionId: string }) {
+  const { t } = useTranslation();
   const [controller, setController] = useState<TerminalSearchController | null>(
     () => getTerminalSearchController(sessionId),
   );
@@ -69,10 +71,10 @@ export function TerminalSearch({ sessionId }: { sessionId: string }) {
   const counter = !hasQuery
     ? ""
     : invalidRegex
-      ? "Invalid"
+      ? t("terminal.search.invalid")
       : resultCount === 0
-        ? "No results"
-        : `${resultIndex + 1} of ${resultCount}`;
+        ? t("terminal.search.noResults")
+        : t("terminal.search.resultCounter", { index: resultIndex + 1, count: resultCount });
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Escape") {
@@ -129,7 +131,7 @@ export function TerminalSearch({ sessionId }: { sessionId: string }) {
           onKeyDown={handleKeyDown}
           spellCheck={false}
           autoComplete="off"
-          placeholder="Find"
+          placeholder={t("terminal.search.placeholder")}
           className="w-full bg-transparent text-sm outline-hidden px-1 py-1 text-(--t-text-primary) placeholder-(--t-text-muted)"
           style={{
             boxShadow: showError ? "inset 2px 0 0 var(--t-status-error, #ef4444)" : undefined,
@@ -147,10 +149,10 @@ export function TerminalSearch({ sessionId }: { sessionId: string }) {
       </span>
 
       <div className="flex items-center gap-0.5 pl-1 ml-0.5" style={{ borderLeft: "1px solid var(--t-border)" }}>
-        <ToggleChip active={caseSensitive} title="Match Case (Alt+C)" onClick={controller.toggleCaseSensitive}>
+        <ToggleChip active={caseSensitive} title={t("terminal.search.matchCase")} onClick={controller.toggleCaseSensitive}>
           <span className="font-semibold" style={{ fontSize: "11px", letterSpacing: "-0.5px" }}>Aa</span>
         </ToggleChip>
-        <ToggleChip active={wholeWord} title="Match Whole Word (Alt+W)" onClick={controller.toggleWholeWord}>
+        <ToggleChip active={wholeWord} title={t("terminal.search.matchWholeWord")} onClick={controller.toggleWholeWord}>
           <span
             className="font-semibold"
             style={{ fontSize: "11px", letterSpacing: "-0.5px", borderBottom: "1.5px solid currentColor", paddingBottom: 0, lineHeight: 1 }}
@@ -158,25 +160,25 @@ export function TerminalSearch({ sessionId }: { sessionId: string }) {
             ab
           </span>
         </ToggleChip>
-        <ToggleChip active={regex} title="Use Regular Expression (Alt+R)" onClick={controller.toggleRegex}>
+        <ToggleChip active={regex} title={t("terminal.search.useRegex")} onClick={controller.toggleRegex}>
           <span className="font-semibold" style={{ fontSize: "11px", letterSpacing: "-0.5px" }}>.*</span>
         </ToggleChip>
       </div>
 
       <div className="flex items-center gap-0.5 pl-0.5">
         <IconButton
-          title="Previous Match (Shift+Enter)"
+          title={t("terminal.search.previousMatch")}
           icon="lucide:chevron-up"
           disabled={!hasQuery || resultCount === 0}
           onClick={controller.prev}
         />
         <IconButton
-          title="Next Match (Enter)"
+          title={t("terminal.search.nextMatch")}
           icon="lucide:chevron-down"
           disabled={!hasQuery || resultCount === 0}
           onClick={controller.next}
         />
-        <IconButton title="Close (Escape)" icon="lucide:x" onClick={controller.close} />
+        <IconButton title={t("terminal.search.closeTitle")} icon="lucide:x" onClick={controller.close} />
       </div>
     </div>
   );

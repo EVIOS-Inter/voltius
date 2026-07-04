@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { invoke } from "@tauri-apps/api/core";
@@ -25,6 +26,7 @@ import type { FileEntry, VisibleCols } from "@/components/filetransfer/SFTPTypes
 const PANEL_VISIBLE_COLS: VisibleCols = { size: false, modified: false, permissions: false };
 
 export default function PanelSftpSection() {
+  const { t } = useTranslation();
   const activeSessionId = useSessionStore((s) => s.activeSessionId);
   const session = useSessionStore((s) => s.sessions.find((sess) => sess.id === s.activeSessionId));
   const panelState = usePanelSftpStore((s) => (activeSessionId ? s.sessions[activeSessionId] : undefined));
@@ -124,7 +126,7 @@ export default function PanelSftpSection() {
   // ── Upload / download buttons ───────────────────────────────────────────────
   const handleUpload = useCallback(async () => {
     if (panelState?.tag !== "connected") return;
-    const paths = await pickLocalPaths({ title: "Select files to upload" });
+    const paths = await pickLocalPaths({ title: t("terminal.sftp.uploadDialogTitle") });
     if (paths.length === 0) return;
     // Use osDropPipeline so directory uploads + conflict resolution work the
     // same way as drag-drop. Stat each path for is_dir before piping.
@@ -148,7 +150,7 @@ export default function PanelSftpSection() {
   const canDownload = panelState?.tag === "connected" && !panelState.isLocal && selected.length > 0;
   const downloadFiles = useCallback(async (files: FileEntry[]) => {
     if (files.length === 0 || panelState?.tag !== "connected" || panelState.isLocal || !panelState.sftpId) return;
-    const dstDir = await pickLocalPath({ directory: true, title: "Download to folder" });
+    const dstDir = await pickLocalPath({ directory: true, title: t("terminal.sftp.downloadDialogTitle") });
     if (!dstDir) return;
     const sftpId = panelState.sftpId;
     const base = dstDir.replace(/[\\/]$/, "");
@@ -194,9 +196,9 @@ export default function PanelSftpSection() {
 
   // ── Editor escalation ───────────────────────────────────────────────────────
   const panelHostLabel =
-    !session ? "remote"
-    : session.type === "local" ? "Local Machine"
-    : session.connectionName || "remote";
+    !session ? t("terminal.sftp.hostLabel.remote")
+    : session.type === "local" ? t("terminal.sftp.hostLabel.localMachine")
+    : session.connectionName || t("terminal.sftp.hostLabel.remote");
 
   const handleEdit = useCallback((path: string) => {
     if (panelState?.tag !== "connected") return;
@@ -212,12 +214,12 @@ export default function PanelSftpSection() {
   // ── Layout ──────────────────────────────────────────────────────────────────
 
   const headerStatus = useMemo(() => {
-    if (!session) return "No active session";
-    if (session.status !== "connected") return "Waiting for session";
-    if (!panelState || panelState.tag === "connecting") return "Connecting…";
+    if (!session) return t("terminal.shared.noActiveSession");
+    if (session.status !== "connected") return t("terminal.sftp.waitingForSession");
+    if (!panelState || panelState.tag === "connecting") return t("terminal.sftp.connecting");
     if (panelState.tag === "error") return panelState.message;
     return null;
-  }, [session, panelState]);
+  }, [session, panelState, t]);
 
   const isReady = panelState?.tag === "connected";
 
@@ -230,9 +232,9 @@ export default function PanelSftpSection() {
           title={
             isReady && panelState.followCwd
               ? terminalCwd
-                ? "Following terminal cwd · click to unpin"
-                : "Following terminal cwd · waiting for shell to report cwd (requires shell integration)"
-              : "Follow terminal cwd"
+                ? t("terminal.sftp.followPinned")
+                : t("terminal.sftp.followWaiting")
+              : t("terminal.sftp.followTitle")
           }
           active={isReady && panelState.followCwd && !!terminalCwd}
           disabled={!isReady}
@@ -241,19 +243,21 @@ export default function PanelSftpSection() {
         <div className="flex-1" />
         <HeaderBtn
           icon="lucide:upload"
-          title="Upload files"
+          title={t("terminal.sftp.uploadFiles")}
           disabled={!isReady}
           onClick={handleUpload}
         />
         <HeaderBtn
           icon="lucide:download"
-          title={canDownload ? `Download ${selected.length === 1 ? `"${selected[0].name}"` : `${selected.length} items`}` : "Select files to download"}
+          title={canDownload
+            ? t("terminal.sftp.downloadTitle", { count: selected.length, name: selected[0]?.name })
+            : t("terminal.sftp.selectFilesToDownload")}
           disabled={!canDownload}
           onClick={handleDownload}
         />
         <button
           ref={viewBtnRef}
-          title="View options"
+          title={t("terminal.sftp.viewOptions")}
           disabled={!isReady}
           onClick={() => viewBtnRef.current && viewMenuOpener?.(viewBtnRef.current)}
           className="flex items-center justify-center w-7 h-7 rounded-md shrink-0 transition-colors text-(--t-text-dim) disabled:opacity-40"
@@ -264,7 +268,7 @@ export default function PanelSftpSection() {
         </button>
         <button
           ref={menuBtnRef}
-          title="More options"
+          title={t("terminal.sftp.moreOptions")}
           disabled={!isReady}
           onClick={() => menuBtnRef.current && menuOpener?.(menuBtnRef.current)}
           className="flex items-center justify-center w-7 h-7 rounded-md shrink-0 transition-colors text-(--t-text-dim) disabled:opacity-40"

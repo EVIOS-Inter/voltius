@@ -1,5 +1,7 @@
 import { writeClipboard } from "../../utils/clipboard";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { Icon } from "@iconify/react";
@@ -49,10 +51,10 @@ function latencyColor(ms: number): string {
   return "var(--t-status-error)";
 }
 
-function sessionBadge(sessionType: Props["sessionType"]): string {
-  if (sessionType === "ssh") return "SSH";
-  if (sessionType === "serial") return "SERIAL";
-  return "LOCAL";
+function sessionBadge(sessionType: Props["sessionType"], t: TFunction): string {
+  if (sessionType === "ssh") return t("terminal.statusBar.badge.ssh");
+  if (sessionType === "serial") return t("terminal.statusBar.badge.serial");
+  return t("terminal.statusBar.badge.local");
 }
 
 function localSystemIcon(osName: string): string {
@@ -69,10 +71,10 @@ function localSystemColor(osName: string): string {
   return getDistroColor(osName || "linux");
 }
 
-function localSystemLabel(info: ConnectedSystemInfo | null): string {
-  if (!info) return "Local system";
+function localSystemLabel(info: ConnectedSystemInfo | null, t: TFunction): string {
+  if (!info) return t("terminal.statusBar.localSystemFallback");
   const version = info.os_version ? ` ${info.os_version}` : "";
-  return `${info.os_name || "Local system"}${version}`;
+  return `${info.os_name || t("terminal.statusBar.localSystemFallback")}${version}`;
 }
 
 function cpuColor(pct: number): string {
@@ -121,6 +123,7 @@ const statusBarItemClass = "h-full rounded-none transition-colors hover:bg-(--t-
 const statusBarIdentityGroupClass = "flex items-center h-full";
 
 export function TerminalStatusBar({ sessionId, sessionType, connectionId, connectionName, serialConfig, sessionStatus, dimensions }: Props) {
+  const { t } = useTranslation();
   const connections = useAllConnections();
   const connection = useMemo(() => connections.find((c) => c.id === connectionId), [connections, connectionId]);
   const pingStatus = useHostPingStore((s) => s.statuses[connectionId]);
@@ -353,22 +356,22 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
     if (sessionType === "ssh" && connection) {
       return [
         {
-          label: `Copy ${connection.username}@${connection.host}`,
+          label: t("terminal.statusBar.copyLabel", { text: `${connection.username}@${connection.host}` }),
           icon: "lucide:copy",
           onClick: () => writeClipboard(`${connection.username}@${connection.host}`).catch(() => {}),
         },
         {
-          label: `Copy ${connection.host}`,
+          label: t("terminal.statusBar.copyLabel", { text: connection.host }),
           icon: "lucide:server",
           onClick: () => writeClipboard(connection.host).catch(() => {}),
         },
         {
-          label: "Open ports panel",
+          label: t("terminal.statusBar.openPortsPanel"),
           icon: "lucide:network",
           onClick: () => toggleRightPanel("ports"),
         },
         {
-          label: "Disconnect",
+          label: t("common.action.disconnect"),
           icon: "lucide:plug",
           danger: true,
           divider: true,
@@ -379,12 +382,12 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
     if (sessionType === "serial" && serialConfig) {
       return [
         {
-          label: `Copy ${serialConfig.port}`,
+          label: t("terminal.statusBar.copyLabel", { text: serialConfig.port }),
           icon: "lucide:copy",
           onClick: () => writeClipboard(serialConfig.port).catch(() => {}),
         },
         {
-          label: "Disconnect",
+          label: t("common.action.disconnect"),
           icon: "lucide:plug",
           danger: true,
           divider: true,
@@ -395,7 +398,7 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
     if (sessionType === "local") {
       return [
         {
-          label: "Disconnect",
+          label: t("common.action.disconnect"),
           icon: "lucide:plug",
           danger: true,
           divider: true,
@@ -404,7 +407,7 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
       ];
     }
     return [];
-  }, [sessionType, connection, serialConfig, connectionName, sessionId, toggleRightPanel, disconnect]);
+  }, [sessionType, connection, serialConfig, connectionName, sessionId, toggleRightPanel, disconnect, t]);
 
   const statusBarContributionContext = useMemo<TerminalStatusBarContributionContext>(() => ({
     sessionId,
@@ -435,10 +438,10 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
     : "var(--t-text-dim)";
 
   const dotTitle = pingStatus === "up" && latencyMs !== undefined
-    ? `Up · ${latencyMs}ms`
+    ? t("terminal.statusBar.pingUp", { ms: latencyMs })
     : pingStatus === "down"
-    ? "Down"
-    : "Unknown";
+    ? t("terminal.statusBar.pingDown")
+    : t("terminal.statusBar.pingUnknown");
 
   const distroIcon = connection?.distro ? getDistroIcon(connection.distro) : null;
   const localOsName = localSystemInfo?.os_name ?? "linux";
@@ -450,8 +453,8 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
       : getDistroLabel(connection.distro)
     : sessionType === "local"
     ? localSystemInfo
-      ? `${localSystemLabel(localSystemInfo)}${localSystemInfo.kernel_version ? ` · ${localSystemInfo.kernel_version} ${localSystemInfo.arch}` : ""}`
-      : "Local system"
+      ? `${localSystemLabel(localSystemInfo, t)}${localSystemInfo.kernel_version ? ` · ${localSystemInfo.kernel_version} ${localSystemInfo.arch}` : ""}`
+      : t("terminal.statusBar.localSystemFallback")
     : "";
 
   const handleCopyHost = () => {
@@ -498,7 +501,7 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
         {/* Left: connection info */}
         <div className={`flex items-center gap-2 h-full${sessionStatus === "connecting" ? " statusbar-connecting-pulse" : ""}`}>
           <span className="px-1.5 text-[10px] font-semibold text-(--t-text-dim)">
-            {sessionBadge(sessionType)}
+            {sessionBadge(sessionType, t)}
           </span>
           {sessionType === "ssh" && connection && (
             <>
@@ -560,9 +563,9 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
                         whiteSpace: "nowrap",
                       }}
                     >
-                      <span>min {spMin}ms</span>
-                      <span>avg {spAvg}ms</span>
-                      <span>max {spMax}ms</span>
+                      <span>{t("terminal.statusBar.sparklineMin", { value: spMin })}</span>
+                      <span>{t("terminal.statusBar.sparklineAvg", { value: spAvg })}</span>
+                      <span>{t("terminal.statusBar.sparklineMax", { value: spMax })}</span>
                     </div>
                   </div>
                 )}
@@ -633,7 +636,7 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
                           }}
                         />
                         {copiedDistro ? (
-                          <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>Copied!</span>
+                          <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>{t("terminal.statusBar.copiedBang")}</span>
                         ) : (
                           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                             <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>
@@ -645,7 +648,7 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
                               </span>
                             )}
                             {!systemInfo && (
-                              <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>loading…</span>
+                              <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>{t("terminal.statusBar.loadingEllipsis")}</span>
                             )}
                           </div>
                         )}
@@ -665,13 +668,13 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
                     cursor: "pointer",
                   }}
                 >
-                  {copied ? "Copied!" : `${connection.username}@${connection.host}`}
+                  {copied ? t("terminal.statusBar.copiedBang") : `${connection.username}@${connection.host}`}
                 </span>
               </div>
               {isDisconnectedOrError && (
                 <button
                   onClick={() => void reconnect(sessionId)}
-                  title="Reconnect"
+                  title={t("terminal.statusBar.reconnectTitle")}
                   className={`items-center px-1 ${statusBarItemClass}`}
                   style={{ color: "var(--t-status-error)", display: "flex", alignItems: "center" }}
                 >
@@ -719,11 +722,11 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
                 >
                   <Icon icon={systemIcon} width={22} style={{ color: localSystemColor(localOsName), flexShrink: 0 }} />
                   {copiedDistro ? (
-                    <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>Copied!</span>
+                    <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>{t("terminal.statusBar.copiedBang")}</span>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>
-                        {localSystemLabel(localSystemInfo)}
+                        {localSystemLabel(localSystemInfo, t)}
                       </span>
                       {localSystemInfo?.kernel_version && (
                         <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>
@@ -736,7 +739,7 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
                         </span>
                       )}
                       {!localSystemInfo && (
-                        <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>loading…</span>
+                        <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>{t("terminal.statusBar.loadingEllipsis")}</span>
                       )}
                     </div>
                   )}
@@ -748,7 +751,7 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
             <>
               <Icon icon="lucide:ethernet-port" width={11} className="text-(--t-text-dim)" />
               <span
-                title={serialConfig ? `${serialConfig.port} · ${serialConfig.baud} baud` : "serial"}
+                title={serialConfig ? `${serialConfig.port} · ${serialConfig.baud} baud` : t("terminal.statusBar.serialFallback")}
                 onClick={handleCopyHost}
                 className={`flex items-center px-1 text-(--t-text-dim) ${statusBarItemClass}`}
                 style={{
@@ -759,12 +762,12 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
                   cursor: "pointer",
                 }}
               >
-                {copied ? "Copied!" : (serialConfig ? `${serialConfig.port} · ${serialConfig.baud} baud` : "serial")}
+                {copied ? t("terminal.statusBar.copiedBang") : (serialConfig ? `${serialConfig.port} · ${serialConfig.baud} baud` : t("terminal.statusBar.serialFallback"))}
               </span>
               {isDisconnectedOrError && (
                 <button
                   onClick={() => void reconnect(sessionId)}
-                  title="Reconnect"
+                  title={t("terminal.statusBar.reconnectTitle")}
                   className={`items-center px-1 ${statusBarItemClass}`}
                   style={{ color: "var(--t-status-error)", display: "flex", alignItems: "center" }}
                 >
@@ -801,13 +804,13 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
                 color: "var(--t-text-dim)",
                 background: metricsIsActive ? "var(--t-bg-elevated)" : undefined,
               }}
-              title="System metrics"
+              title={t("terminal.statusBar.systemMetricsTitle")}
             >
               <span
                 className={highCpu ? "cpu-alert-pulse" : undefined}
                 style={{ color: cpuColor(metrics.cpu_percent), fontVariantNumeric: "tabular-nums" }}
               >
-                CPU {metrics.cpu_percent.toFixed(0)}%
+                {t("terminal.statusBar.cpu", { pct: metrics.cpu_percent.toFixed(0) })}
               </span>
               <span className="text-(--t-text-dim)">·</span>
               <span style={{ fontVariantNumeric: "tabular-nums" }}>
@@ -840,7 +843,7 @@ export function TerminalStatusBar({ sessionId, sessionType, connectionId, connec
                   ? "var(--t-bg-card)"
                   : undefined,
               }}
-              title={`${activeTunnelCount} active tunnel${activeTunnelCount !== 1 ? "s" : ""}`}
+              title={t("terminal.statusBar.activeTunnels", { count: activeTunnelCount })}
             >
               <Icon icon="lucide:network" width={11} />
               {activeTunnelCount > 0 && <span>{activeTunnelCount}</span>}

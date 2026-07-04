@@ -1,21 +1,23 @@
 import { writeClipboard } from "../../utils/clipboard";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { useCommandHistoryStore, type CommandHistoryEntry } from "@/stores/commandHistoryStore";
 import { useSessionStore } from "@/stores/sessionStore";
 import { broadcastSnippetInject } from "@/services/snippets";
+import i18n from "@/i18n";
 
 function formatRelativeTime(ts: number): string {
   const diff = Date.now() - ts;
   const s = Math.floor(diff / 1000);
-  if (s < 5) return "just now";
-  if (s < 60) return `${s}s ago`;
+  if (s < 5) return i18n.t("terminal.historyPanel.relativeTime.justNow");
+  if (s < 60) return i18n.t("terminal.historyPanel.relativeTime.secondsAgo", { count: s });
   const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
+  if (m < 60) return i18n.t("terminal.historyPanel.relativeTime.minutesAgo", { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
+  if (h < 24) return i18n.t("terminal.historyPanel.relativeTime.hoursAgo", { count: h });
   const d = Math.floor(h / 24);
-  if (d < 7) return `${d}d ago`;
+  if (d < 7) return i18n.t("terminal.historyPanel.relativeTime.daysAgo", { count: d });
   return new Date(ts).toLocaleDateString();
 }
 
@@ -34,6 +36,7 @@ function HistoryRow({
   onCopy: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   function handleCopy() {
@@ -69,7 +72,7 @@ function HistoryRow({
         <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
           <button
             onClick={handleCopy}
-            title={copied ? "Copied" : "Copy"}
+            title={copied ? t("terminal.shared.copied") : t("common.action.copy")}
             className="w-6 h-6 flex items-center justify-center rounded-sm transition-colors"
             style={{ color: copied ? "var(--t-accent)" : "var(--t-text-muted)" }}
             onMouseEnter={(e) => { if (!copied) (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-primary)"; }}
@@ -80,7 +83,7 @@ function HistoryRow({
           <button
             onClick={onInsert}
             disabled={!canInject}
-            title={canInject ? "Insert" : "No active session"}
+            title={canInject ? t("terminal.shared.insert") : t("terminal.shared.noActiveSession")}
             className="w-6 h-6 flex items-center justify-center rounded-sm transition-colors disabled:opacity-30"
             style={{ color: "var(--t-text-muted)" }}
             onMouseEnter={(e) => { if (canInject) (e.currentTarget as HTMLButtonElement).style.color = "var(--t-text-primary)"; }}
@@ -91,7 +94,7 @@ function HistoryRow({
           <button
             onClick={onExecute}
             disabled={!canInject}
-            title={canInject ? "Insert & execute" : "No active session"}
+            title={canInject ? t("terminal.shared.insertAndExecute") : t("terminal.shared.noActiveSession")}
             className="w-6 h-6 flex items-center justify-center rounded-sm transition-colors disabled:opacity-30"
             style={{ color: "var(--t-text-muted)" }}
             onMouseEnter={(e) => { if (canInject) (e.currentTarget as HTMLButtonElement).style.color = "var(--t-accent)"; }}
@@ -101,7 +104,7 @@ function HistoryRow({
           </button>
           <button
             onClick={onDelete}
-            title="Remove from history"
+            title={t("terminal.historyPanel.removeFromHistory")}
             className="w-6 h-6 flex items-center justify-center rounded-sm transition-colors opacity-0 group-hover:opacity-100"
             style={{ color: "var(--t-text-muted)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "var(--t-status-error)")}
@@ -116,6 +119,7 @@ function HistoryRow({
 }
 
 export function HistoryPanel() {
+  const { t } = useTranslation();
   const entries = useCommandHistoryStore((s) => s.entries);
   const clear = useCommandHistoryStore((s) => s.clear);
   const remove = useCommandHistoryStore((s) => s.remove);
@@ -173,13 +177,13 @@ export function HistoryPanel() {
             className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none"
             style={{ color: "var(--t-text-muted)" }} />
           <input ref={searchRef} value={query} onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search history…"
+            placeholder={t("terminal.historyPanel.searchPlaceholder")}
             className="w-full pl-6 pr-2 py-1 text-xs rounded-sm border outline-hidden"
             style={{ background: "var(--t-bg-input)", borderColor: "var(--t-border)", color: "var(--t-text-primary)" }} />
         </div>
         <button
           onClick={() => setFilterCurrent((v) => !v)}
-          title={filterCurrent ? "Showing current connection only" : "Show all connections"}
+          title={filterCurrent ? t("terminal.historyPanel.showCurrentOnly") : t("terminal.historyPanel.showAllConnections")}
           disabled={!activeSession}
           className="w-7 h-7 flex items-center justify-center rounded-lg shrink-0 disabled:opacity-30"
           style={{ color: filterCurrent ? "var(--t-accent)" : "var(--t-text-muted)" }}
@@ -192,7 +196,7 @@ export function HistoryPanel() {
           <button
             onClick={() => setConfirmClear(true)}
             disabled={entries.length === 0}
-            title="Clear all history"
+            title={t("terminal.historyPanel.clearAllTitle")}
             className="w-7 h-7 flex items-center justify-center rounded-lg shrink-0 disabled:opacity-30"
             style={{ color: "var(--t-text-muted)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "var(--t-status-error)")}
@@ -208,7 +212,7 @@ export function HistoryPanel() {
             className="h-7 px-2 text-[10px] font-semibold rounded-lg shrink-0"
             style={{ background: "var(--t-status-error)", color: "white" }}
           >
-            Confirm
+            {t("common.action.confirm")}
           </button>
         )}
       </div>
@@ -220,10 +224,10 @@ export function HistoryPanel() {
             <Icon icon="lucide:clock" width={24} style={{ color: "var(--t-text-muted)" }} />
             <p className="text-xs text-center" style={{ color: "var(--t-text-muted)" }}>
               {query
-                ? "No commands match"
+                ? t("terminal.historyPanel.noCommandsMatch")
                 : filterCurrent
-                ? "No history for this connection yet"
-                : "No command history yet.\nCommands you type will appear here."}
+                ? t("terminal.historyPanel.noHistoryForConnection")
+                : t("terminal.historyPanel.noHistoryYet")}
             </p>
           </div>
         )}

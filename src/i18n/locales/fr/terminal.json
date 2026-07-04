@@ -1,0 +1,195 @@
+{
+  "terminal": {
+    "shared": {
+      "copied": "Copié",
+      "insert": "Insérer",
+      "insertAndExecute": "Insérer et exécuter",
+      "noActiveSession": "Aucune session active"
+    },
+    "historyPanel": {
+      "relativeTime": {
+        "justNow": "à l'instant",
+        "secondsAgo": "il y a {{count}}s",
+        "minutesAgo": "il y a {{count}}min",
+        "hoursAgo": "il y a {{count}}h",
+        "daysAgo": "il y a {{count}}j"
+      },
+      "removeFromHistory": "Retirer de l'historique",
+      "searchPlaceholder": "Rechercher dans l'historique…",
+      "showCurrentOnly": "Affichage de la connexion actuelle uniquement",
+      "showAllConnections": "Afficher toutes les connexions",
+      "clearAllTitle": "Effacer tout l'historique",
+      "noCommandsMatch": "Aucune commande ne correspond",
+      "noHistoryForConnection": "Aucun historique pour cette connexion pour l'instant",
+      "noHistoryYet": "Aucun historique de commandes pour l'instant.\nLes commandes que vous tapez apparaîtront ici."
+    },
+    "multiplayerBar": {
+      "ended": "Terminée",
+      "sharing": "Partage en cours",
+      "watching": "En observation",
+      "requestControl": "Demander le contrôle",
+      "youHaveControl": "Vous avez le contrôle",
+      "controlRequested": "Contrôle demandé",
+      "grant": "Accorder",
+      "deny": "Refuser",
+      "revoke": "Révoquer",
+      "stopSharingTitle": "Arrêter le partage",
+      "leaveSessionTitle": "Quitter la session",
+      "stop": "Arrêter",
+      "leave": "Quitter"
+    },
+    "sftp": {
+      "hostLabel": {
+        "remote": "distant",
+        "localMachine": "Machine locale"
+      },
+      "uploadDialogTitle": "Sélectionner les fichiers à envoyer",
+      "downloadDialogTitle": "Télécharger vers le dossier",
+      "waitingForSession": "En attente de la session",
+      "connecting": "Connexion…",
+      "followPinned": "Suit le répertoire courant du terminal · cliquer pour détacher",
+      "followWaiting": "Suit le répertoire courant du terminal · en attente que le shell le signale (nécessite l'intégration shell)",
+      "followTitle": "Suivre le répertoire courant du terminal",
+      "uploadFiles": "Envoyer des fichiers",
+      "downloadTitle_one": "Télécharger « {{name}} »",
+      "downloadTitle_other": "Télécharger {{count}} éléments",
+      "selectFilesToDownload": "Sélectionner des fichiers à télécharger",
+      "viewOptions": "Options d'affichage",
+      "moreOptions": "Plus d'options"
+    },
+    "ports": {
+      "badge": {
+        "auto": "Auto",
+        "adHoc": "Ponctuel"
+      },
+      "pauseForwarding": "Suspendre la redirection",
+      "resumeForwarding": "Reprendre la redirection",
+      "saveAsRule": "Enregistrer comme règle",
+      "copyAddress": "Copier localhost:{{port}}",
+      "openUrl": "Ouvrir {{url}}",
+      "sshRequired": "La redirection de port nécessite une session SSH.",
+      "empty": "Aucun port redirigé. Les ports détectés sur l'hôte distant apparaîtront ici automatiquement.",
+      "sectionSaved": "ENREGISTRÉES",
+      "sectionActive": "ACTIVES",
+      "sectionSuppressed": "SUPPRIMÉS",
+      "header": {
+        "title": "Ports",
+        "activeCount": "{{count}} active",
+        "addTitle": "Rediriger un port"
+      },
+      "quickForwardPlaceholder": "Rediriger un port (ex. 3000 ou 3000:8080)"
+    },
+    "rightPanel": {
+      "font": "Police",
+      "themes": "Thèmes",
+      "themeActive": "∞ actif",
+      "themeBuiltin": "intégré",
+      "themeCustom": "personnalisé",
+      "createNewTheme": "Créer un nouveau thème",
+      "closePanelTitle": "Fermer le panneau",
+      "sections": {
+        "history": "Historique",
+        "sftp": "SFTP"
+      }
+    },
+    "share": {
+      "signInToShare": "Connectez-vous pour partager",
+      "signInDescription": "Associez un compte serveur pour partager votre terminal avec des coéquipiers.",
+      "signInButton": "Se connecter / S'inscrire",
+      "proRequired": "Pro requis",
+      "proRequiredDescription": "Le partage de terminal est disponible à partir de l'offre Pro.",
+      "features": [
+        "1 session par lien d'invitation · 1 participant",
+        "Synchronisation cloud en temps réel",
+        "Teams : 5 sessions · 10 participants + coffres partagés"
+      ],
+      "upgradeToPro": "Passer à Pro",
+      "shareTerminal": "Partager le terminal",
+      "sessionNamePlaceholder": "Nom de la session…",
+      "tabTeam": "Équipe",
+      "tabInviteLink": "Lien d'invitation",
+      "sessionLimitReached": "Limite de sessions atteinte pour votre offre.",
+      "failedToShare": "Échec du partage",
+      "failedToGenerateLink": "Échec de la génération du lien",
+      "noVaultsCreateTeamFirst": "Aucun coffre — créez d'abord une équipe",
+      "allRoles": "tous les rôles",
+      "startSharingWithVault_one": "Démarrer le partage avec {{count}} coffre",
+      "startSharingWithVault_other": "Démarrer le partage avec {{count}} coffres",
+      "selectVaultToShare": "Sélectionnez un coffre à partager",
+      "shareCodeDescription": "Partagez ce code — quiconque le possède peut rejoindre :",
+      "generateLinkDescription": "Générez un lien à usage unique. Toute personne ayant un compte Voltius peut rejoindre.",
+      "generateInviteLink": "Générer un lien d'invitation",
+      "upToParticipants_one": "Jusqu'à {{count}} participant",
+      "upToParticipants_other": "Jusqu'à {{count}} participants",
+      "upgradeToTeamsForParticipants": "Passez à Teams pour 10 participants + coffres partagés",
+      "live": "En direct",
+      "participantsRatio_one": "{{participantCount}} / {{guestCap}} participant",
+      "participantsRatio_other": "{{participantCount}} / {{guestCap}} participants",
+      "upgradeToTeams": "Passer à Teams",
+      "upgradeToBusiness": "Passer à Business",
+      "hasControl": "A le contrôle",
+      "stopSharing": "Arrêter le partage"
+    },
+    "snippetVariableModal": {
+      "on": "Activé",
+      "off": "Désactivé",
+      "masked": "masqué",
+      "preview": "Aperçu",
+      "execute": "Exécuter"
+    },
+    "snippets": {
+      "renameFolder": "Renommer le dossier",
+      "newFolder": "Nouveau dossier",
+      "folderNamePlaceholder": "Nom du dossier",
+      "notRelevantForConnection": "Non pertinent pour la connexion actuelle",
+      "removeFromFavorites": "Retirer des favoris",
+      "addToFavorites": "Ajouter aux favoris",
+      "duplicate": "Dupliquer",
+      "moveToFolder": "Déplacer vers un dossier",
+      "back": "Retour",
+      "unfiled": "Non classés",
+      "searchPlaceholder": "Rechercher des snippets…",
+      "newSnippetTitle": "Nouveau snippet",
+      "favorites": "Favoris",
+      "recent": "Récents",
+      "noSnippetsMatch": "Aucun snippet ne correspond",
+      "noSnippetsYet": "Aucun snippet pour l'instant.\nCliquez sur + pour en créer un."
+    },
+    "search": {
+      "placeholder": "Rechercher",
+      "invalid": "Invalide",
+      "noResults": "Aucun résultat",
+      "resultCounter": "{{index}} sur {{count}}",
+      "matchCase": "Respecter la casse (Alt+C)",
+      "matchWholeWord": "Mot entier (Alt+W)",
+      "useRegex": "Utiliser une expression régulière (Alt+R)",
+      "previousMatch": "Occurrence précédente (Maj+Entrée)",
+      "nextMatch": "Occurrence suivante (Entrée)",
+      "closeTitle": "Fermer (Échap)"
+    },
+    "statusBar": {
+      "badge": {
+        "ssh": "SSH",
+        "serial": "SÉRIE",
+        "local": "LOCAL"
+      },
+      "localSystemFallback": "Système local",
+      "serialFallback": "série",
+      "pingUp": "Actif · {{ms}}ms",
+      "pingDown": "Hors ligne",
+      "pingUnknown": "Inconnu",
+      "copyLabel": "Copier {{text}}",
+      "openPortsPanel": "Ouvrir le panneau des ports",
+      "reconnectTitle": "Reconnecter",
+      "systemMetricsTitle": "Métriques système",
+      "activeTunnels_one": "{{count}} tunnel actif",
+      "activeTunnels_other": "{{count}} tunnels actifs",
+      "cpu": "CPU {{pct}}%",
+      "copiedBang": "Copié !",
+      "loadingEllipsis": "chargement…",
+      "sparklineMin": "min {{value}}ms",
+      "sparklineAvg": "moy {{value}}ms",
+      "sparklineMax": "max {{value}}ms"
+    }
+  }
+}

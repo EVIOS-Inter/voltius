@@ -1,5 +1,6 @@
 import { writeClipboard } from "../../utils/clipboard";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { USER_DATA_HANDLERS, buildUserDataBundle } from "@/services/user-data/registry";
 import { toUserDataJSON } from "@/services/user-data/formats";
@@ -14,6 +15,7 @@ function downloadJson(filename: string, data: unknown) {
 }
 
 export function UserDataExportTab() {
+  const { t } = useTranslation();
   const [included, setIncluded] = useState<Record<string, boolean>>(
     () => Object.fromEntries(USER_DATA_HANDLERS.map((h) => [h.key, true])),
   );
@@ -34,7 +36,7 @@ export function UserDataExportTab() {
   return (
     <div className="flex flex-col gap-5 h-full">
       <div>
-        <p className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">Include</p>
+        <p className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">{t("importExport.include")}</p>
         <div className="flex flex-col gap-2.5">
           {USER_DATA_HANDLERS.map((h) => (
             <label key={h.key} className="flex items-center gap-2 cursor-pointer select-none">
@@ -57,8 +59,8 @@ export function UserDataExportTab() {
       </div>
 
       <div className="flex items-center gap-2 pt-3 border-t border-(--t-border)">
-        <ActionBtn icon={copied ? "lucide:check" : "lucide:clipboard-copy"} label={copied ? "Copied!" : "Copy"} onClick={handleCopy} disabled={selectedKeys.length === 0} />
-        <ActionBtn icon="lucide:download" label="Download .json" onClick={handleDownload} primary disabled={selectedKeys.length === 0} />
+        <ActionBtn icon={copied ? "lucide:check" : "lucide:clipboard-copy"} label={copied ? t("importExport.copied") : t("common.action.copy")} onClick={handleCopy} disabled={selectedKeys.length === 0} />
+        <ActionBtn icon="lucide:download" label={t("importExport.downloadExt", { ext: "json" })} onClick={handleDownload} primary disabled={selectedKeys.length === 0} />
       </div>
 
       <div className="flex flex-col flex-1 min-h-0">

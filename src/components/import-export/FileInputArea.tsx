@@ -1,5 +1,6 @@
 import { readClipboard } from "../../utils/clipboard";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { ActionBtn } from "./shared";
 
@@ -16,9 +17,11 @@ interface FileInputAreaProps {
 
 export function FileInputArea({
   text, onChange, placeholder, fileAccept,
-  openLabel = "Open file…", hasError, rows = 5, onClear,
+  openLabel, hasError, rows = 5, onClear,
 }: FileInputAreaProps) {
+  const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
+  const resolvedOpenLabel = openLabel ?? t("importExport.fileInput.openFileDefault");
 
   const handleFileOpen = () => {
     const input = document.createElement("input");
@@ -52,8 +55,8 @@ export function FileInputArea({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <ActionBtn icon="lucide:folder-open" label={openLabel} onClick={handleFileOpen} />
-        <ActionBtn icon="lucide:clipboard" label="Paste from Clipboard" onClick={async () => onChange(await readClipboard())} />
+        <ActionBtn icon="lucide:folder-open" label={resolvedOpenLabel} onClick={handleFileOpen} />
+        <ActionBtn icon="lucide:clipboard" label={t("importExport.fileInput.pasteFromClipboard")} onClick={async () => onChange(await readClipboard())} />
         {text.trim() && (
           <button
             onClick={handleClear}
@@ -61,7 +64,7 @@ export function FileInputArea({
             style={{ color: "var(--t-text-dim)" }}
           >
             <Icon icon="lucide:x" width={11} />
-            Clear
+            {t("importExport.fileInput.clear")}
           </button>
         )}
       </div>
@@ -84,7 +87,7 @@ export function FileInputArea({
             className="absolute inset-0 rounded-lg flex items-center justify-center pointer-events-none"
             style={{ background: "color-mix(in srgb, var(--t-accent) 8%, transparent)" }}
           >
-            <span className="text-sm font-medium" style={{ color: "var(--t-accent)" }}>Drop to load</span>
+            <span className="text-sm font-medium" style={{ color: "var(--t-accent)" }}>{t("importExport.fileInput.dropToLoad")}</span>
           </div>
         )}
       </div>

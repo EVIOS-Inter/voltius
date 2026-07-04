@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { Modal } from "@/components/shared/Modal";
 import { useUIStore } from "@/stores/uiStore";
@@ -10,6 +11,7 @@ import { UserDataExportTab } from "./UserDataExportTab";
 import { UserDataImportTab } from "./UserDataImportTab";
 
 export function ImportExportModal() {
+  const { t } = useTranslation();
   const state = useUIStore(s => s.importExportModal);
   const close = useUIStore(s => s.closeImportExport);
   const reloaders = useReloadFns();
@@ -36,8 +38,8 @@ export function ImportExportModal() {
   if (!state?.open) return null;
 
   const SECTIONS = [
-    { id: "vaults" as const, label: "Vaults", icon: "lucide:vault" },
-    { id: "user-data" as const, label: "User Data", icon: "lucide:user" },
+    { id: "vaults" as const, label: t("common.entity.vaults"), icon: "lucide:vault" },
+    { id: "user-data" as const, label: t("importExport.modal.sectionUserData"), icon: "lucide:user" },
   ];
 
   return (
@@ -49,7 +51,7 @@ export function ImportExportModal() {
         <div className="grid grid-cols-3 items-center px-6 py-4 shrink-0 border-b border-b-(--t-border)">
           <div className="flex items-center gap-3">
             <Icon icon="lucide:database" width={18} className="text-(--t-accent)" />
-            <span className="text-base font-semibold text-(--t-text-bright)">Import / Export</span>
+            <span className="text-base font-semibold text-(--t-text-bright)">{t("importExport.modal.title")}</span>
           </div>
           <div className="flex items-center justify-center gap-1">
             {SECTIONS.map(s => (
@@ -88,7 +90,7 @@ export function ImportExportModal() {
               }}
             >
               <Icon icon={mode === "export" ? "lucide:upload" : "lucide:download"} width={13} />
-              {mode.charAt(0).toUpperCase() + mode.slice(1)}
+              {mode === "export" ? t("importExport.modal.tabExport") : t("importExport.modal.tabImport")}
             </button>
           ))}
         </div>

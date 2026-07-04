@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { USER_DATA_HANDLERS, applyUserDataBundle } from "@/services/user-data/registry";
 import { fromUserDataJSON } from "@/services/user-data/formats";
@@ -12,6 +13,7 @@ type UserDataImportStatus =
   | { type: "ready"; bundle: UserDataBundle };
 
 export function UserDataImportTab({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
   const [text, setText] = useState("");
   const [status, setStatus] = useState<UserDataImportStatus>({ type: "idle" });
   const [included, setIncluded] = useState<Record<string, boolean>>({});
@@ -38,10 +40,11 @@ export function UserDataImportTab({ onClose }: { onClose: () => void }) {
     try {
       const keys = Object.entries(included).filter(([, v]) => v).map(([k]) => k);
       const { applied } = await applyUserDataBundle(status.bundle, keys);
-      setImportResult(`Applied ${applied.length} setting${applied.length !== 1 ? "s" : ""}: ${applied.join(", ")}.`);
+      setImportResult(t("importExport.userData.import.resultApplied", { count: applied.length, list: applied.join(", ") }));
       setText("");
       setTimeout(onClose, 1500);
     } catch (err) {
+      // Not translated: importResult is matched via .includes("Error") below to color the banner.
       setImportResult(`Error: ${String(err)}`);
     } finally {
       setImporting(false);
@@ -55,9 +58,9 @@ export function UserDataImportTab({ onClose }: { onClose: () => void }) {
       <FileInputArea
         text={text}
         onChange={setText}
-        placeholder={'Paste a Voltius settings JSON here, or drop a file…\n\n{ "type": "voltius-user-data", "version": 2, "sections": { ... } }'}
+        placeholder={t("importExport.userData.import.placeholder")}
         fileAccept=".json"
-        openLabel="Open File…"
+        openLabel={t("importExport.userData.import.openFileLabel")}
         rows={6}
         hasError={status.type === "error"}
         onClear={() => { setStatus({ type: "idle" }); setImportResult(null); }}
@@ -74,7 +77,7 @@ export function UserDataImportTab({ onClose }: { onClose: () => void }) {
         <div className="flex flex-col gap-3 p-3 rounded-lg bg-(--t-bg-elevated) border border-(--t-border)">
           <div className="flex items-center gap-2 text-sm text-(--t-text-primary)">
             <Icon icon="lucide:circle-check-big" width={15} className="text-(--t-status-ok)" />
-            Found {Object.keys(status.bundle.sections).length} setting section{Object.keys(status.bundle.sections).length !== 1 ? "s" : ""}
+            {t("importExport.userData.import.foundSections", { count: Object.keys(status.bundle.sections).length })}
           </div>
           <div className="flex flex-col gap-2 pt-2 border-t border-(--t-border)">
             {USER_DATA_HANDLERS.filter((h) => status.bundle.sections[h.key]).map((h) => (
@@ -112,7 +115,7 @@ export function UserDataImportTab({ onClose }: { onClose: () => void }) {
       <div className="mt-auto pt-3 border-t border-(--t-border)">
         <ActionBtn
           icon={importing ? "lucide:loader" : "lucide:download"}
-          label={importing ? "Applying…" : selectedCount > 0 ? `Apply ${selectedCount} section${selectedCount !== 1 ? "s" : ""}` : "Apply"}
+          label={importing ? t("importExport.userData.import.applying") : selectedCount > 0 ? t("importExport.userData.import.applyButton", { count: selectedCount }) : t("importExport.userData.import.applyDefault")}
           onClick={handleImport} primary disabled={selectedCount === 0 || importing || status.type !== "ready"}
         />
       </div>

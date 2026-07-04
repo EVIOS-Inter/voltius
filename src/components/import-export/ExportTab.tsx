@@ -1,5 +1,6 @@
 import { writeClipboard } from "../../utils/clipboard";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { useAccessibleVaultIds } from "@/hooks/useAccessibleVaultIds";
 import { useVaultContents } from "@/hooks/useVaultContents";
@@ -18,6 +19,7 @@ export function ExportTab({ selection, preselectedTypes }: {
   selection: SelectionProps;
   preselectedTypes?: string[];
 }) {
+  const { t } = useTranslation();
   const stores = useStoreSlices();
   const accessibleVaultIds = useAccessibleVaultIds();
   const vaultContentCounts = useVaultContents();
@@ -112,8 +114,8 @@ export function ExportTab({ selection, preselectedTypes }: {
 
   const autoIncludes: string[] = [];
   if (isSingleItem && !isCsvOnly) {
-    if ((bundleCounts["identities"] ?? 0) > 0 && !isSingleSelection("identities", selection)) autoIncludes.push(`${bundleCounts["identities"]} identity`);
-    if ((bundleCounts["keys"] ?? 0) > 0 && !isSingleSelection("keys", selection)) autoIncludes.push(`${bundleCounts["keys"]} key`);
+    if ((bundleCounts["identities"] ?? 0) > 0 && !isSingleSelection("identities", selection)) autoIncludes.push(t("importExport.export.autoIncludeIdentity", { count: bundleCounts["identities"] }));
+    if ((bundleCounts["keys"] ?? 0) > 0 && !isSingleSelection("keys", selection)) autoIncludes.push(t("importExport.export.autoIncludeKey", { count: bundleCounts["keys"] }));
   }
 
   return (
@@ -122,7 +124,7 @@ export function ExportTab({ selection, preselectedTypes }: {
 
       <div className="flex gap-6">
         <div className="flex-1">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">Include</p>
+          <p className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">{t("importExport.include")}</p>
           <div className="flex flex-col gap-2.5">
             {HANDLERS.map(h => {
               if (!h.isActive(selection)) return null;
@@ -145,14 +147,14 @@ export function ExportTab({ selection, preselectedTypes }: {
             })}
             {isBulk && !isSingleItem && (
               <p className="text-xs text-(--t-text-muted)">
-                {bulkCount} selected item{bulkCount !== 1 ? "s" : ""}
+                {t("importExport.export.selectedItem", { count: bulkCount })}
               </p>
             )}
           </div>
         </div>
 
         <div className="flex-1">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">Format</p>
+          <p className="text-xs font-bold uppercase tracking-widest mb-3 text-(--t-text-dim)">{t("importExport.export.format")}</p>
           <div className="flex flex-col gap-2">
             {!lockJsonFormat ? (
               <div className="flex gap-0.5 p-0.5 rounded-lg w-fit" style={{ background: "var(--t-bg-input)", border: "1px solid var(--t-border)" }}>
@@ -173,13 +175,13 @@ export function ExportTab({ selection, preselectedTypes }: {
               <span className="text-sm font-medium text-(--t-text-primary)">JSON</span>
             )}
             <p className="text-xs text-(--t-text-dim)">
-              {format === "csv" ? "Connections only — spreadsheet-friendly" : "Full data including key content"}
+              {format === "csv" ? t("importExport.export.formatCsvDescription") : t("importExport.export.formatJsonDescription")}
             </p>
             {format === "json" && (
               <div className="flex flex-col gap-2 mt-1">
                 <div className="flex items-center gap-2.5">
                   <Toggle checked={encrypt} onChange={v => { setEncrypt(v); if (!v) { setEncryptPassword(""); setEncryptConfirm(""); } }} />
-                  <span className="text-sm text-(--t-text-primary)">Encrypt backup</span>
+                  <span className="text-sm text-(--t-text-primary)">{t("importExport.export.encryptBackup")}</span>
                 </div>
                 {encrypt && (
                   <div className="flex flex-col gap-2 ml-6">
@@ -188,19 +190,19 @@ export function ExportTab({ selection, preselectedTypes }: {
                         type="password"
                         value={encryptPassword}
                         onChange={e => setEncryptPassword(e.target.value)}
-                        placeholder="Password"
+                        placeholder={t("importExport.passwordPlaceholder")}
                         className="w-full px-2.5 py-1.5 rounded-lg text-sm outline-hidden bg-(--t-bg-input) border border-(--t-border-hover) text-(--t-text-primary)"
                       />
                       <input
                         type="password"
                         value={encryptConfirm}
                         onChange={e => setEncryptConfirm(e.target.value)}
-                        placeholder="Confirm password"
+                        placeholder={t("importExport.export.confirmPasswordPlaceholder")}
                         className="w-full px-2.5 py-1.5 rounded-lg text-sm outline-hidden bg-(--t-bg-input) border border-(--t-border-hover) text-(--t-text-primary)"
                       />
                     </div>
                     {encryptPassword && encryptConfirm && encryptPassword !== encryptConfirm && (
-                      <p className="text-xs" style={{ color: "var(--t-status-error)" }}>Passwords don't match</p>
+                      <p className="text-xs" style={{ color: "var(--t-status-error)" }}>{t("importExport.export.passwordsDontMatch")}</p>
                     )}
                   </div>
                 )}
@@ -215,14 +217,14 @@ export function ExportTab({ selection, preselectedTypes }: {
           {building ? (
             <span className="text-xs text-(--t-text-dim) flex items-center gap-1.5">
               <Icon icon="lucide:loader" width={12} className="animate-spin" />
-              Building…
+              {t("importExport.export.building")}
             </span>
           ) : (
             <>
               {totalItems > 0 ? (
                 <ContentCounts counts={recapCounts} />
               ) : (
-                <span className="text-sm text-(--t-text-muted) truncate">Nothing to export</span>
+                <span className="text-sm text-(--t-text-muted) truncate">{t("importExport.export.nothingToExport")}</span>
               )}
               {autoIncludes.length > 0 && (
                 <span className="text-xs flex items-center gap-1 text-(--t-text-dim) shrink-0">
@@ -234,8 +236,8 @@ export function ExportTab({ selection, preselectedTypes }: {
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <ActionBtn icon={copied ? "lucide:check" : "lucide:clipboard-copy"} label={copied ? "Copied!" : "Copy"} onClick={handleCopy} disabled={totalItems === 0 || building || !encryptReady} />
-          <ActionBtn icon={encrypt ? "lucide:lock" : "lucide:download"} label={encrypt ? "Download encrypted" : `Download .${format}`} onClick={handleDownload} primary disabled={totalItems === 0 || building || !encryptReady} />
+          <ActionBtn icon={copied ? "lucide:check" : "lucide:clipboard-copy"} label={copied ? t("importExport.copied") : t("common.action.copy")} onClick={handleCopy} disabled={totalItems === 0 || building || !encryptReady} />
+          <ActionBtn icon={encrypt ? "lucide:lock" : "lucide:download"} label={encrypt ? t("importExport.export.downloadEncrypted") : t("importExport.downloadExt", { ext: format })} onClick={handleDownload} primary disabled={totalItems === 0 || building || !encryptReady} />
         </div>
       </div>
 
@@ -245,7 +247,7 @@ export function ExportTab({ selection, preselectedTypes }: {
           style={{ color: "var(--t-text-dim)" }}
         >
           <Icon icon={showPreview ? "lucide:chevron-down" : "lucide:chevron-right"} width={12} />
-          {showPreview ? "Hide preview" : "Show preview"}
+          {showPreview ? t("importExport.export.hidePreview") : t("importExport.export.showPreview")}
         </button>
         {showPreview && (
           <textarea readOnly value={preview}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import LogoSvg from "/logo.svg?react";
 import { useDefaultVaultId, resolveVaultIdForSave } from "@/hooks/useWritableVaultIds";
@@ -55,10 +56,11 @@ function ItemCheckbox({ checked }: { checked: boolean }) {
 }
 
 function DupeControl({ action, onChange }: { action: ItemAction; onChange: (a: ItemAction) => void }) {
+  const { t } = useTranslation();
   const opts: { key: ItemAction; label: string; activeColor: string }[] = [
-    { key: "skip", label: "Skip", activeColor: "var(--t-status-error)" },
-    { key: "include", label: "Import", activeColor: "var(--t-status-ok)" },
-    { key: "overwrite", label: "Overwrite", activeColor: "var(--t-status-warn)" },
+    { key: "skip", label: t("importExport.import.actionSkip"), activeColor: "var(--t-status-error)" },
+    { key: "include", label: t("importExport.import.actionInclude"), activeColor: "var(--t-status-ok)" },
+    { key: "overwrite", label: t("importExport.import.actionOverwrite"), activeColor: "var(--t-status-warn)" },
   ];
   return (
     <div
@@ -123,6 +125,7 @@ function GroupHeader({ label, icon, included, total, allSkipped, collapsed, onTo
   allSkipped: boolean; collapsed: boolean;
   onToggleCollapse: () => void; onToggleAll: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-2 mb-1">
       <button
@@ -140,7 +143,7 @@ function GroupHeader({ label, icon, included, total, allSkipped, collapsed, onTo
           className="ml-auto text-xs transition-opacity hover:opacity-70"
           style={{ color: "var(--t-text-dim)" }}
         >
-          {allSkipped ? "Select all" : "Deselect all"}
+          {allSkipped ? t("importExport.import.selectAll") : t("importExport.import.deselectAll")}
         </button>
       )}
     </div>
@@ -150,6 +153,7 @@ function GroupHeader({ label, icon, included, total, allSkipped, collapsed, onTo
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: string; autoTrigger?: boolean }) {
+  const { t } = useTranslation();
   const storeSlices = useStoreSlices();
   const { connections: existingConnections } = storeSlices;
   const importStores = useImportStores();
@@ -401,14 +405,15 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
         errors += result.errors;
       }
       await reloadAll(reloaders);
-      const vaultNote = targetVaultIds.length > 1 ? ` across ${targetVaultIds.length} vaults` : "";
+      const vaultNote = targetVaultIds.length > 1 ? t("importExport.import.resultVaultNote", { count: targetVaultIds.length }) : "";
       setImportResult(errors > 0
-        ? `Imported ${imported} items${vaultNote}, ${errors} failed.`
-        : `Successfully imported ${imported} item${imported !== 1 ? "s" : ""}${vaultNote}.`
+        ? t("importExport.import.resultImportedWithErrors", { count: imported, vaultNote, errors })
+        : t("importExport.import.resultImportedSuccess", { count: imported, vaultNote })
       );
       setText("");
       setStep(1);
     } catch (err) {
+      // Not translated: importResult is matched via .includes("Error") below to color the banner.
       setImportResult(`Error: ${String(err)}`);
     } finally {
       setImporting(false);
@@ -456,7 +461,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
 
     const groups: { type: string; label: string; icon: string; meta: ItemMeta[]; rows: React.ReactNode[] }[] = [
       {
-        type: "connections", label: "Connections", icon: "lucide:server",
+        type: "connections", label: t("importExport.import.groupConnections"), icon: "lucide:server",
         meta: connectionMeta,
         rows: bundle.connections.map((c: ConnectionExport, i: number) => {
           const fp = getFolderPath(c._folder_eid, bundle.folders);
@@ -475,15 +480,15 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
         }),
       },
       {
-        type: "keys", label: "SSH Keys", icon: "lucide:key",
+        type: "keys", label: t("importExport.import.groupKeys"), icon: "lucide:key",
         meta: keyMeta,
         rows: bundle.keys.map((k: KeyExport, i: number) => {
           const fp = getFolderPath(k._folder_eid, bundle.folders);
           if (!matches([k.name, k.key_type, fp])) return null;
           return (
             <ItemRow key={i} icon="lucide:key"
-              title={k.name ?? "Unnamed key"}
-              sub={k.key_type ?? "SSH Key"}
+              title={k.name ?? t("importExport.import.unnamedKey")}
+              sub={k.key_type ?? t("importExport.import.sshKeyFallback")}
               folderPath={fp || undefined}
               isDupe={keyMeta[i].isDupe}
               action={getAction(`keys:${i}`)}
@@ -494,7 +499,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
         }),
       },
       {
-        type: "identities", label: "Identities", icon: "lucide:user",
+        type: "identities", label: t("importExport.import.groupIdentities"), icon: "lucide:user",
         meta: identityMeta,
         rows: bundle.identities.map((id: IdentityExport, i: number) => {
           const fp = getFolderPath(id._folder_eid, bundle.folders);
@@ -513,13 +518,13 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
         }),
       },
       {
-        type: "snippets", label: "Snippets", icon: "lucide:terminal",
+        type: "snippets", label: t("common.entity.snippets"), icon: "lucide:terminal",
         meta: snippetMeta,
         rows: bundle.snippets.map((s: SnippetExport, i: number) => {
           if (!matches([s.name])) return null;
           return (
             <ItemRow key={i} icon="lucide:terminal"
-              title={s.name} sub="Snippet"
+              title={s.name} sub={t("common.entity.snippet")}
               isDupe={snippetMeta[i].isDupe}
               action={getAction(`snippets:${i}`)}
               onToggle={() => toggleItem(`snippets:${i}`)}
@@ -529,7 +534,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
         }),
       },
       {
-        type: "pfRules", label: "Port Forwarding", icon: "lucide:arrow-right-left",
+        type: "pfRules", label: t("importExport.import.groupPortForwarding"), icon: "lucide:arrow-right-left",
         meta: pfRuleMeta,
         rows: bundle.portForwardingRules.map((r: PortForwardingRuleExport, i: number) => {
           if (!matches([r.name, r.remote_host])) return null;
@@ -557,16 +562,16 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
             style={{ color: "var(--t-text-dim)" }}
           >
             <Icon icon="lucide:arrow-left" width={13} />
-            Back
+            {t("importExport.import.back")}
           </button>
-          <span className="text-sm font-semibold text-(--t-text-bright) ml-1">Review import</span>
+          <span className="text-sm font-semibold text-(--t-text-bright) ml-1">{t("importExport.import.reviewImportTitle")}</span>
           {totalDupes > 0 && (
             <button
               onClick={toggleAllDupes}
               className="ml-auto text-xs px-2 py-0.5 rounded-sm transition-opacity hover:opacity-70"
               style={{ color: "var(--t-text-dim)", border: "1px solid var(--t-border)" }}
             >
-              {allDupesSkipped ? "Re-include duplicates" : "Skip all duplicates"}
+              {allDupesSkipped ? t("importExport.import.reIncludeDuplicates") : t("importExport.import.skipAllDuplicates")}
             </button>
           )}
         </div>
@@ -577,7 +582,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Filter items…"
+            placeholder={t("importExport.import.filterItemsPlaceholder")}
             className="w-full pl-8 pr-3 py-1.5 rounded-lg text-sm outline-hidden bg-(--t-bg-input) border border-(--t-border-hover) text-(--t-text-primary)"
             style={{ fontSize: 13 }}
           />
@@ -629,8 +634,8 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
         <div className="flex flex-col gap-2 pt-3 border-t border-(--t-border)">
           {showAdvanced && (
             <label className="flex items-center gap-2">
-              <span className="text-xs text-(--t-text-dim)">Tag:</span>
-              <input value={addTag} onChange={e => setAddTag(e.target.value)} placeholder="optional"
+              <span className="text-xs text-(--t-text-dim)">{t("importExport.import.tagLabel")}</span>
+              <input value={addTag} onChange={e => setAddTag(e.target.value)} placeholder={t("importExport.import.tagPlaceholder")}
                 className="px-2 py-0.5 rounded-sm text-xs outline-hidden bg-(--t-bg-input) border border-(--t-border-hover) text-(--t-text-primary)"
                 style={{ width: 100 }}
               />
@@ -643,16 +648,18 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
               style={{ color: "var(--t-text-dim)" }}
             >
               <Icon icon={showAdvanced ? "lucide:chevron-down" : "lucide:chevron-right"} width={11} />
-              Advanced
+              {t("importExport.import.advanced")}
             </button>
             <div className="ml-auto">
               <ActionBtn
                 icon={importing ? "lucide:loader" : "lucide:download"}
                 label={importing
-                  ? "Importing…"
+                  ? t("importExport.import.importing")
                   : totalToImport > 0
-                    ? `Import ${totalToImport} item${totalToImport !== 1 ? "s" : ""}${targetVaultIds.length > 1 ? ` × ${targetVaultIds.length} vaults` : ""}`
-                    : "Nothing selected"}
+                    ? (targetVaultIds.length > 1
+                        ? t("importExport.import.importButtonMultiVault", { count: totalToImport, vaultCount: targetVaultIds.length })
+                        : t("importExport.import.importButton", { count: totalToImport }))
+                    : t("importExport.import.nothingSelected")}
                 onClick={handleImport}
                 primary
                 disabled={totalToImport === 0 || importing}
@@ -674,7 +681,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
   return (
     <div className="flex flex-col gap-4 h-full">
       <div className="flex flex-col gap-2">
-        <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">Import from</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{t("importExport.import.importFrom")}</p>
         <div className="flex flex-wrap gap-1.5">
           {IMPORTERS.map(importer => {
             const active = selectedSource === importer.key;
@@ -708,7 +715,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
 
       {writableVaults.length > 1 && (
         <div className="flex flex-col gap-1.5">
-          <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">Import into</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{t("importExport.import.importInto")}</p>
           <VaultChipSelect selectedIds={targetVaultIds} onChange={setTargetVaultIds} writableOnly />
         </div>
       )}
@@ -727,10 +734,10 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
             </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-sm font-semibold" style={{ color: "var(--t-text-bright)" }}>
-                Auto-extract from {source.label}
+                {t("importExport.import.autoExtractTitle", { label: source.label })}
               </span>
               <span className="text-xs" style={{ color: "var(--t-text-dim)" }}>
-                Reads and decrypts your local {source.label} data — no manual export needed
+                {t("importExport.import.autoExtractDescription", { label: source.label })}
               </span>
             </div>
           </div>
@@ -741,7 +748,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
             style={{ background: "var(--t-accent)", color: "#fff" }}
           >
             <Icon icon={extracting ? "lucide:loader-circle" : "lucide:download"} width={14} className={extracting ? "animate-spin" : ""} />
-            {extracting ? "Extracting…" : `Extract from ${source.label}`}
+            {extracting ? t("importExport.import.extracting") : t("importExport.import.extractFrom", { label: source.label })}
           </button>
         </div>
       )}
@@ -749,7 +756,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
       {source.autoExtract && selectedSource !== "termius" && !text.trim() && status.type !== "ready" && (
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px" style={{ background: "var(--t-border)" }} />
-          <span className="text-xs font-medium" style={{ color: "var(--t-text-dim)" }}>or import from file</span>
+          <span className="text-xs font-medium" style={{ color: "var(--t-text-dim)" }}>{t("importExport.import.orImportFromFile")}</span>
           <div className="flex-1 h-px" style={{ background: "var(--t-border)" }} />
         </div>
       )}
@@ -760,7 +767,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
           onChange={setText}
           placeholder={source.placeholder}
           fileAccept={source.fileAccept}
-          openLabel={`Open ${source.sub} file…`}
+          openLabel={t("importExport.import.openFileLabel", { sub: source.sub })}
           hasError={status.type === "error"}
           onClear={() => { setStatus({ type: "idle" }); setImportResult(null); }}
         />
@@ -777,7 +784,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
         <div className="flex flex-col gap-3 p-3 rounded-lg bg-(--t-bg-elevated) border border-(--t-border)">
           <div className="flex items-center gap-2 text-sm" style={{ color: "var(--t-text-primary)" }}>
             <Icon icon="lucide:lock" width={14} style={{ color: "var(--t-accent)" }} />
-            Encrypted backup — enter your password to unlock
+            {t("importExport.import.encryptedBackupTitle")}
           </div>
           <div className="flex gap-2">
             <input
@@ -785,11 +792,11 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
               value={decryptPassword}
               onChange={e => setDecryptPassword(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") void handleDecrypt(); }}
-              placeholder="Password"
+              placeholder={t("importExport.passwordPlaceholder")}
               autoFocus
               className="flex-1 px-2.5 py-1.5 rounded-lg text-sm outline-hidden bg-(--t-bg-input) border border-(--t-border-hover) text-(--t-text-primary)"
             />
-            <ActionBtn icon="lucide:lock-open" label="Unlock" onClick={handleDecrypt} primary disabled={!decryptPassword} />
+            <ActionBtn icon="lucide:lock-open" label={t("importExport.import.unlock")} onClick={handleDecrypt} primary disabled={!decryptPassword} />
           </div>
         </div>
       )}
@@ -811,7 +818,7 @@ export function ImportTab({ defaultSource, autoTrigger }: { defaultSource?: stri
         <div className="mt-auto pt-3 border-t border-(--t-border)">
           <ActionBtn
             icon="lucide:arrow-right"
-            label={`Review ${totalFound} item${totalFound !== 1 ? "s" : ""}`}
+            label={t("importExport.import.reviewItems", { count: totalFound })}
             onClick={() => { setSearch(""); setStep(2); }}
             primary
           />

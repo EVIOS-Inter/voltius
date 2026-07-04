@@ -1,0 +1,17 @@
+{
+  "knownHosts": {
+    "toolbar": {
+      "deleteSelected": "Delete selected",
+      "deleteButton": "DELETE"
+    },
+    "page": {
+      "noSearchResults": "No known hosts match your search",
+      "emptyState": "No known hosts yet — they appear when you connect to a server",
+      "confirmDelete": {
+        "title_one": "Delete known host?",
+        "title_other": "Delete {{count}} known hosts?",
+        "message": "This will remove the trusted fingerprint(s). The next connection to these hosts will be treated as new."
+      }
+    }
+  }
+}

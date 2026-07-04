@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useKnownHostStore } from "@/stores/knownHostStore";
 import { useVaultStore } from "@/stores/vaultStore";
 import { useAccessibleVaultIds } from "@/hooks/useAccessibleVaultIds";
@@ -27,6 +28,7 @@ function sortHosts(hosts: KnownHost[], mode: SortMode): KnownHost[] {
 }
 
 export default function KnownHostsPage() {
+  const { t } = useTranslation();
   const { knownHosts, loadKnownHosts, removeKnownHost, moveKnownHostVault, copyKnownHostVault } =
     useKnownHostStore();
 
@@ -153,7 +155,7 @@ export default function KnownHostsPage() {
                 </svg>
               </div>
               <p className="text-(--t-text-dim) text-sm">
-                {q ? "No known hosts match your search" : "No known hosts yet — they appear when you connect to a server"}
+                {q ? t("knownHosts.page.noSearchResults") : t("knownHosts.page.emptyState")}
               </p>
             </div>
           ) : (
@@ -178,9 +180,9 @@ export default function KnownHostsPage() {
 
       {confirmDeleteIds && (
         <ConfirmModal
-          title={confirmDeleteIds.length === 1 ? "Delete known host?" : `Delete ${confirmDeleteIds.length} known hosts?`}
-          message="This will remove the trusted fingerprint(s). The next connection to these hosts will be treated as new."
-          confirmLabel="Delete"
+          title={t("knownHosts.page.confirmDelete.title", { count: confirmDeleteIds.length })}
+          message={t("knownHosts.page.confirmDelete.message")}
+          confirmLabel={t("common.action.delete")}
           onConfirm={confirmDelete}
           onCancel={() => setConfirmDeleteIds(null)}
         />

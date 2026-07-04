@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { AvatarTile } from "@/components/shared/AvatarTile";
 import { BaseCard } from "@/components/shared/BaseCard";
 import { vaultMenuItems } from "@/utils/vaultMenuItems";
@@ -41,16 +42,17 @@ export function KnownHostCard({
   onMoveVault,
   onCopyVault,
 }: KnownHostCardProps) {
+  const { t } = useTranslation();
   const contextMenuItems = [
     ...vaultMenuItems(otherVaults, canEdit, onMoveVault, onCopyVault),
     ...(canEdit && onDelete
-      ? [{ label: "Delete", icon: "lucide:trash-2", danger: true, divider: true, onClick: onDelete, shortcut: getShortcutHint("delete") }]
+      ? [{ label: t("common.action.delete"), icon: "lucide:trash-2", danger: true, divider: true, onClick: onDelete, shortcut: getShortcutHint("delete") }]
       : []),
   ];
 
   const bulkContextMenuItems = [
     ...(canEdit && onDelete
-      ? [{ label: "Delete", icon: "lucide:trash-2", danger: true, onClick: onDelete, shortcut: getShortcutHint("delete") }]
+      ? [{ label: t("common.action.delete"), icon: "lucide:trash-2", danger: true, onClick: onDelete, shortcut: getShortcutHint("delete") }]
       : []),
   ];
 
@@ -109,7 +111,7 @@ export function KnownHostCard({
         <button
           className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-(--t-text-dim) opacity-0 group-hover:opacity-100 transition-opacity hover:text-status-error hover:bg-status-error/10"
           onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          title="Delete"
+          title={t("common.action.delete")}
           type="button"
         >
           <Icon icon="lucide:trash-2" width={14} />

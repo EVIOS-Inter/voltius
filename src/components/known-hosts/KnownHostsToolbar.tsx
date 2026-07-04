@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { ToolbarViewControls, type LayoutMode, type SortMode } from "@/components/shared/ToolbarViewControls";
 import { useToolbarResize } from "@/hooks/useToolbarResize";
 
@@ -23,6 +24,7 @@ export function KnownHostsToolbar({
   selectedCount,
   onDeleteSelected,
 }: KnownHostsToolbarProps) {
+  const { t } = useTranslation();
   const { compact, rowRef, leftRef, rightRef } = useToolbarResize();
 
   return (
@@ -48,14 +50,14 @@ export function KnownHostsToolbar({
           {selectedCount > 0 && onDeleteSelected && (
             <button
               onClick={onDeleteSelected}
-              title="Delete selected"
+              title={t("knownHosts.toolbar.deleteSelected")}
               className="flex items-center gap-2 px-3 h-8 rounded-lg text-sm font-bold tracking-wider transition-colors bg-status-error/10 text-status-error border border-status-error/20 hover:bg-status-error/20"
               type="button"
             >
               <Icon icon="lucide:trash-2" width={15} />
               {!compact && (
                 <span>
-                  DELETE{" "}
+                  {t("knownHosts.toolbar.deleteButton")}{" "}
                   <span className="opacity-70">({selectedCount})</span>
                 </span>
               )}

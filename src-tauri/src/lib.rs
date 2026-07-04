@@ -374,6 +374,29 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .target(tauri_plugin_log::Target::new(
+                    tauri_plugin_log::TargetKind::LogDir {
+                        file_name: Some("voltius".into()),
+                    },
+                ))
+                .max_file_size(5_000_000)
+                .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepOne)
+                // Sink is permissive at Debug; the *process* level (set in
+                // setup, toggled by set_verbose_logging) decides what reaches it.
+                .level(log::LevelFilter::Debug)
+                .format(|out, message, record| {
+                    out.finish(format_args!(
+                        "[{}][{}][{}] {}",
+                        chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.3f"),
+                        record.level(),
+                        record.target(),
+                        voltius_diagnostics::redact(&message.to_string())
+                    ))
+                })
+                .build(),
+        )
         .plugin(tauri_plugin_dialog::init());
 
     #[cfg(desktop)]
@@ -384,6 +407,9 @@ pub fn run() {
     builder
         .setup(|app| {
             use tauri::Manager;
+
+            // Verbose logging auto-reverts on every launch: always start at Info.
+            log::set_max_level(log::LevelFilter::Info);
 
             // On Android `dirs::config_dir()` resolves to an unwritable cwd, so
             // pin generic file storage (connections, plugins, identities, …) to
@@ -442,6 +468,7 @@ pub fn run() {
             updater_check,
             commands::greet,
             commands::get_platform,
+            commands::diagnostics::set_verbose_logging,
             commands::ping::ping_host,
             commands::ping::ping_host_via_jumps,
             commands::connections::connection_list,

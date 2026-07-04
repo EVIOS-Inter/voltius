@@ -1,5 +1,6 @@
 pub mod connections;
 pub mod crypto;
+pub mod diagnostics;
 pub mod docker;
 pub mod downloads;
 pub mod folders;

@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { pickLocalPath } from "@/services/sftp";
 import { formInputClass, formInputStyle } from "@/components/shared/Panel";
 import { VariableTextarea } from "@/components/snippets/VariableTextarea";
+import { RemotePathPickerModal } from "@/components/snippets/RemotePathPickerModal";
 import type { SnippetStep, Snippet } from "@/types";
 
 interface Props {
@@ -23,6 +25,7 @@ export function StepListEditor({ value, onChange, snippets }: Props) {
     onChange(next);
   };
   const add = (step: SnippetStep) => onChange([...value, step]);
+  const [remotePick, setRemotePick] = useState<{ index: number; field: "from_path" | "to_path"; isDir: boolean } | null>(null);
 
   return (
     <div className="flex flex-col gap-2">
@@ -49,15 +52,50 @@ export function StepListEditor({ value, onChange, snippets }: Props) {
 
           {step.kind === "transfer" && (
             <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => update(i, { ...step, direction: step.direction === "upload" ? "download" : "upload" })}
-                  className="text-xs px-2 py-1 rounded-md border"
-                  style={{ borderColor: "var(--t-border)" }}
-                >
-                  {t(`snippets.step.direction.${step.direction}`)}
-                </button>
+              {(["from", "to"] as const).map((side) => {
+                const endpoint = step[side];
+                const pathKey = side === "from" ? "from_path" : "to_path";
+                const pathVal = side === "from" ? step.from_path : step.to_path;
+                return (
+                  <div key={side} className="flex items-center gap-1">
+                    <span className="text-xs w-9 shrink-0" style={{ color: "var(--t-text-dim)" }}>
+                      {t(`snippets.step.${side}`)}
+                    </span>
+                    <select
+                      value={endpoint}
+                      onChange={(e) => update(i, { ...step, [side]: e.target.value as "local" | "remote" })}
+                      className="text-xs px-1 py-1 rounded-md border shrink-0"
+                      style={{ borderColor: "var(--t-border)" }}
+                    >
+                      <option value="local">{t("snippets.step.endpoint.local")}</option>
+                      <option value="remote">{t("snippets.step.endpoint.remote")}</option>
+                    </select>
+                    <input
+                      value={pathVal}
+                      onChange={(e) => update(i, { ...step, [pathKey]: e.target.value })}
+                      placeholder={endpoint === "local" ? t("snippets.step.localPath") : t("snippets.step.remotePath")}
+                      className={formInputClass}
+                      style={formInputStyle}
+                    />
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (endpoint === "local") {
+                          const p = await pickLocalPath({ directory: step.is_dir });
+                          if (p) update(i, { ...step, [pathKey]: p });
+                        } else {
+                          setRemotePick({ index: i, field: pathKey, isDir: step.is_dir });
+                        }
+                      }}
+                      className="text-xs px-2 rounded-md border shrink-0"
+                      style={{ borderColor: "var(--t-border)" }}
+                    >
+                      {t("snippets.step.browse")}
+                    </button>
+                  </div>
+                );
+              })}
+              <div className="flex gap-2 flex-wrap items-center">
                 <button
                   type="button"
                   onClick={() => update(i, { ...step, is_dir: !step.is_dir })}
@@ -66,34 +104,28 @@ export function StepListEditor({ value, onChange, snippets }: Props) {
                 >
                   {step.is_dir ? t("snippets.step.folder") : t("snippets.step.file")}
                 </button>
-              </div>
-              <div className="flex gap-1">
-                <input
-                  value={step.local_path}
-                  onChange={(e) => update(i, { ...step, local_path: e.target.value })}
-                  placeholder={t("snippets.step.localPath")}
-                  className={formInputClass}
-                  style={formInputStyle}
-                />
                 <button
                   type="button"
-                  onClick={async () => {
-                    const p = await pickLocalPath({ directory: step.is_dir });
-                    if (p) update(i, { ...step, local_path: p });
-                  }}
-                  className="text-xs px-2 rounded-md border shrink-0"
+                  onClick={() => update(i, { ...step, mode: step.mode === "copy" ? "move" : "copy" })}
+                  className="text-xs px-2 py-1 rounded-md border"
                   style={{ borderColor: "var(--t-border)" }}
                 >
-                  {t("snippets.step.browse")}
+                  {t(`snippets.step.mode.${step.mode}`)}
                 </button>
+                <label className="text-xs flex items-center gap-1" style={{ color: "var(--t-text-dim)" }}>
+                  {t("snippets.step.conflict.label")}
+                  <select
+                    value={step.on_conflict}
+                    onChange={(e) => update(i, { ...step, on_conflict: e.target.value as typeof step.on_conflict })}
+                    className="text-xs px-1 py-1 rounded-md border"
+                    style={{ borderColor: "var(--t-border)" }}
+                  >
+                    <option value="overwrite">{t("snippets.step.conflict.overwrite")}</option>
+                    <option value="skip">{t("snippets.step.conflict.skip")}</option>
+                    <option value="fail">{t("snippets.step.conflict.fail")}</option>
+                  </select>
+                </label>
               </div>
-              <input
-                value={step.remote_path}
-                onChange={(e) => update(i, { ...step, remote_path: e.target.value })}
-                placeholder={t("snippets.step.remotePath")}
-                className={formInputClass}
-                style={formInputStyle}
-              />
             </div>
           )}
 
@@ -115,9 +147,21 @@ export function StepListEditor({ value, onChange, snippets }: Props) {
 
       <div className="flex gap-2">
         <button type="button" onClick={() => add({ kind: "script", content: "" })} className="text-xs px-2 py-1 rounded-md border" style={{ borderColor: "var(--t-border)" }}>{t("snippets.step.addScript")}</button>
-        <button type="button" onClick={() => add({ kind: "transfer", direction: "upload", local_path: "", remote_path: "", is_dir: false })} className="text-xs px-2 py-1 rounded-md border" style={{ borderColor: "var(--t-border)" }}>{t("snippets.step.addTransfer")}</button>
+        <button type="button" onClick={() => add({ kind: "transfer", from: "local", to: "remote", from_path: "", to_path: "", is_dir: false, mode: "copy", on_conflict: "overwrite" })} className="text-xs px-2 py-1 rounded-md border" style={{ borderColor: "var(--t-border)" }}>{t("snippets.step.addTransfer")}</button>
         <button type="button" onClick={() => add({ kind: "snippet", snippet_id: "" })} className="text-xs px-2 py-1 rounded-md border" style={{ borderColor: "var(--t-border)" }}>{t("snippets.step.addSnippet")}</button>
       </div>
+
+      {remotePick && (
+        <RemotePathPickerModal
+          isDir={remotePick.isDir}
+          onClose={() => setRemotePick(null)}
+          onPick={(p) => {
+            const s = value[remotePick.index];
+            if (s.kind === "transfer") update(remotePick.index, { ...s, [remotePick.field]: p });
+            setRemotePick(null);
+          }}
+        />
+      )}
     </div>
   );
 }

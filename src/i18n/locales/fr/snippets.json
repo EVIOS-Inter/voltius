@@ -89,9 +89,17 @@
         "transfer": "Transfert",
         "snippet": "Appeler un snippet"
       },
-      "direction": {
-        "upload": "Envoi",
-        "download": "Téléchargement"
+      "endpoint": { "local": "Local", "remote": "Distant" },
+      "from": "De",
+      "to": "Vers",
+      "mode": { "copy": "Copier", "move": "Déplacer" },
+      "conflict": { "label": "Si existe déjà", "overwrite": "Écraser", "skip": "Ignorer", "fail": "Échouer" },
+      "remotePicker": {
+        "title": "Parcourir un chemin distant",
+        "pickHost": "Choisissez un hôte à parcourir",
+        "connecting": "Connexion…",
+        "select": "Sélectionner",
+        "selectFolder": "Utiliser ce dossier"
       },
       "file": "Fichier",
       "folder": "Dossier",

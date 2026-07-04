@@ -90,9 +90,17 @@
         "transfer": "Transfer",
         "snippet": "Call snippet"
       },
-      "direction": {
-        "upload": "Upload",
-        "download": "Download"
+      "endpoint": { "local": "Local", "remote": "Remote" },
+      "from": "From",
+      "to": "To",
+      "mode": { "copy": "Copy", "move": "Move" },
+      "conflict": { "label": "If exists", "overwrite": "Overwrite", "skip": "Skip", "fail": "Fail" },
+      "remotePicker": {
+        "title": "Browse remote path",
+        "pickHost": "Choose a host to browse",
+        "connecting": "Connecting…",
+        "select": "Select",
+        "selectFolder": "Use this folder"
       },
       "file": "File",
       "folder": "Folder",

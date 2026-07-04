@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useSyncPrefsStore } from "@/stores/syncPrefsStore";
@@ -34,6 +35,7 @@ export function FolderEditPanel({
   onCopyToVault,
   syncObjectType = "folder",
 }: FolderEditPanelProps) {
+  const { t } = useTranslation();
   const [name, setName]       = useState(folder.name);
   const [vaultId, setVaultId] = useState(folder.vault_id ?? "personal");
   const isSynced     = useSyncPrefsStore((s) => s.isObjectSynced(folder.id, syncObjectType));
@@ -71,10 +73,10 @@ export function FolderEditPanel({
   };
 
   const panelActions = [
-    ...(onExport ? [{ label: "Export folder", icon: "lucide:upload", onClick: onExport }] : []),
+    ...(onExport ? [{ label: t("folders.card.exportFolder"), icon: "lucide:upload", onClick: onExport }] : []),
     ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault),
     {
-      label: isSynced ? "Disable cloud sync" : "Enable cloud sync",
+      label: isSynced ? t("folders.card.disableCloudSync") : t("folders.card.enableCloudSync"),
       icon: isSynced ? "lucide:cloud-off" : "lucide:cloud",
       onClick: () => toggleExcluded(folder.id),
     },
@@ -84,7 +86,7 @@ export function FolderEditPanel({
     <PanelShell>
       <PanelHeader
         icon="lucide:folder"
-        title="Folder"
+        title={t("common.entity.folder")}
         subtitle={<VaultPicker vaultId={vaultId} onChange={handleVaultChange} />}
         onClose={handleClose}
         saveState={saveState}
@@ -94,7 +96,7 @@ export function FolderEditPanel({
       <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-5">
         {/* Name */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">Name</label>
+          <label className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{t("folders.editPanel.nameLabel")}</label>
           <input
             className="form-input w-full px-3 py-2 rounded-lg text-sm outline-hidden bg-(--t-bg-input) border border-(--t-border) text-(--t-text-bright)"
             value={name}
@@ -105,7 +107,7 @@ export function FolderEditPanel({
 
         {/* Cloud sync */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">Cloud Sync</label>
+          <label className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{t("folders.editPanel.cloudSyncLabel")}</label>
           <button
             className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors bg-(--t-bg-input) border border-(--t-border) ${isTypeSynced ? "cursor-pointer" : "cursor-default"}`}
             style={{ opacity: isTypeSynced ? 1 : 0.5 }}
@@ -118,7 +120,7 @@ export function FolderEditPanel({
                 style={{ color: isSynced ? "var(--t-accent)" : "var(--t-text-dim)" }}
               />
               <span className="text-sm text-(--t-text-primary)">
-                {isSynced ? "Synced to cloud" : "Not synced"}
+                {isSynced ? t("folders.editPanel.syncedToCloud") : t("folders.editPanel.notSynced")}
               </span>
             </div>
             <div
@@ -133,14 +135,14 @@ export function FolderEditPanel({
           </button>
           {!isTypeSynced && (
             <p className="text-xs text-(--t-text-dim)">
-              Folder sync is disabled globally in Settings → Cloud Sync.
+              {t("folders.editPanel.syncDisabledGlobally")}
             </p>
           )}
         </div>
 
         {/* Meta */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">Created</label>
+          <label className="text-xs font-bold uppercase tracking-widest text-(--t-text-dim)">{t("folders.editPanel.createdLabel")}</label>
           <p className="text-sm text-(--t-text-secondary)">
             {new Date(folder.created_at).toLocaleString()}
           </p>
@@ -160,7 +162,7 @@ export function FolderEditPanel({
           onClick={() => onDelete(folder)}
         >
           <Icon icon="lucide:trash-2" width={14} />
-          Delete folder
+          {t("folders.card.deleteFolder")}
         </button>
       </div>
     </PanelShell>

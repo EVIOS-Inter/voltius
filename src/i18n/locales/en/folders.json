@@ -1,0 +1,30 @@
+{
+  "folders": {
+    "card": {
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "openFolder": "Open folder",
+      "cloudSyncDisabled": "Cloud sync disabled",
+      "unpinForMe": "Unpin for me",
+      "showInMyView": "Show in my view",
+      "hideForMe": "Hide for me",
+      "pinForMe": "Pin for me",
+      "unpinForTeam": "Unpin for team",
+      "pinForTeam": "Pin for team",
+      "exportFolder": "Export folder",
+      "disableCloudSync": "Disable cloud sync",
+      "enableCloudSync": "Enable cloud sync",
+      "deleteFolder": "Delete folder",
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items"
+    },
+    "editPanel": {
+      "nameLabel": "Name",
+      "cloudSyncLabel": "Cloud Sync",
+      "syncedToCloud": "Synced to cloud",
+      "notSynced": "Not synced",
+      "syncDisabledGlobally": "Folder sync is disabled globally in Settings → Cloud Sync.",
+      "createdLabel": "Created"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { AvatarTile } from "@/components/shared/AvatarTile";
 import { GLASS_BG, GLASS_BG_HOVER, GLASS_SHADOW, GLASS_SHADOW_HOVER } from "@/components/shared/BaseCard";
@@ -60,6 +61,7 @@ export function FolderCard({
   bulkContextMenuItems,
   "data-drop-folder": dataDropFolder,
 }: FolderCardProps) {
+  const { t } = useTranslation();
   const isList = layout === "list";
   const avatarSize = isList ? 28 : 48;
   const iconSize = isList ? 14 : 22;
@@ -197,7 +199,7 @@ export function FolderCard({
               </p>
             )}
             <p className="text-xs truncate flex-1 text-(--t-text-secondary)">
-              {itemCount} item{itemCount !== 1 ? "s" : ""}
+              {t("folders.card.itemCount", { count: itemCount })}
             </p>
           </>
         ) : (
@@ -222,7 +224,7 @@ export function FolderCard({
               </p>
             )}
             <p className="text-xs mt-0.5 truncate text-(--t-text-secondary)">
-              {itemCount} item{itemCount !== 1 ? "s" : ""}
+              {t("folders.card.itemCount", { count: itemCount })}
             </p>
           </div>
         )}
@@ -232,17 +234,17 @@ export function FolderCard({
             onClick={(e) => { e.stopPropagation(); handlePinClick(); }}
             className={`shrink-0 flex items-center transition-colors ${pinAlwaysVisible ? "opacity-100" : "opacity-0 group-hover:opacity-100 hover:text-(--t-text-bright)"}`}
             style={{ color: pinColor }}
-            title={effPinned ? "Unpin" : "Pin"}
+            title={effPinned ? t("folders.card.unpin") : t("folders.card.pin")}
           >
             <Icon icon={pinIcon} width={16} />
           </button>
           {!isSynced && (
-            <span title="Cloud sync disabled" className="text-(--t-text-dim) flex items-center">
+            <span title={t("folders.card.cloudSyncDisabled")} className="text-(--t-text-dim) flex items-center">
               <Icon icon="lucide:cloud-off" width={18} />
             </span>
           )}
-          {canEdit && <CardActionButton icon="lucide:pencil" title="Edit" onClick={() => onEdit?.()} />}
-          {canEdit && <CardActionButton icon="lucide:trash-2" title="Delete" onClick={() => onDelete(folder)} danger />}
+          {canEdit && <CardActionButton icon="lucide:pencil" title={t("common.action.edit")} onClick={() => onEdit?.()} />}
+          {canEdit && <CardActionButton icon="lucide:trash-2" title={t("common.action.delete")} onClick={() => onDelete(folder)} danger />}
         </div>
       </div>
 
@@ -252,21 +254,21 @@ export function FolderCard({
           onClose={closeCtx}
           items={[
             ...(activeMenuItems ?? [
-            { label: "Open folder", icon: "lucide:folder-open", onClick: onClick, shortcut: "↩" },
+            { label: t("folders.card.openFolder"), icon: "lucide:folder-open", onClick: onClick, shortcut: "↩" },
             ...(canEdit ? [
-              { label: "Rename", icon: "lucide:pencil", onClick: () => { setRenameValue(folder.name); setRenaming(true); } },
-              { label: "Edit", icon: "lucide:settings-2", onClick: () => onEdit?.() },
+              { label: t("common.action.rename"), icon: "lucide:pencil", onClick: () => { setRenameValue(folder.name); setRenaming(true); } },
+              { label: t("common.action.edit"), icon: "lucide:settings-2", onClick: () => onEdit?.() },
             ] : []),
             {
               label: isTeamVault
                 ? (pinSource === "personal" || pinSource === "team+personal")
-                  ? "Unpin for me"
+                  ? t("folders.card.unpinForMe")
                   : pinSource === "team-hidden"
-                  ? "Show in my view"
+                  ? t("folders.card.showInMyView")
                   : pinSource === "team"
-                  ? "Hide for me"
-                  : "Pin for me"
-                : effPinned ? "Unpin" : "Pin",
+                  ? t("folders.card.hideForMe")
+                  : t("folders.card.pinForMe")
+                : effPinned ? t("folders.card.unpin") : t("folders.card.pin"),
               icon: (pinSource === "personal" || pinSource === "team+personal" || (!isTeamVault && effPinned))
                 ? "lucide:pin-off"
                 : "lucide:pin",
@@ -274,15 +276,15 @@ export function FolderCard({
               divider: true as const,
             },
             ...(canEdit && isTeamVault ? [{
-              label: folder.pinned ? "Unpin for team" : "Pin for team",
+              label: folder.pinned ? t("folders.card.unpinForTeam") : t("folders.card.pinForTeam"),
               icon: "lucide:users",
               onClick: () => pinTeam(!folder.pinned),
             }] : []),
-            { label: "Export folder", icon: "lucide:upload", onClick: () => onExport?.() },
+            { label: t("folders.card.exportFolder"), icon: "lucide:upload", onClick: () => onExport?.() },
             ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault),
             ...(canEdit ? [
-              { label: isSynced ? "Disable cloud sync" : "Enable cloud sync", icon: isSynced ? "lucide:cloud-off" : "lucide:cloud", onClick: () => toggleSync(folder.id) },
-              { label: "Delete folder", icon: "lucide:trash-2", onClick: () => onDelete(folder), danger: true as const, shortcut: getShortcutHint("delete") },
+              { label: isSynced ? t("folders.card.disableCloudSync") : t("folders.card.enableCloudSync"), icon: isSynced ? "lucide:cloud-off" : "lucide:cloud", onClick: () => toggleSync(folder.id) },
+              { label: t("folders.card.deleteFolder"), icon: "lucide:trash-2", onClick: () => onDelete(folder), danger: true as const, shortcut: getShortcutHint("delete") },
             ] : []),
             ]),
           ]}

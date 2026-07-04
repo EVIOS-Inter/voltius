@@ -1,0 +1,30 @@
+{
+  "folders": {
+    "card": {
+      "pin": "Épingler",
+      "unpin": "Détacher",
+      "openFolder": "Ouvrir le dossier",
+      "cloudSyncDisabled": "Synchronisation cloud désactivée",
+      "unpinForMe": "Détacher pour moi",
+      "showInMyView": "Afficher dans ma vue",
+      "hideForMe": "Masquer pour moi",
+      "pinForMe": "Épingler pour moi",
+      "unpinForTeam": "Détacher pour l'équipe",
+      "pinForTeam": "Épingler pour l'équipe",
+      "exportFolder": "Exporter le dossier",
+      "disableCloudSync": "Désactiver la synchronisation cloud",
+      "enableCloudSync": "Activer la synchronisation cloud",
+      "deleteFolder": "Supprimer le dossier",
+      "itemCount_one": "{{count}} élément",
+      "itemCount_other": "{{count}} éléments"
+    },
+    "editPanel": {
+      "nameLabel": "Nom",
+      "cloudSyncLabel": "Synchronisation cloud",
+      "syncedToCloud": "Synchronisé avec le cloud",
+      "notSynced": "Non synchronisé",
+      "syncDisabledGlobally": "La synchronisation des dossiers est désactivée globalement dans Paramètres → Synchronisation cloud.",
+      "createdLabel": "Créé le"
+    }
+  }
+}

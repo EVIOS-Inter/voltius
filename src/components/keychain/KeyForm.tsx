@@ -181,7 +181,7 @@ export function KeyForm({ initial, initialMode, onSubmit, onClose, onExport, onD
           const items = [
             ...(onExport ? [{ label: t("keychain.common.addToHost"), icon: "lucide:square-arrow-right", onClick: () => onExport(initial) }] : []),
             ...contributions.map((a, i) => ({ ...a, icon: a.icon ?? "lucide:chevron-right", divider: i === 0 && !!onExport })),
-            ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault),
+            ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault, t),
             {
               label: isSynced ? t("keychain.common.disableCloudSync") : t("keychain.common.enableCloudSync"),
               icon: isSynced ? "lucide:cloud-off" : "lucide:cloud",

@@ -47,6 +47,7 @@
       "downloadDialogTitle": "Download to folder",
       "waitingForSession": "Waiting for session",
       "connecting": "Connecting…",
+      "notSupportedForSessionType": "SFTP not supported for this session type",
       "followPinned": "Following terminal cwd · click to unpin",
       "followWaiting": "Following terminal cwd · waiting for shell to report cwd (requires shell integration)",
       "followTitle": "Follow terminal cwd",
@@ -77,7 +78,13 @@
         "activeCount": "{{count}} active",
         "addTitle": "Forward a port"
       },
-      "quickForwardPlaceholder": "Forward a Port (e.g. 3000 or 3000:8080)"
+      "quickForwardPlaceholder": "Forward a Port (e.g. 3000 or 3000:8080)",
+      "quickForwardErrors": {
+        "emptyInput": "Enter a port",
+        "tooManyParts": "Use port or remote:local",
+        "invalidRemotePort": "Port must be 1–65535",
+        "invalidLocalPort": "Local port must be 1–65535"
+      }
     },
     "rightPanel": {
       "font": "Font",

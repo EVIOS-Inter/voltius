@@ -151,6 +151,7 @@ export default function HostCard({
     }] : []),
     ...(!isSerial && !isFtp && onExecuteSnippet ? [{ label: t("hosts.card.executeSnippet"), icon: "lucide:braces", onClick: () => onExecuteSnippet(connection), divider: true }] : []),
     ...buildConnectionMenuItems({
+      t,
       canEdit,
       contributions,
       vaults,

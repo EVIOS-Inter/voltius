@@ -126,7 +126,7 @@ export function SnippetCard({
       onClick: () => useUIStore.getState().openImportExport("export", { single: { key: "snippets", id: snippet.id } }),
       divider: true as const,
     },
-    ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault),
+    ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault, t),
     { label: t("common.action.delete"), icon: "lucide:trash-2", onClick: onDelete, danger: true as const, divider: true as const, shortcut: getShortcutHint("delete") },
   ];
 

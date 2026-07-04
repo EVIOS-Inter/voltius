@@ -47,6 +47,7 @@
       "downloadDialogTitle": "Télécharger vers le dossier",
       "waitingForSession": "En attente de la session",
       "connecting": "Connexion…",
+      "notSupportedForSessionType": "SFTP non pris en charge pour ce type de session",
       "followPinned": "Suit le répertoire courant du terminal · cliquer pour détacher",
       "followWaiting": "Suit le répertoire courant du terminal · en attente que le shell le signale (nécessite l'intégration shell)",
       "followTitle": "Suivre le répertoire courant du terminal",
@@ -77,7 +78,13 @@
         "activeCount": "{{count}} active",
         "addTitle": "Rediriger un port"
       },
-      "quickForwardPlaceholder": "Rediriger un port (ex. 3000 ou 3000:8080)"
+      "quickForwardPlaceholder": "Rediriger un port (ex. 3000 ou 3000:8080)",
+      "quickForwardErrors": {
+        "emptyInput": "Entrez un port",
+        "tooManyParts": "Utilisez port ou distant:local",
+        "invalidRemotePort": "Le port doit être compris entre 1 et 65535",
+        "invalidLocalPort": "Le port local doit être compris entre 1 et 65535"
+      }
     },
     "rightPanel": {
       "font": "Police",

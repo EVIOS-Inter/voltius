@@ -215,6 +215,7 @@ function KeyCard({
     ...vaultMenuItems(vaults, canEdit,
       (vId) => onMoveToVault?.(sshKey, vId),
       (vId) => onCopyToVault?.(sshKey, vId),
+      t,
     ),
     {
       label: isSynced ? t("keychain.common.disableCloudSync") : t("keychain.common.enableCloudSync"),
@@ -471,6 +472,7 @@ function IdentityCard({
     ...vaultMenuItems(vaults, canEdit,
       (vId) => onMoveToVault?.(identity, vId),
       (vId) => onCopyToVault?.(identity, vId),
+      t,
     ),
     {
       label: isSynced ? t("keychain.common.disableCloudSync") : t("keychain.common.enableCloudSync"),

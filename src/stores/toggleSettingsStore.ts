@@ -4,9 +4,11 @@ import { persist } from "zustand/middleware";
 import { useAppSettingsTimestampStore } from "./appSettingsTimestampStore";
 
 export interface ToggleDef {
-  label: string;
+  /** i18n key resolving to the display label, translated at render time */
+  labelKey: string;
   icon: string;
-  description: string;
+  /** i18n key resolving to the display description (category), translated at render time */
+  descriptionKey: string;
   keywords: string[];
   default: boolean;
 }
@@ -15,96 +17,101 @@ export interface ToggleDef {
  * Single source of truth for every boolean toggle setting.
  * Adding a new setting here is the only change required — no edits to
  * OmniSearch, useToggleSettings, or any UI file.
+ *
+ * `label`/`description` are NOT stored here as literal strings — they're i18n
+ * keys resolved via t() at render time (see useToggleSettings.ts). The `id`
+ * (object key) and `keywords` stay literal English since the id is
+ * value-matched for persistence and keywords are search-only, not rendered.
  */
 export const TOGGLE_DEFS = {
   "scroll-minimap": {
-    label: "Scroll Minimap",
+    labelKey: "settings.toggleDefs.scrollMinimap.label",
     icon: "lucide:panel-right",
-    description: "Appearance",
+    descriptionKey: "settings.toggleDefs.category.appearance",
     keywords: ["minimap", "scrollbar", "terminal", "map"],
     default: true,
   },
   "select-to-copy": {
-    label: "Select to Copy",
+    labelKey: "settings.toggleDefs.selectToCopy.label",
     icon: "lucide:clipboard-check",
-    description: "Appearance",
+    descriptionKey: "settings.toggleDefs.category.appearance",
     keywords: ["copy", "select", "clipboard", "terminal", "auto"],
     default: true,
   },
   "auto-forward": {
-    label: "Automatic Port Forwarding",
+    labelKey: "settings.toggleDefs.autoForward.label",
     icon: "lucide:arrow-left-right",
-    description: "Port Forwarding",
+    descriptionKey: "settings.toggleDefs.category.portForwarding",
     keywords: ["forward", "port", "tunnel", "auto", "detect", "ssh"],
     default: true,
   },
   "forwarding-notifications": {
-    label: "Port Forwarding Notifications",
+    labelKey: "settings.toggleDefs.forwardingNotifications.label",
     icon: "lucide:bell",
-    description: "Port Forwarding",
+    descriptionKey: "settings.toggleDefs.category.portForwarding",
     keywords: ["notification", "alert", "forward", "port", "notify"],
     default: false,
   },
   "sftp-tar": {
-    label: "SFTP Tar Acceleration",
+    labelKey: "settings.toggleDefs.sftpTar.label",
     icon: "lucide:package",
-    description: "SFTP",
+    descriptionKey: "settings.toggleDefs.category.sftp",
     keywords: ["sftp", "transfer", "tar", "compress", "file", "fast"],
     default: true,
   },
   "sftp-autorefresh": {
-    label: "SFTP Auto-Refresh",
+    labelKey: "settings.toggleDefs.sftpAutoRefresh.label",
     icon: "lucide:folder-sync",
-    description: "SFTP",
+    descriptionKey: "settings.toggleDefs.category.sftp",
     keywords: ["sftp", "refresh", "auto", "file", "panel", "reload"],
     default: true,
   },
   "reachability": {
-    label: "Reachability Check",
+    labelKey: "settings.toggleDefs.reachability.label",
     icon: "lucide:radio-tower",
-    description: "Hosts",
+    descriptionKey: "settings.toggleDefs.category.hosts",
     keywords: ["ping", "reachability", "status", "check", "connectivity", "dot", "latency"],
     default: true,
   },
   "team-presence": {
-    label: "Team Presence",
+    labelKey: "settings.toggleDefs.teamPresence.label",
     icon: "lucide:user-check",
-    description: "Hosts",
+    descriptionKey: "settings.toggleDefs.category.hosts",
     keywords: ["presence", "team", "avatar", "share", "online", "activity"],
     default: true,
   },
   "shell-integration": {
-    label: "Shell Integration",
+    labelKey: "settings.toggleDefs.shellIntegration.label",
     icon: "lucide:terminal",
-    description: "Hosts",
+    descriptionKey: "settings.toggleDefs.category.hosts",
     keywords: ["shell", "integration", "osc", "prompt", "cwd", "directory", "motd", "command"],
     default: true,
   },
   "persistent-sessions": {
-    label: "Persistent Sessions",
+    labelKey: "settings.toggleDefs.persistentSessions.label",
     icon: "lucide:history",
-    description: "Hosts",
+    descriptionKey: "settings.toggleDefs.category.hosts",
     keywords: ["persistent", "session", "tmux", "screen", "reconnect", "survive", "resume", "sleep", "reattach", "keep alive"],
     default: true,
   },
   "restore-workspace": {
-    label: "Restore Workspace on Launch",
+    labelKey: "settings.toggleDefs.restoreWorkspace.label",
     icon: "lucide:archive-restore",
-    description: "Hosts",
+    descriptionKey: "settings.toggleDefs.category.hosts",
     keywords: ["restore", "workspace", "startup", "launch", "tabs", "resume", "reopen", "session"],
     default: true,
   },
   "cross-device-sessions": {
-    label: "Cross-Device Sessions",
+    labelKey: "settings.toggleDefs.crossDeviceSessions.label",
     icon: "lucide:monitor-smartphone",
-    description: "Hosts",
+    descriptionKey: "settings.toggleDefs.category.hosts",
     keywords: ["cross", "device", "join", "shared", "continue", "mirror", "session", "remote", "tmux", "persistent"],
     default: true,
   },
   "changelog-popup": {
-    label: "Show What's New After Updates",
+    labelKey: "settings.toggleDefs.changelogPopup.label",
     icon: "lucide:megaphone",
-    description: "Updates",
+    descriptionKey: "settings.toggleDefs.category.updates",
     keywords: ["changelog", "popup", "release", "notes", "whats new", "update", "version"],
     default: true,
   },

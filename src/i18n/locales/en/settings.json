@@ -269,6 +269,7 @@
       },
       "prefsTitle": "Sync Preferences",
       "prefsFooter": "Disabled types won't trigger automatic syncs when changed. Individual objects can also be excluded via their edit panel.",
+      "quickToggleLabel": "Sync {{label}}",
       "objectType": {
         "connection": { "label": "Hosts", "sub": "SSH connections" },
         "identity": { "label": "Identities", "sub": "Usernames and credentials" },
@@ -434,6 +435,7 @@
       }
     },
     "plugins": {
+      "categoryLabel": "Plugin",
       "tabs": {
         "installed": "Installed ({{count}})",
         "browse": "Browse"
@@ -537,6 +539,12 @@
         "title": "Keepalive",
         "desc": "How quickly a session is declared lost when the server stops responding. {{detail}}. Can be overridden per host."
       },
+      "keepalivePresets": {
+        "fast": { "label": "Fast", "detail": "Detects a dropped connection in ~4s" },
+        "balanced": { "label": "Balanced", "detail": "~9s; tolerates a brief network blip" },
+        "tolerant": { "label": "Tolerant", "detail": "~20s; for flaky networks" },
+        "off": { "label": "Off", "detail": "No keepalive probes" }
+      },
       "persistentSessions": {
         "title": "Persistent sessions",
         "desc": "Keep your shell and running processes alive across disconnects by wrapping the remote shell in tmux (falls back to screen). Requires tmux or screen on the host. Can be overridden per host."
@@ -550,6 +558,28 @@
       "teamPresence": {
         "title": "Share which team-vault hosts you're using",
         "desc": "When on, your avatar appears on a host card while you have a terminal open to it. Only teammates with access to the host see it."
+      }
+    },
+    "toggleDefs": {
+      "scrollMinimap": { "label": "Scroll Minimap" },
+      "selectToCopy": { "label": "Select to Copy" },
+      "autoForward": { "label": "Automatic Port Forwarding" },
+      "forwardingNotifications": { "label": "Port Forwarding Notifications" },
+      "sftpTar": { "label": "SFTP Tar Acceleration" },
+      "sftpAutoRefresh": { "label": "SFTP Auto-Refresh" },
+      "reachability": { "label": "Reachability Check" },
+      "teamPresence": { "label": "Team Presence" },
+      "shellIntegration": { "label": "Shell Integration" },
+      "persistentSessions": { "label": "Persistent Sessions" },
+      "restoreWorkspace": { "label": "Restore Workspace on Launch" },
+      "crossDeviceSessions": { "label": "Cross-Device Sessions" },
+      "changelogPopup": { "label": "Show What's New After Updates" },
+      "category": {
+        "appearance": "Appearance",
+        "portForwarding": "Port Forwarding",
+        "sftp": "SFTP",
+        "hosts": "Hosts",
+        "updates": "Updates"
       }
     },
     "shortcuts": {
@@ -574,15 +604,23 @@
         "editing": "Editing",
         "other": "Other"
       },
-      "labelOverride": {
-        "shortcuts": {
-          "label": "Keyboard Shortcuts",
-          "desc": "Open shortcut settings"
-        },
-        "themes": {
-          "label": "Settings",
-          "desc": "Open settings"
-        }
+      "items": {
+        "omni":           { "label": "Omni Search",      "desc": "Access everything from one place" },
+        "shortcuts":      { "label": "Keyboard Shortcuts", "desc": "Open shortcut settings" },
+        "themes":         { "label": "Settings",         "desc": "Open settings" },
+        "newTab":         { "label": "New Tab",          "desc": "Go to hosts view" },
+        "closeTab":       { "label": "Close Tab",        "desc": "Close active session" },
+        "nextTab":        { "label": "Next Tab",         "desc": "Switch to next tab" },
+        "prevTab":        { "label": "Previous Tab",     "desc": "Switch to prev tab" },
+        "sidebar":        { "label": "Toggle Sidebar",   "desc": "Show/hide sidebar" },
+        "delete":         { "label": "Delete Selected",  "desc": "Delete selected items" },
+        "undo":           { "label": "Undo",             "desc": "Undo last action" },
+        "redo":           { "label": "Redo",             "desc": "Redo last undone action" },
+        "filter":         { "label": "Focus Filter",     "desc": "Focus the search filter" },
+        "terminalSearch": { "label": "Find in Terminal", "desc": "Search the terminal scrollback" },
+        "history":        { "label": "History Panel",    "desc": "Open command history in right panel" },
+        "snippets":       { "label": "Snippets Panel",   "desc": "Open snippets in right panel" },
+        "panelThemes":    { "label": "Themes Panel",     "desc": "Open themes in right panel" }
       }
     }
   }

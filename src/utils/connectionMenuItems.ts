@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import type { VaultOption } from "@/types";
 import type { ContextMenuItem } from "@/components/shared/ContextMenu";
 import { vaultMenuItems } from "@/utils/vaultMenuItems";
@@ -20,6 +21,8 @@ export interface ConnectionMenuOptions {
   onDelete?: () => void;
   /** Items inserted between Duplicate and contributions (e.g. Pin for HostCard) */
   extras?: ContextMenuItem[];
+  /** Translation function, called at render time (no caching) */
+  t: TFunction;
 }
 
 export function buildConnectionMenuItems({
@@ -38,24 +41,25 @@ export function buildConnectionMenuItems({
   onTogglePing,
   onDelete,
   extras = [],
+  t,
 }: ConnectionMenuOptions): ContextMenuItem[] {
   return [
-    { label: "Connect", icon: "lucide:terminal", onClick: onConnect, shortcut: connectShortcut },
-    ...(canEdit && onDuplicate ? [{ label: "Duplicate", icon: "lucide:copy", onClick: onDuplicate, shortcut: duplicateShortcut }] : []),
+    { label: t("common.action.connect"), icon: "lucide:terminal", onClick: onConnect, shortcut: connectShortcut },
+    ...(canEdit && onDuplicate ? [{ label: t("common.action.duplicate"), icon: "lucide:copy", onClick: onDuplicate, shortcut: duplicateShortcut }] : []),
     ...extras,
     ...contributions.map((a, i) => ({ ...a, divider: i === 0 })),
-    ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault),
+    ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault, t),
     {
-      label: isSynced ? "Disable cloud sync" : "Enable cloud sync",
+      label: isSynced ? t("hosts.card.disableCloudSync") : t("hosts.card.enableCloudSync"),
       icon: isSynced ? "lucide:cloud-off" : "lucide:cloud",
       onClick: onToggleSync,
       divider: true,
     },
     {
-      label: pingDisabled ? "Enable reachability check" : "Disable reachability check",
+      label: pingDisabled ? t("hosts.card.enableReachability") : t("hosts.card.disableReachability"),
       icon: pingDisabled ? "lucide:wifi" : "lucide:wifi-off",
       onClick: onTogglePing,
     },
-    ...(onDelete ? [{ label: "Delete", icon: "lucide:trash-2", onClick: onDelete, danger: true, shortcut: getShortcutHint("delete") }] : []),
+    ...(onDelete ? [{ label: t("common.action.delete"), icon: "lucide:trash-2", onClick: onDelete, danger: true, shortcut: getShortcutHint("delete") }] : []),
   ];
 }

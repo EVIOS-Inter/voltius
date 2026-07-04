@@ -23,15 +23,11 @@ const GROUPS: Group[] = [
   { id: "editing",    ids: ["delete", "undo", "redo"] },
 ];
 
-const LABEL_OVERRIDE_IDS = new Set(["shortcuts", "themes"]);
-
 function displayLabel(sc: Shortcut, t: TranslateFn): string {
-  if (LABEL_OVERRIDE_IDS.has(sc.id)) return t(`settings.shortcuts.labelOverride.${sc.id}.label`);
-  return sc.label;
+  return t(sc.labelKey);
 }
 function displayDescription(sc: Shortcut, t: TranslateFn): string {
-  if (LABEL_OVERRIDE_IDS.has(sc.id)) return t(`settings.shortcuts.labelOverride.${sc.id}.desc`);
-  return sc.description;
+  return t(sc.descriptionKey);
 }
 
 function matchesSearch(sc: Shortcut, q: string, t: TranslateFn): boolean {

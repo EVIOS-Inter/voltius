@@ -65,6 +65,7 @@ export function RuleCard({
       canEdit,
       (vId) => onMoveToVault?.(rule, vId),
       (vId) => onCopyToVault?.(rule, vId),
+      t,
     ),
     {
       label: isSynced ? t("portForwarding.ruleCard.disableCloudSync") : t("portForwarding.ruleCard.enableCloudSync"),

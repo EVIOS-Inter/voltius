@@ -289,8 +289,8 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
   const visibleIcon = icon || distro;
 
   const keepaliveOptions = useMemo(() => [
-    { value: "", label: t("connections.form.inheritKeepalive", { label: KEEPALIVE_PRESETS[globalKeepalive].label }) },
-    ...(Object.keys(KEEPALIVE_PRESETS) as KeepalivePreset[]).map((p) => ({ value: p, label: KEEPALIVE_PRESETS[p].label })),
+    { value: "", label: t("connections.form.inheritKeepalive", { label: t(KEEPALIVE_PRESETS[globalKeepalive].labelKey) }) },
+    ...(Object.keys(KEEPALIVE_PRESETS) as KeepalivePreset[]).map((p) => ({ value: p, label: t(KEEPALIVE_PRESETS[p].labelKey) })),
   ], [globalKeepalive, t]);
 
   const persistOptions = useMemo(() => [
@@ -371,6 +371,7 @@ const ConnectionForm = forwardRef<ConnectionFormHandle, Props>(function Connecti
   }, [applyDetectedDistro, host, identityId, keyId, initial, passphrase, password, port, privateKey, selectedIdentity, username]);
 
   const panelItems = initial ? buildConnectionMenuItems({
+    t,
     canEdit,
     contributions,
     vaults,

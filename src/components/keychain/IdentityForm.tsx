@@ -322,7 +322,7 @@ export function IdentityForm({ initial, onSubmit, onClose, onDelete, flushRef, i
         actions={initial ? (() => {
           const items = [
             ...contributions.map((a) => ({ ...a, icon: a.icon ?? "lucide:chevron-right" })),
-            ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault),
+            ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault, t),
             {
               label: isSynced ? t("keychain.common.disableCloudSync") : t("keychain.common.enableCloudSync"),
               icon: isSynced ? "lucide:cloud-off" : "lucide:cloud",

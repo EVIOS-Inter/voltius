@@ -1,7 +1,17 @@
 import { useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { Icon } from "@iconify/react";
-import { parseQuickForward } from "@/utils/parseQuickForward";
+import { parseQuickForward, type QuickForwardErrorCode } from "@/utils/parseQuickForward";
+
+function quickForwardErrorMessage(code: QuickForwardErrorCode, t: TFunction): string {
+  switch (code) {
+    case "emptyInput": return t("terminal.ports.quickForwardErrors.emptyInput");
+    case "tooManyParts": return t("terminal.ports.quickForwardErrors.tooManyParts");
+    case "invalidRemotePort": return t("terminal.ports.quickForwardErrors.invalidRemotePort");
+    case "invalidLocalPort": return t("terminal.ports.quickForwardErrors.invalidLocalPort");
+  }
+}
 
 export function QuickForwardRow({
   inputRef,
@@ -17,7 +27,7 @@ export function QuickForwardRow({
 
   async function submit() {
     const parsed = parseQuickForward(value);
-    if (!parsed.ok) { setError(parsed.error); return; }
+    if (!parsed.ok) { setError(quickForwardErrorMessage(parsed.error, t)); return; }
     setBusy(true);
     setError(null);
     try {

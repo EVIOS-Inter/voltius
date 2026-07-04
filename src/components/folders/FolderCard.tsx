@@ -281,7 +281,7 @@ export function FolderCard({
               onClick: () => pinTeam(!folder.pinned),
             }] : []),
             { label: t("folders.card.exportFolder"), icon: "lucide:upload", onClick: () => onExport?.() },
-            ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault),
+            ...vaultMenuItems(vaults, canEdit, onMoveToVault, onCopyToVault, t),
             ...(canEdit ? [
               { label: isSynced ? t("folders.card.disableCloudSync") : t("folders.card.enableCloudSync"), icon: isSynced ? "lucide:cloud-off" : "lucide:cloud", onClick: () => toggleSync(folder.id) },
               { label: t("folders.card.deleteFolder"), icon: "lucide:trash-2", onClick: () => onDelete(folder), danger: true as const, shortcut: getShortcutHint("delete") },

@@ -19,43 +19,43 @@ describe("parseQuickForward", () => {
   });
 
   it("empty input → error", () => {
-    expect(parseQuickForward("")).toEqual({ ok: false, error: "Enter a port" });
+    expect(parseQuickForward("")).toEqual({ ok: false, error: "emptyInput" });
   });
 
   it("whitespace-only → error", () => {
-    expect(parseQuickForward("   ")).toEqual({ ok: false, error: "Enter a port" });
+    expect(parseQuickForward("   ")).toEqual({ ok: false, error: "emptyInput" });
   });
 
   it("non-numeric → error", () => {
-    expect(parseQuickForward("abc")).toEqual({ ok: false, error: "Port must be 1–65535" });
+    expect(parseQuickForward("abc")).toEqual({ ok: false, error: "invalidRemotePort" });
   });
 
   it("zero is out of range → error", () => {
-    expect(parseQuickForward("0")).toEqual({ ok: false, error: "Port must be 1–65535" });
+    expect(parseQuickForward("0")).toEqual({ ok: false, error: "invalidRemotePort" });
   });
 
   it("above 65535 → error", () => {
-    expect(parseQuickForward("70000")).toEqual({ ok: false, error: "Port must be 1–65535" });
+    expect(parseQuickForward("70000")).toEqual({ ok: false, error: "invalidRemotePort" });
   });
 
   it("invalid local port → error", () => {
     expect(parseQuickForward("3000:0")).toEqual({
       ok: false,
-      error: "Local port must be 1–65535",
+      error: "invalidLocalPort",
     });
   });
 
   it("trailing colon (empty local) → error", () => {
     expect(parseQuickForward("3000:")).toEqual({
       ok: false,
-      error: "Local port must be 1–65535",
+      error: "invalidLocalPort",
     });
   });
 
   it("too many segments → error", () => {
     expect(parseQuickForward("1:2:3")).toEqual({
       ok: false,
-      error: "Use port or remote:local",
+      error: "tooManyParts",
     });
   });
 });

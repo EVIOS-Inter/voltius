@@ -1,6 +1,13 @@
+/**
+ * Error codes are stable identifiers, NOT display text — callers map them to
+ * localized strings via t() at render time (see QuickForwardRow.tsx). Do not
+ * value-match these against literal English; only the code itself is stable.
+ */
+export type QuickForwardErrorCode = "emptyInput" | "tooManyParts" | "invalidRemotePort" | "invalidLocalPort";
+
 export type QuickForwardResult =
   | { ok: true; remotePort: number; localPort?: number }
-  | { ok: false; error: string };
+  | { ok: false; error: QuickForwardErrorCode };
 
 function parsePort(raw: string): number | null {
   if (!/^\d+$/.test(raw)) return null;
@@ -16,18 +23,18 @@ function parsePort(raw: string): number | null {
  */
 export function parseQuickForward(input: string): QuickForwardResult {
   const trimmed = input.trim();
-  if (trimmed === "") return { ok: false, error: "Enter a port" };
+  if (trimmed === "") return { ok: false, error: "emptyInput" };
 
   const parts = trimmed.split(":");
-  if (parts.length > 2) return { ok: false, error: "Use port or remote:local" };
+  if (parts.length > 2) return { ok: false, error: "tooManyParts" };
 
   const remotePort = parsePort(parts[0]);
-  if (remotePort === null) return { ok: false, error: "Port must be 1–65535" };
+  if (remotePort === null) return { ok: false, error: "invalidRemotePort" };
 
   if (parts.length === 1) return { ok: true, remotePort };
 
   const localPort = parsePort(parts[1]);
-  if (localPort === null) return { ok: false, error: "Local port must be 1–65535" };
+  if (localPort === null) return { ok: false, error: "invalidLocalPort" };
 
   return { ok: true, remotePort, localPort };
 }

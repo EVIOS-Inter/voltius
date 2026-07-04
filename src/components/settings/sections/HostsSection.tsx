@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   DEFAULT_ACTIVE_POLL_INTERVAL_MS,
@@ -14,12 +14,15 @@ import { DirtyDot, ResetButton } from "./shared";
 
 const SHELL_INTEGRATION_DEFAULT = TOGGLE_DEFS["shell-integration"].default;
 const PERSIST_SESSIONS_DEFAULT = TOGGLE_DEFS["persistent-sessions"].default;
-const KEEPALIVE_OPTIONS = (Object.keys(KEEPALIVE_PRESETS) as KeepalivePreset[]).map(
-  (p) => ({ value: p, label: KEEPALIVE_PRESETS[p].label }),
-);
 
 export default function HostsSection() {
   const { t } = useTranslation();
+  const keepaliveOptions = useMemo(
+    () => (Object.keys(KEEPALIVE_PRESETS) as KeepalivePreset[]).map(
+      (p) => ({ value: p, label: t(KEEPALIVE_PRESETS[p].labelKey) }),
+    ),
+    [t],
+  );
   const [enabled, setEnabled] = useToggle("reachability");
   const [presenceEnabled, setPresenceEnabled] = useToggle("team-presence");
   const [shellIntegration, setShellIntegration] = useToggle("shell-integration");
@@ -129,7 +132,7 @@ export default function HostsSection() {
             <div>
               <p className="text-sm font-medium text-(--t-text-primary)">{t("settings.hosts.keepalive.title")}</p>
               <p className="text-xs mt-0.5 text-(--t-text-dim)">
-                {t("settings.hosts.keepalive.desc", { detail: KEEPALIVE_PRESETS[keepalivePreset].detail })}
+                {t("settings.hosts.keepalive.desc", { detail: t(KEEPALIVE_PRESETS[keepalivePreset].detailKey) })}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -140,7 +143,7 @@ export default function HostsSection() {
               <FormSelect
                 className="w-36 shrink-0"
                 value={keepalivePreset}
-                options={KEEPALIVE_OPTIONS}
+                options={keepaliveOptions}
                 onChange={(v) => setKeepalivePreset(v as KeepalivePreset)}
               />
             </div>

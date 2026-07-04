@@ -412,6 +412,7 @@ export function PortForwardingPage() {
         allCanEdit,
         sharedVaults.length > 0 ? (vaultId) => { for (const r of selectedRules) handleMoveRuleToVault(r, vaultId); } : undefined,
         sharedVaults.length > 0 ? (vaultId) => { for (const r of selectedRules) handleCopyRuleToVault(r, vaultId); } : undefined,
+        t,
       ),
       {
         label: t("portForwarding.page.bulk.exportRules", { count: n }),

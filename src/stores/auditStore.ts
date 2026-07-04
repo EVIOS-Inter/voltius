@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import i18n from "@/i18n";
 import { fetchAuditLogs, exportAuditLogs } from "@/services/auditService";
 import { fetchLocalAuditLogs, exportLocalAuditLogs } from "@/services/localAuditService";
 import type { AuditLog, AuditFilters } from "@/services/auditService";
@@ -72,7 +73,7 @@ export const useAuditStore = create<AuditState>((set, get) => ({
       set({ logs, total, loading: false });
     } catch (e) {
       if (requestId !== fetchRequestSeq) return;
-      set({ loading: false, error: e instanceof Error ? e.message : "Failed to load logs" });
+      set({ loading: false, error: e instanceof Error ? e.message : i18n.t("common.error.failedToLoadLogs") });
     }
   },
 

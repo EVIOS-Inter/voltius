@@ -269,6 +269,7 @@
       },
       "prefsTitle": "Préférences de synchronisation",
       "prefsFooter": "Les types désactivés ne déclenchent pas de synchronisation automatique lors de modifications. Les objets individuels peuvent également être exclus via leur panneau d'édition.",
+      "quickToggleLabel": "Synchroniser {{label}}",
       "objectType": {
         "connection": { "label": "Hôtes", "sub": "Connexions SSH" },
         "identity": { "label": "Identités", "sub": "Noms d'utilisateur et informations d'identification" },
@@ -434,6 +435,7 @@
       }
     },
     "plugins": {
+      "categoryLabel": "Extension",
       "tabs": {
         "installed": "Installées ({{count}})",
         "browse": "Parcourir"
@@ -537,6 +539,12 @@
         "title": "Keepalive",
         "desc": "Délai avant qu'une session soit considérée comme perdue lorsque le serveur cesse de répondre. {{detail}}. Peut être remplacé par hôte."
       },
+      "keepalivePresets": {
+        "fast": { "label": "Rapide", "detail": "Détecte une connexion perdue en ~4s" },
+        "balanced": { "label": "Équilibré", "detail": "~9s ; tolère une brève coupure réseau" },
+        "tolerant": { "label": "Tolérant", "detail": "~20s ; pour les réseaux instables" },
+        "off": { "label": "Désactivé", "detail": "Aucune sonde de keepalive" }
+      },
       "persistentSessions": {
         "title": "Sessions persistantes",
         "desc": "Maintient votre shell et vos processus actifs lors des déconnexions en enveloppant le shell distant dans tmux (repli sur screen). Nécessite tmux ou screen sur l'hôte. Peut être remplacé par hôte."
@@ -550,6 +558,28 @@
       "teamPresence": {
         "title": "Partager les hôtes du coffre-fort d'équipe que vous utilisez",
         "desc": "Lorsqu'activé, votre avatar apparaît sur la carte d'un hôte pendant que vous avez un terminal ouvert dessus. Seuls les coéquipiers ayant accès à l'hôte le voient."
+      }
+    },
+    "toggleDefs": {
+      "scrollMinimap": { "label": "Minimap de défilement" },
+      "selectToCopy": { "label": "Sélectionner pour copier" },
+      "autoForward": { "label": "Transfert de ports automatique" },
+      "forwardingNotifications": { "label": "Notifications de transfert de ports" },
+      "sftpTar": { "label": "Accélération Tar SFTP" },
+      "sftpAutoRefresh": { "label": "Actualisation automatique SFTP" },
+      "reachability": { "label": "Vérification d'accessibilité" },
+      "teamPresence": { "label": "Présence d'équipe" },
+      "shellIntegration": { "label": "Intégration du shell" },
+      "persistentSessions": { "label": "Sessions persistantes" },
+      "restoreWorkspace": { "label": "Restaurer l'espace de travail au lancement" },
+      "crossDeviceSessions": { "label": "Sessions multi-appareils" },
+      "changelogPopup": { "label": "Afficher les nouveautés après les mises à jour" },
+      "category": {
+        "appearance": "Apparence",
+        "portForwarding": "Transfert de ports",
+        "sftp": "SFTP",
+        "hosts": "Hôtes",
+        "updates": "Mises à jour"
       }
     },
     "shortcuts": {
@@ -574,15 +604,23 @@
         "editing": "Édition",
         "other": "Autre"
       },
-      "labelOverride": {
-        "shortcuts": {
-          "label": "Raccourcis clavier",
-          "desc": "Ouvrir les paramètres des raccourcis"
-        },
-        "themes": {
-          "label": "Paramètres",
-          "desc": "Ouvrir les paramètres"
-        }
+      "items": {
+        "omni":           { "label": "Recherche universelle", "desc": "Accéder à tout depuis un seul endroit" },
+        "shortcuts":      { "label": "Raccourcis clavier",    "desc": "Ouvrir les paramètres des raccourcis" },
+        "themes":         { "label": "Paramètres",            "desc": "Ouvrir les paramètres" },
+        "newTab":         { "label": "Nouvel onglet",         "desc": "Aller à la vue des hôtes" },
+        "closeTab":       { "label": "Fermer l'onglet",       "desc": "Fermer la session active" },
+        "nextTab":        { "label": "Onglet suivant",        "desc": "Passer à l'onglet suivant" },
+        "prevTab":        { "label": "Onglet précédent",      "desc": "Passer à l'onglet précédent" },
+        "sidebar":        { "label": "Basculer la barre latérale", "desc": "Afficher/masquer la barre latérale" },
+        "delete":         { "label": "Supprimer la sélection", "desc": "Supprimer les éléments sélectionnés" },
+        "undo":           { "label": "Annuler",               "desc": "Annuler la dernière action" },
+        "redo":           { "label": "Rétablir",              "desc": "Rétablir la dernière action annulée" },
+        "filter":         { "label": "Focus sur le filtre",   "desc": "Mettre le focus sur le filtre de recherche" },
+        "terminalSearch": { "label": "Rechercher dans le terminal", "desc": "Rechercher dans l'historique du terminal" },
+        "history":        { "label": "Panneau d'historique",  "desc": "Ouvrir l'historique des commandes dans le panneau latéral" },
+        "snippets":       { "label": "Panneau des extraits",  "desc": "Ouvrir les extraits dans le panneau latéral" },
+        "panelThemes":    { "label": "Panneau des thèmes",    "desc": "Ouvrir les thèmes dans le panneau latéral" }
       }
     }
   }

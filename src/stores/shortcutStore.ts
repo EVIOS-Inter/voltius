@@ -11,8 +11,10 @@ export interface ShortcutAlias {
 
 export interface Shortcut {
   id: string;
-  label: string;
-  description: string;
+  /** i18n key resolving to the display label, translated at render time (see ShortcutsSection.tsx) */
+  labelKey: string;
+  /** i18n key resolving to the display description, translated at render time */
+  descriptionKey: string;
   defaultKey: string;
   key: string; // current (possibly overridden) key
   ctrl: boolean;
@@ -40,22 +42,22 @@ export function getDefaultShortcut(id: string): Omit<Shortcut, "key"> | undefine
 }
 
 const DEFAULTS: Omit<Shortcut, "key">[] = [
-  { id: "omni",            label: "Omni Search",       description: "Access everything from one place",    defaultKey: "k",      ctrl: true,  shift: false, alt: false },
-  { id: "shortcuts",       label: "Shortcuts Panel",   description: "Show/hide this panel",                defaultKey: " ",      ctrl: true,  shift: false, alt: false },
-  { id: "themes",          label: "Theme Panel",       description: "Open theme selector",                 defaultKey: ",",      ctrl: true,  shift: false, alt: false },
-  { id: "new-tab",         label: "New Tab",           description: "Go to hosts view",                    defaultKey: "t",      ctrl: true,  shift: false, alt: false },
-  { id: "close-tab",       label: "Close Tab",         description: "Close active session",                defaultKey: "w",      ctrl: true,  shift: false, alt: false },
-  { id: "next-tab",        label: "Next Tab",          description: "Switch to next tab",                  defaultKey: "Tab",    ctrl: true,  shift: false, alt: false },
-  { id: "prev-tab",        label: "Previous Tab",      description: "Switch to prev tab",                  defaultKey: "Tab",    ctrl: true,  shift: true,  alt: false },
-  { id: "sidebar",         label: "Toggle Sidebar",    description: "Show/hide sidebar",                   defaultKey: "b",      ctrl: true,  shift: false, alt: false },
-  { id: "delete",          label: "Delete Selected",   description: "Delete selected items",               defaultKey: "Delete", ctrl: false, shift: false, alt: false },
-  { id: "undo",            label: "Undo",              description: "Undo last action",                    defaultKey: "z",      ctrl: true,  shift: false, alt: false },
-  { id: "redo",            label: "Redo",              description: "Redo last undone action",             defaultKey: "z",      ctrl: true,  shift: true,  alt: false },
-  { id: "filter",          label: "Focus Filter",      description: "Focus the search filter",             defaultKey: "f",      ctrl: true,  shift: false, alt: false },
-  { id: "terminal-search", label: "Find in Terminal",  description: "Search the terminal scrollback",      defaultKey: "f",      ctrl: true,  shift: false, alt: false },
-  { id: "history",         label: "History Panel",     description: "Open command history in right panel", defaultKey: "h",      ctrl: true,  shift: true,  alt: false },
-  { id: "snippets",        label: "Snippets Panel",    description: "Open snippets in right panel",        defaultKey: "s",      ctrl: true,  shift: true,  alt: false },
-  { id: "panel-themes",    label: "Themes Panel",      description: "Open themes in right panel",          defaultKey: "t",      ctrl: true,  shift: true,  alt: false },
+  { id: "omni",            labelKey: "settings.shortcuts.items.omni.label",            descriptionKey: "settings.shortcuts.items.omni.desc",            defaultKey: "k",      ctrl: true,  shift: false, alt: false },
+  { id: "shortcuts",       labelKey: "settings.shortcuts.items.shortcuts.label",       descriptionKey: "settings.shortcuts.items.shortcuts.desc",       defaultKey: " ",      ctrl: true,  shift: false, alt: false },
+  { id: "themes",          labelKey: "settings.shortcuts.items.themes.label",          descriptionKey: "settings.shortcuts.items.themes.desc",          defaultKey: ",",      ctrl: true,  shift: false, alt: false },
+  { id: "new-tab",         labelKey: "settings.shortcuts.items.newTab.label",          descriptionKey: "settings.shortcuts.items.newTab.desc",          defaultKey: "t",      ctrl: true,  shift: false, alt: false },
+  { id: "close-tab",       labelKey: "settings.shortcuts.items.closeTab.label",        descriptionKey: "settings.shortcuts.items.closeTab.desc",        defaultKey: "w",      ctrl: true,  shift: false, alt: false },
+  { id: "next-tab",        labelKey: "settings.shortcuts.items.nextTab.label",         descriptionKey: "settings.shortcuts.items.nextTab.desc",         defaultKey: "Tab",    ctrl: true,  shift: false, alt: false },
+  { id: "prev-tab",        labelKey: "settings.shortcuts.items.prevTab.label",         descriptionKey: "settings.shortcuts.items.prevTab.desc",         defaultKey: "Tab",    ctrl: true,  shift: true,  alt: false },
+  { id: "sidebar",         labelKey: "settings.shortcuts.items.sidebar.label",         descriptionKey: "settings.shortcuts.items.sidebar.desc",         defaultKey: "b",      ctrl: true,  shift: false, alt: false },
+  { id: "delete",          labelKey: "settings.shortcuts.items.delete.label",          descriptionKey: "settings.shortcuts.items.delete.desc",          defaultKey: "Delete", ctrl: false, shift: false, alt: false },
+  { id: "undo",            labelKey: "settings.shortcuts.items.undo.label",            descriptionKey: "settings.shortcuts.items.undo.desc",            defaultKey: "z",      ctrl: true,  shift: false, alt: false },
+  { id: "redo",            labelKey: "settings.shortcuts.items.redo.label",            descriptionKey: "settings.shortcuts.items.redo.desc",            defaultKey: "z",      ctrl: true,  shift: true,  alt: false },
+  { id: "filter",          labelKey: "settings.shortcuts.items.filter.label",          descriptionKey: "settings.shortcuts.items.filter.desc",          defaultKey: "f",      ctrl: true,  shift: false, alt: false },
+  { id: "terminal-search", labelKey: "settings.shortcuts.items.terminalSearch.label",  descriptionKey: "settings.shortcuts.items.terminalSearch.desc",  defaultKey: "f",      ctrl: true,  shift: false, alt: false },
+  { id: "history",         labelKey: "settings.shortcuts.items.history.label",         descriptionKey: "settings.shortcuts.items.history.desc",         defaultKey: "h",      ctrl: true,  shift: true,  alt: false },
+  { id: "snippets",        labelKey: "settings.shortcuts.items.snippets.label",        descriptionKey: "settings.shortcuts.items.snippets.desc",        defaultKey: "s",      ctrl: true,  shift: true,  alt: false },
+  { id: "panel-themes",    labelKey: "settings.shortcuts.items.panelThemes.label",     descriptionKey: "settings.shortcuts.items.panelThemes.desc",     defaultKey: "t",      ctrl: true,  shift: true,  alt: false },
 ];
 
 function toShortcut(s: Omit<Shortcut, "key">): Shortcut {
@@ -100,7 +102,21 @@ export const useShortcutStore = create<ShortcutStore>()(
     }),
     {
       name: "voltius-shortcuts",
-      version: 4,
+      version: 5,
+      // v5: label/description (literal English strings) → labelKey/descriptionKey
+      // (i18n keys resolved at render time). Re-derive keys from `id`; drop the
+      // stale literal fields so old English text can't linger in persisted state.
+      migrate: (persisted, version) => {
+        const state = persisted as { shortcuts?: Array<Record<string, unknown>> } | undefined;
+        if (version < 5 && state?.shortcuts) {
+          state.shortcuts = state.shortcuts.map((sc) => {
+            const { label: _label, description: _description, ...rest } = sc;
+            const def = DEFAULTS.find((d) => d.id === sc.id);
+            return { ...rest, labelKey: def?.labelKey ?? "", descriptionKey: def?.descriptionKey ?? "" };
+          });
+        }
+        return state as unknown as ShortcutStore;
+      },
     },
   ),
 );

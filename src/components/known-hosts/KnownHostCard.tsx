@@ -44,7 +44,7 @@ export function KnownHostCard({
 }: KnownHostCardProps) {
   const { t } = useTranslation();
   const contextMenuItems = [
-    ...vaultMenuItems(otherVaults, canEdit, onMoveVault, onCopyVault),
+    ...vaultMenuItems(otherVaults, canEdit, onMoveVault, onCopyVault, t),
     ...(canEdit && onDelete
       ? [{ label: t("common.action.delete"), icon: "lucide:trash-2", danger: true, divider: true, onClick: onDelete, shortcut: getShortcutHint("delete") }]
       : []),

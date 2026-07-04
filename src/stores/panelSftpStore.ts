@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import i18n from "@/i18n";
 import { invoke } from "@tauri-apps/api/core";
 import { sftpConnect, sftpClose, sftpCanonicalize, sftpOpen, fsHomeDir } from "@/services/sftp";
 import { resolveConnectionCredentials, resolveJumpHosts } from "@/services/credentials";
@@ -56,7 +57,7 @@ export const usePanelSftpStore = create<PanelSftpStore>((set, get) => ({
       }
 
       if (session.type !== "ssh") {
-        set((s) => ({ sessions: { ...s.sessions, [session.id]: { tag: "error", message: "SFTP not supported for this session type" } } }));
+        set((s) => ({ sessions: { ...s.sessions, [session.id]: { tag: "error", message: i18n.t("terminal.sftp.notSupportedForSessionType") } } }));
         return;
       }
 

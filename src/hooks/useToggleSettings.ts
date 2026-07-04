@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { TOGGLE_DEFS, useToggleSettingsStore, type ToggleId } from "@/stores/toggleSettingsStore";
 import { useSyncPrefsStore, SYNC_OBJECT_TYPES } from "@/stores/syncPrefsStore";
 import { usePluginRegistryStore } from "@/stores/pluginRegistryStore";
@@ -16,6 +17,7 @@ export interface ToggleItem {
 }
 
 export function useToggleSettings(): ToggleItem[] {
+  const { t } = useTranslation();
   const values = useToggleSettingsStore((s) => s.values);
   const set = useToggleSettingsStore((s) => s.set);
   const { syncTypes, setSyncType } = useSyncPrefsStore();
@@ -28,36 +30,36 @@ export function useToggleSettings(): ToggleItem[] {
   return useMemo<ToggleItem[]>(() => [
     {
       id: "auto-update",
-      label: "Auto-download Updates",
+      label: t("settings.about.autoDownload.title"),
       icon: "lucide:refresh-cw",
-      description: "Updates",
+      description: t("settings.toggleDefs.category.updates"),
       keywords: ["update", "auto", "automatic", "background", "download", "version", "upgrade"],
       value: autoUpdate,
       onToggle: setAutoUpdate,
     },
     ...(Object.entries(TOGGLE_DEFS) as [ToggleId, typeof TOGGLE_DEFS[ToggleId]][]).map(([id, def]) => ({
       id,
-      label: def.label,
+      label: t(def.labelKey),
       icon: def.icon,
-      description: def.description,
+      description: t(def.descriptionKey),
       keywords: [...def.keywords],
       value: values[id] ?? def.default,
       onToggle: (v: boolean) => set(id, v),
     })),
-    ...SYNC_OBJECT_TYPES.map((t) => ({
-      id: `sync-${t.id}`,
-      label: `Sync ${t.label}`,
+    ...SYNC_OBJECT_TYPES.map((st) => ({
+      id: `sync-${st.id}`,
+      label: t("settings.sync.quickToggleLabel", { label: t(`settings.sync.objectType.${st.id}.label`) }),
       icon: "lucide:cloud",
-      description: "Sync",
-      keywords: ["sync", "cloud", "backup", t.id, t.label.toLowerCase()],
-      value: syncTypes[t.id] ?? true,
-      onToggle: (v: boolean) => setSyncType(t.id, v),
+      description: t("settings.nav.sync.label"),
+      keywords: ["sync", "cloud", "backup", st.id, st.label.toLowerCase()],
+      value: syncTypes[st.id] ?? true,
+      onToggle: (v: boolean) => setSyncType(st.id, v),
     })),
     ...getLoadedPlugins().map((m) => ({
       id: `plugin:${m.id}`,
       label: m.name,
       icon: "lucide:puzzle",
-      description: "Plugin",
+      description: t("settings.plugins.categoryLabel"),
       keywords: ["plugin", "extension", m.name.toLowerCase(), m.id],
       value: pluginOverrides[m.id] ?? m.defaultEnabled ?? true,
       onToggle: (v: boolean) => {
@@ -65,5 +67,5 @@ export function useToggleSettings(): ToggleItem[] {
         void setPluginEnabled(m.id, v);
       },
     })),
-  ], [values, set, syncTypes, setSyncType, pluginOverrides, setPluginEnabled, autoUpdate, setAutoUpdate]);
+  ], [t, values, set, syncTypes, setSyncType, pluginOverrides, setPluginEnabled, autoUpdate, setAutoUpdate]);
 }

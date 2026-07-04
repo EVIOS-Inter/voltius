@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 import { useSnippetStore } from "@/stores/snippetStore";
 import { useVaultStore } from "@/stores/vaultStore";
 import { useMobileNavStore } from "@/stores/mobileNavStore";
-import { snippetScriptText } from "@/services/snippetSteps";
-import type { SnippetFormData } from "@/types";
+import { StepListEditor } from "@/components/snippets/StepListEditor";
+import type { SnippetFormData, SnippetStep } from "@/types";
 
 export default function MobileSnippetEditScreen({ snippetId }: { snippetId?: string }) {
   const { t } = useTranslation();
@@ -18,13 +18,21 @@ export default function MobileSnippetEditScreen({ snippetId }: { snippetId?: str
   const editing = snippetId ? snippets.find((s) => s.id === snippetId) ?? null : null;
 
   const [name, setName] = useState(editing?.name ?? "");
-  const [content, setContent] = useState(editing ? snippetScriptText(editing) : "");
+  const [steps, setSteps] = useState<SnippetStep[]>(editing?.steps ?? [{ kind: "script", content: "" }]);
+
+  // Single-script fast path: keep the plain textarea when the snippet is just one script step.
+  const [forceSequence, setForceSequence] = useState(false);
+  const singleStep = steps.length === 1 && steps[0].kind === "script" ? steps[0] : null;
+  const showStepList = forceSequence || !singleStep;
+  const content = singleStep?.content ?? "";
+
+  const canSave = name.trim().length > 0 && steps.some((s) => s.kind !== "script" || s.content.trim());
 
   const save = async () => {
-    if (!name.trim() || !content.trim()) return;
+    if (!canSave) return;
     if (editing) {
       const data: SnippetFormData = {
-        name: name.trim(), steps: [{ kind: "script", content }],
+        name: name.trim(), steps,
         description: editing.description,
         tags: editing.tags, folder_id: editing.folder_id,
         favorite: editing.favorite,
@@ -35,7 +43,7 @@ export default function MobileSnippetEditScreen({ snippetId }: { snippetId?: str
       await updateSnippet(editing.id, data);
     } else {
       const data: SnippetFormData = {
-        name: name.trim(), steps: [{ kind: "script", content }],
+        name: name.trim(), steps,
         tags: [], favorite: false,
         only_for_connection_tags: [], only_for_distros: [],
         vault_id: selectedVaultIds[0] ?? "personal",
@@ -60,9 +68,9 @@ export default function MobileSnippetEditScreen({ snippetId }: { snippetId?: str
         <button
           data-mobile-snippet-save
           onClick={() => void save()}
-          disabled={!name.trim() || !content.trim()}
+          disabled={!canSave}
           className="px-3 py-1.5 rounded-lg text-sm font-medium"
-          style={{ background: "var(--t-accent)", color: "#fff", opacity: !name.trim() || !content.trim() ? 0.5 : 1 }}
+          style={{ background: "var(--t-accent)", color: "#fff", opacity: !canSave ? 0.5 : 1 }}
         >
           {t("common.action.save")}
         </button>
@@ -76,14 +84,32 @@ export default function MobileSnippetEditScreen({ snippetId }: { snippetId?: str
           className="shrink-0 rounded-xl px-3 h-10 text-sm outline-none text-(--t-text-primary)"
           style={{ background: "var(--t-bg-card)", border: "1px solid var(--t-border)" }}
         />
-        <textarea
-          data-mobile-snippet-content
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder={t("mobile.snippetEdit.contentPlaceholder")}
-          className="flex-1 min-h-40 rounded-xl px-3 py-2 text-sm font-mono outline-none resize-none text-(--t-text-primary)"
-          style={{ background: "var(--t-bg-card)", border: "1px solid var(--t-border)" }}
-        />
+        {showStepList ? (
+          <StepListEditor
+            value={steps}
+            onChange={setSteps}
+            snippets={snippets.filter((s) => s.id !== editing?.id)}
+          />
+        ) : (
+          <div className="flex-1 flex flex-col gap-1.5">
+            <textarea
+              data-mobile-snippet-content
+              value={content}
+              onChange={(e) => setSteps([{ kind: "script", content: e.target.value }])}
+              placeholder={t("mobile.snippetEdit.contentPlaceholder")}
+              className="flex-1 min-h-40 rounded-xl px-3 py-2 text-sm font-mono outline-none resize-none text-(--t-text-primary)"
+              style={{ background: "var(--t-bg-card)", border: "1px solid var(--t-border)" }}
+            />
+            <button
+              type="button"
+              onClick={() => setForceSequence(true)}
+              className="self-start text-xs"
+              style={{ color: "var(--t-text-dim)" }}
+            >
+              {t("snippets.step.addStep")}
+            </button>
+          </div>
+        )}
         {editing && (
           <button
             data-mobile-snippet-delete

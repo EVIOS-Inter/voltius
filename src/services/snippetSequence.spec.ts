@@ -19,7 +19,7 @@ vi.mock("@/services/sftpTarget", () => ({
   resolveSftpIdForTarget: (...a: unknown[]) => resolveSftpIdForTarget(...a),
 }));
 
-import { runTransferStep, executeSequenceForTargets, runSnippetSequence } from "./snippetSequence";
+import { runTransferStep, executeSequenceForTargets, runSnippetSequence, buildSummaryMessage } from "./snippetSequence";
 import type { Snippet } from "@/types";
 
 beforeEach(() => {
@@ -80,5 +80,22 @@ describe("runSnippetSequence — sftp channel lifecycle", () => {
     expect(res).not.toBe("prompting");
     expect(sftpUpload).toHaveBeenCalledWith({ sftpId: "fake-sftp-id", localPath: "/l", remotePath: "/r", transferId: "tid" });
     expect(sftpClose).toHaveBeenCalledWith("fake-sftp-id");
+  });
+});
+
+describe("buildSummaryMessage", () => {
+  it("reports all-success", () => {
+    const m = buildSummaryMessage({ targets: [{ label: "web-1", ok: true }], flattenErrors: [] });
+    expect(m.severity).toBe("success");
+  });
+  it("reports partial failure with the failing target and reason", () => {
+    const m = buildSummaryMessage({ targets: [{ label: "web-1", ok: true }, { label: "web-2", ok: false, error: "denied" }], flattenErrors: [] });
+    expect(m.severity).toBe("warning");
+    expect(m.message).toContain("web-2");
+    expect(m.message).toContain("denied");
+  });
+  it("surfaces flatten errors", () => {
+    const m = buildSummaryMessage({ targets: [{ label: "web-1", ok: true }], flattenErrors: ["Snippet cycle detected in \"A\""] });
+    expect(m.message).toMatch(/cycle/i);
   });
 });

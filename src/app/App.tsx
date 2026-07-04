@@ -19,7 +19,7 @@ import { useSnippetStore } from "@/stores/snippetStore";
 import { useSessionStore } from "@/stores/sessionStore";
 import { broadcastSnippetInject } from "@/services/snippets";
 import { isRunnableSession } from "@/services/snippetRun";
-import type { SequenceRunResult } from "@/services/snippetSequence";
+import { reportSequenceResult } from "@/services/snippetSequence";
 import { initUpdaterListener } from "@/services/updater";
 import { useUpdaterPrefStore } from "@/stores/updaterPrefStore";
 import { restoreWorkspaceOnLaunch } from "@/stores/workspaceRestore";
@@ -58,8 +58,6 @@ function App() {
   const setGlobalPendingInject = useSnippetStore((s) => s.setGlobalPendingInject);
   const globalPendingSequence = useSnippetStore((s) => s.globalPendingSequence);
   const setGlobalPendingSequence = useSnippetStore((s) => s.setGlobalPendingSequence);
-  // TODO(task-11): replace with reportSequenceResult from snippetSequence
-  const reportSequenceResult = (_r: SequenceRunResult) => {};
 
   if (!ready) {
     return <SplashScreen onReady={() => setReady(true)} />;

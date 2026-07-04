@@ -8,6 +8,7 @@ import { snippetInject } from "./snippets";
 import { useSnippetStore } from "@/stores/snippetStore";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useConnectionStore } from "@/stores/connectionStore";
+import { useNotificationStore } from "@/stores/notificationStore";
 import type { Snippet } from "@/types";
 import type { ParsedVariable } from "./snippetParser";
 
@@ -162,4 +163,32 @@ export async function runSnippetSequence(
     return "prompting";
   }
   return runWith(vars.initialValues);
+}
+
+// ─── Run-summary reporting ──────────────────────────────────────────────────
+
+export function buildSummaryMessage(result: SequenceRunResult): { message: string; severity: "success" | "warning" | "error" } {
+  const failed = result.targets.filter((t) => !t.ok);
+  const parts: string[] = [];
+  for (const f of failed) parts.push(`${f.label}: ${f.error ?? "failed"}`);
+  for (const e of result.flattenErrors) parts.push(e);
+  const okCount = result.targets.length - failed.length;
+
+  if (parts.length === 0) {
+    return { message: `Snippet ran on ${okCount} target(s)`, severity: "success" };
+  }
+  const severity = okCount > 0 ? "warning" : "error";
+  return { message: `${okCount} ok — ${parts.join("; ")}`, severity };
+}
+
+export function reportSequenceResult(result: SequenceRunResult): void {
+  const { message, severity } = buildSummaryMessage(result);
+  useNotificationStore.getState().addToast({
+    pluginId: "snippets",
+    pluginName: "Snippets",
+    type: "toast",
+    message,
+    severity,
+    duration: severity === "success" ? 4000 : 8000,
+  });
 }

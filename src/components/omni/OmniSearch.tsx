@@ -16,7 +16,7 @@ import {
   resolveTemplate, type DynamicContext,
 } from "@/services/snippetParser";
 import { broadcastSnippetInject } from "@/services/snippets";
-import { runSnippetSequence } from "@/services/snippetSequence";
+import { runSnippetSequence, reportSequenceResult } from "@/services/snippetSequence";
 import { snippetScriptText, snippetSearchText } from "@/services/snippetSteps";
 import type { Connection, TerminalSession, SshKey, Identity, Snippet } from "@/types";
 import { ConnectionAvatar } from "@/components/shared/ConnectionAvatar";
@@ -397,11 +397,13 @@ export default function OmniSearch({ onClose }: OmniSearchProps) {
         if (item.snippet.steps.some((s) => s.kind !== "script")) {
           trackUsed(item.snippet.id);
           onClose();
-          void runSnippetSequence(
+          runSnippetSequence(
             item.snippet,
             [{ kind: "session", sessionId: activeSession.id, sessionType: activeSession.type }],
             useSnippetStore.getState().setGlobalPendingSequence,
-          );
+          ).then((r) => {
+            if (r !== "prompting") reportSequenceResult(r);
+          });
           return;
         }
 

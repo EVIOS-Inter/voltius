@@ -17,7 +17,7 @@ import {
   type DynamicContext,
 } from "@/services/snippetParser";
 import { buildDynamicContext } from "@/services/snippetRunCore";
-import { runSnippetSequence } from "@/services/snippetSequence";
+import { runSnippetSequence, reportSequenceResult } from "@/services/snippetSequence";
 import { snippetScriptText, snippetSearchText } from "@/services/snippetSteps";
 import { SnippetVariableModal } from "@/components/terminal/SnippetVariableModal";
 import { SnippetForm } from "@/components/snippets/SnippetForm";
@@ -403,11 +403,13 @@ export function SnippetsPanel() {
     trackUsed(snippet.id);
 
     if (snippet.steps.some((s) => s.kind !== "script")) {
-      void runSnippetSequence(
+      runSnippetSequence(
         snippet,
         [{ kind: "session", sessionId: activeSession.id, sessionType: activeSession.type }],
         useSnippetStore.getState().setGlobalPendingSequence,
-      );
+      ).then((r) => {
+        if (r !== "prompting") reportSequenceResult(r);
+      });
       return;
     }
 

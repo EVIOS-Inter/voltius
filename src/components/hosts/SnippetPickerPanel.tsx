@@ -17,7 +17,7 @@ import {
   type ParsedVariable,
 } from "@/services/snippetParser";
 import { snippetScriptText, snippetSearchText } from "@/services/snippetSteps";
-import { runSnippetSequence } from "@/services/snippetSequence";
+import { runSnippetSequence, reportSequenceResult } from "@/services/snippetSequence";
 import type { RunTarget } from "@/services/sftpTarget";
 import { SnippetVariableModal } from "@/components/terminal/SnippetVariableModal";
 import { PanelShell, PanelHeader, PanelHeaderIconButton } from "@/components/shared/Panel";
@@ -156,7 +156,9 @@ export function SnippetPickerPanel({ connectionIds, onClose }: Props) {
       });
       trackUsed(snippet.id);
       onClose();
-      void runSnippetSequence(snippet, targets, useSnippetStore.getState().setGlobalPendingSequence);
+      runSnippetSequence(snippet, targets, useSnippetStore.getState().setGlobalPendingSequence).then((r) => {
+        if (r !== "prompting") reportSequenceResult(r);
+      });
       return;
     }
 

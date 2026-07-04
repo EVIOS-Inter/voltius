@@ -7,7 +7,7 @@ import { useSnippetStore } from "@/stores/snippetStore";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { useSnippetTargetPicker } from "@/hooks/useSnippetTargetPicker";
 import { runSnippetIntoSessions } from "@/services/snippetRun";
-import { runSnippetSequence } from "@/services/snippetSequence";
+import { runSnippetSequence, reportSequenceResult } from "@/services/snippetSequence";
 import type { RunTarget } from "@/services/sftpTarget";
 import { ConnectionAvatar } from "@/components/shared/ConnectionAvatar";
 import { connectionDisplayName } from "@/utils/connectionDisplayName";
@@ -44,7 +44,9 @@ export default function MobileSnippetTargetSheet(
         .filter((c) => p.selectedConnectionIds.has(c.id))
         .map((c) => ({ kind: "connection" as const, connection: c }));
       useSnippetStore.getState().trackUsed(sn.id);
-      void runSnippetSequence(sn, [...sessionTargets, ...connTargets], useSnippetStore.getState().setGlobalPendingSequence);
+      runSnippetSequence(sn, [...sessionTargets, ...connTargets], useSnippetStore.getState().setGlobalPendingSequence).then((r) => {
+        if (r !== "prompting") reportSequenceResult(r);
+      });
       setTab("terminal");
       closeSheet();
       return;

@@ -1,0 +1,40 @@
+{
+  "panes": {
+    "badge": {
+      "ssh": "SSH",
+      "serial": "SERIAL",
+      "multiplayer": "MPX",
+      "local": "LOCAL"
+    },
+    "header": {
+      "copied": "Copied!",
+      "loading": "loading…",
+      "localSystem": "Local system",
+      "excludedFromBroadcast": "Excluded from broadcast",
+      "disableBroadcast": "Disable broadcast",
+      "broadcastInput": "Broadcast input",
+      "detachPane": "Detach pane",
+      "restorePane": "Restore pane",
+      "maximizePane": "Maximize pane",
+      "closePane": "Close pane",
+      "latencyTooltip": "{{ms}}ms — click to copy",
+      "reconnect": "Reconnect",
+      "split": "Split",
+      "splitLeft": "Split left",
+      "splitRight": "Split right",
+      "splitTop": "Split top",
+      "splitBottom": "Split bottom",
+      "noSessionToSplit": "Open another session or drag an existing tab onto a pane to split.",
+      "sparkline": {
+        "min": "min {{ms}}ms",
+        "avg": "avg {{ms}}ms",
+        "max": "max {{ms}}ms"
+      }
+    },
+    "terminal": {
+      "emptyTitle": "Split workspace is empty",
+      "emptyHint": "Drag a session tab here to start splitting panes.",
+      "serialSubtitle": "{{port}} · {{baud}} baud"
+    }
+  }
+}

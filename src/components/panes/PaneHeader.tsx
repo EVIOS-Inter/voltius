@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { invoke } from "@tauri-apps/api/core";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { ContextMenu, useContextMenu, type ContextMenuItem } from "@/components/shared/ContextMenu";
 import { useDragStore } from "@/stores/dragStore";
 import { useHostPingStore } from "@/stores/hostPingStore";
@@ -29,11 +31,11 @@ function statusColor(status: TerminalSession["status"]): string {
   return "var(--t-text-muted)";
 }
 
-function sessionBadge(session: TerminalSession): string {
-  if (session.type === "ssh") return "SSH";
-  if (session.type === "serial") return "SERIAL";
-  if (session.type === "multiplayer") return "MPX";
-  return "LOCAL";
+function sessionBadge(session: TerminalSession, t: TFunction): string {
+  if (session.type === "ssh") return t("panes.badge.ssh");
+  if (session.type === "serial") return t("panes.badge.serial");
+  if (session.type === "multiplayer") return t("panes.badge.multiplayer");
+  return t("panes.badge.local");
 }
 
 interface ConnectedSystemInfo {
@@ -58,10 +60,10 @@ function localSystemColor(osName: string): string {
   return getDistroColor(osName || "linux");
 }
 
-function localSystemLabel(info: ConnectedSystemInfo | null): string {
-  if (!info) return "Local system";
+function localSystemLabel(info: ConnectedSystemInfo | null, t: TFunction): string {
+  if (!info) return t("panes.header.localSystem");
   const version = info.os_version ? ` ${info.os_version}` : "";
-  return `${info.os_name || "Local system"}${version}`;
+  return `${info.os_name || t("panes.header.localSystem")}${version}`;
 }
 
 const SPARKLINE_MAX = 20;
@@ -90,6 +92,7 @@ const tooltipStyle: React.CSSProperties = {
 };
 
 export function PaneHeader({ paneId, session, active }: { paneId: string; session: TerminalSession; active: boolean }) {
+  const { t } = useTranslation();
   const connections = useAllConnections();
   const connection = connections.find((c) => c.id === session.connectionId);
   const latencyMs = useHostPingStore((s) => s.latencies[session.connectionId]);
@@ -211,8 +214,8 @@ export function PaneHeader({ paneId, session, active }: { paneId: string; sessio
   const handleDistroClick = () => {
     const text = session.type === "local"
       ? localSystemInfo
-        ? `${localSystemLabel(localSystemInfo)}${localSystemInfo.kernel_version ? ` · ${localSystemInfo.kernel_version} ${localSystemInfo.arch}` : ""}`
-        : "Local system"
+        ? `${localSystemLabel(localSystemInfo, t)}${localSystemInfo.kernel_version ? ` · ${localSystemInfo.kernel_version} ${localSystemInfo.arch}` : ""}`
+        : t("panes.header.localSystem")
       : connection?.distro
       ? systemInfo
         ? `${systemInfo.pretty_name || getDistroLabel(connection.distro)}${systemInfo.kernel ? ` · ${systemInfo.kernel} ${systemInfo.arch}` : ""}`
@@ -272,7 +275,7 @@ export function PaneHeader({ paneId, session, active }: { paneId: string; sessio
         pluginId: "core",
         pluginName: "Voltius",
         type: "toast",
-        message: "Open another session or drag an existing tab onto a pane to split.",
+        message: t("panes.header.noSessionToSplit"),
         severity: "info",
         duration: 3000,
       });
@@ -283,19 +286,19 @@ export function PaneHeader({ paneId, session, active }: { paneId: string; sessio
   };
 
   const menuItems: ContextMenuItem[] = [
-    { label: "Reconnect", icon: "lucide:rotate-cw", onClick: () => void reconnect(session.id) },
+    { label: t("panes.header.reconnect"), icon: "lucide:rotate-cw", onClick: () => void reconnect(session.id) },
     {
-      label: "Split",
+      label: t("panes.header.split"),
       icon: "lucide:columns-3",
       children: [
-        { label: "Split left", icon: "lucide:arrow-left-to-line", onClick: () => handleContextSplit("left") },
-        { label: "Split right", icon: "lucide:arrow-right-to-line", onClick: () => handleContextSplit("right") },
-        { label: "Split top", icon: "lucide:arrow-up-to-line", onClick: () => handleContextSplit("top") },
-        { label: "Split bottom", icon: "lucide:arrow-down-to-line", onClick: () => handleContextSplit("bottom") },
+        { label: t("panes.header.splitLeft"), icon: "lucide:arrow-left-to-line", onClick: () => handleContextSplit("left") },
+        { label: t("panes.header.splitRight"), icon: "lucide:arrow-right-to-line", onClick: () => handleContextSplit("right") },
+        { label: t("panes.header.splitTop"), icon: "lucide:arrow-up-to-line", onClick: () => handleContextSplit("top") },
+        { label: t("panes.header.splitBottom"), icon: "lucide:arrow-down-to-line", onClick: () => handleContextSplit("bottom") },
       ],
     },
-    { label: "Detach pane", icon: "lucide:square-arrow-out-up-right", onClick: handleDetachPane },
-    { label: "Close pane", icon: "lucide:x", danger: true, onClick: handleClosePane },
+    { label: t("panes.header.detachPane"), icon: "lucide:square-arrow-out-up-right", onClick: handleDetachPane },
+    { label: t("panes.header.closePane"), icon: "lucide:x", danger: true, onClick: handleClosePane },
   ];
 
   const beginDrag = (e: React.MouseEvent) => {
@@ -354,14 +357,14 @@ export function PaneHeader({ paneId, session, active }: { paneId: string; sessio
             onMouseDown={(e) => e.stopPropagation()}
             onClick={handleCopySubtitle}
           >
-            {copied ? "Copied!" : subtitle}
+            {copied ? t("panes.header.copied") : subtitle}
           </span>
         )}
       </div>
 
       <div className="hidden sm:flex items-center gap-1.5 shrink-0 self-stretch">
         <span className="px-1.5 py-0.5 rounded-sm border border-(--t-border) bg-(--t-bg-elevated) text-[10px] font-semibold">
-          {sessionBadge(session)}
+          {sessionBadge(session, t)}
         </span>
         <span className="size-1.5 rounded-full" style={{ background: statusColor(session.status) }} />
         {session.type === "ssh" && pingStatus === "up" && latencyMs !== undefined && (
@@ -371,18 +374,18 @@ export function PaneHeader({ paneId, session, active }: { paneId: string; sessio
             onMouseEnter={handleLatencyMouseEnter}
             onMouseLeave={() => setShowSparkline(false)}
             onClick={handleLatencyClick}
-            title={`${latencyMs}ms — click to copy`}
+            title={t("panes.header.latencyTooltip", { ms: latencyMs })}
           >
             <span style={{ color: latencyColor(latencyMs) }}>{latencyMs}ms</span>
           </div>
         )}
-        {excludedFromBroadcast && <span title="Excluded from broadcast"><Icon icon="lucide:lock" width={13} /></span>}
+        {excludedFromBroadcast && <span title={t("panes.header.excludedFromBroadcast")}><Icon icon="lucide:lock" width={13} /></span>}
       </div>
 
       <div className="flex items-stretch shrink-0">
         <button
           className="h-full px-1.5 flex items-center justify-center hover:bg-(--t-bg-card-hover) transition-colors"
-          title={broadcastActive ? "Disable broadcast" : "Broadcast input"}
+          title={broadcastActive ? t("panes.header.disableBroadcast") : t("panes.header.broadcastInput")}
           onClick={() => toggleBroadcast()}
           style={{ color: broadcastActive ? "var(--t-accent)" : "var(--t-text-dim)" }}
         >
@@ -390,7 +393,7 @@ export function PaneHeader({ paneId, session, active }: { paneId: string; sessio
         </button>
         <button
           className="h-full px-1.5 flex items-center justify-center hover:bg-(--t-bg-card-hover) transition-colors text-(--t-text-dim)"
-          title="Detach pane"
+          title={t("panes.header.detachPane")}
           onMouseDown={(e) => e.stopPropagation()}
           onClick={handleDetachPane}
         >
@@ -398,14 +401,14 @@ export function PaneHeader({ paneId, session, active }: { paneId: string; sessio
         </button>
         <button
           className="h-full px-1.5 flex items-center justify-center hover:bg-(--t-bg-card-hover) transition-colors text-(--t-text-dim)"
-          title={isMaximized ? "Restore pane" : "Maximize pane"}
+          title={isMaximized ? t("panes.header.restorePane") : t("panes.header.maximizePane")}
           onClick={() => setMaximized(isMaximized ? null : paneId)}
         >
           <Icon icon={isMaximized ? "lucide:minimize-2" : "lucide:maximize-2"} width={13} />
         </button>
         <button
           className="h-full px-1.5 flex items-center justify-center hover:bg-(--t-bg-card-hover) transition-colors text-(--t-text-dim) hover:text-(--t-status-error)"
-          title="Close pane"
+          title={t("panes.header.closePane")}
           onClick={handleClosePane}
         >
           <Icon icon="lucide:x" width={14} />
@@ -425,16 +428,16 @@ export function PaneHeader({ paneId, session, active }: { paneId: string; sessio
             }}
           />
           {copiedDistro ? (
-            <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>Copied!</span>
+            <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>{t("panes.header.copied")}</span>
           ) : session.type === "local" ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <span style={{ color: "var(--t-text-primary)", fontSize: 11 }}>
-                {localSystemLabel(localSystemInfo)}
+                {localSystemLabel(localSystemInfo, t)}
               </span>
               {localSystemInfo?.kernel_version ? (
                 <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>{localSystemInfo.kernel_version} · {localSystemInfo.arch}</span>
               ) : !localSystemInfo ? (
-                <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>loading…</span>
+                <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>{t("panes.header.loading")}</span>
               ) : null}
               {localSystemInfo?.host_name && (
                 <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>{localSystemInfo.host_name}</span>
@@ -448,7 +451,7 @@ export function PaneHeader({ paneId, session, active }: { paneId: string; sessio
               {systemInfo?.kernel ? (
                 <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>{systemInfo.kernel} · {systemInfo.arch}</span>
               ) : !systemInfo ? (
-                <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>loading…</span>
+                <span style={{ color: "var(--t-text-dim)", fontSize: 10 }}>{t("panes.header.loading")}</span>
               ) : null}
             </div>
           )}
@@ -470,9 +473,9 @@ export function PaneHeader({ paneId, session, active }: { paneId: string; sessio
             />
           </svg>
           <div style={{ marginTop: 4, display: "flex", gap: 8, color: "var(--t-text-dim)", fontSize: 10, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-            <span>min {spMin}ms</span>
-            <span>avg {spAvg}ms</span>
-            <span>max {spMax}ms</span>
+            <span>{t("panes.header.sparkline.min", { ms: spMin })}</span>
+            <span>{t("panes.header.sparkline.avg", { ms: spAvg })}</span>
+            <span>{t("panes.header.sparkline.max", { ms: spMax })}</span>
           </div>
         </div>,
         document.body,

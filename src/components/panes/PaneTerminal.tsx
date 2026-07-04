@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import TerminalView from "@/components/terminal/Terminal";
 import { TerminalSearch } from "@/components/terminal/TerminalSearch";
 import MultiplayerTerminalView from "@/components/terminal/MultiplayerTerminalView";
@@ -24,6 +25,7 @@ function SplitConnectionOverlay({
   onDismiss?: () => void;
   onRetry?: () => void;
 }) {
+  const { t } = useTranslation();
   const connections = useAllConnections();
   const connection = connections.find((c) => c.id === session.connectionId);
   const connectSerialEphemeralFinalize = useSessionStore((s) => s.connectSerialEphemeralFinalize);
@@ -45,7 +47,7 @@ function SplitConnectionOverlay({
     }
 
     const subtitle = session.serialConfig
-      ? `${session.serialConfig.port} · ${session.serialConfig.baud} baud`
+      ? t("panes.terminal.serialSubtitle", { port: session.serialConfig.port, baud: session.serialConfig.baud })
       : undefined;
     return (
       <ConnectionOverlay
@@ -145,13 +147,14 @@ export function PaneTerminal({ session, active }: { session: TerminalSession; ac
 }
 
 export function EmptySplitPane() {
+  const { t } = useTranslation();
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-3 text-(--t-text-dim) bg-(--t-bg-terminal)">
       <div className="size-12 rounded-2xl flex items-center justify-center border border-(--t-border) bg-(--t-bg-card)">
         <Icon icon="lucide:layout-dashboard" width={24} />
       </div>
-      <div className="text-sm font-medium text-(--t-text-secondary)">Split workspace is empty</div>
-      <div className="text-xs">Drag a session tab here to start splitting panes.</div>
+      <div className="text-sm font-medium text-(--t-text-secondary)">{t("panes.terminal.emptyTitle")}</div>
+      <div className="text-xs">{t("panes.terminal.emptyHint")}</div>
     </div>
   );
 }

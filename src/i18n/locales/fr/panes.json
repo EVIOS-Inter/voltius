@@ -1,0 +1,40 @@
+{
+  "panes": {
+    "badge": {
+      "ssh": "SSH",
+      "serial": "SERIAL",
+      "multiplayer": "MPX",
+      "local": "LOCAL"
+    },
+    "header": {
+      "copied": "Copié !",
+      "loading": "chargement…",
+      "localSystem": "Système local",
+      "excludedFromBroadcast": "Exclu de la diffusion",
+      "disableBroadcast": "Désactiver la diffusion",
+      "broadcastInput": "Diffuser la saisie",
+      "detachPane": "Détacher le panneau",
+      "restorePane": "Restaurer le panneau",
+      "maximizePane": "Agrandir le panneau",
+      "closePane": "Fermer le panneau",
+      "latencyTooltip": "{{ms}}ms — cliquer pour copier",
+      "reconnect": "Reconnecter",
+      "split": "Diviser",
+      "splitLeft": "Diviser à gauche",
+      "splitRight": "Diviser à droite",
+      "splitTop": "Diviser en haut",
+      "splitBottom": "Diviser en bas",
+      "noSessionToSplit": "Ouvrez une autre session ou glissez un onglet existant sur un panneau pour diviser.",
+      "sparkline": {
+        "min": "min {{ms}}ms",
+        "avg": "moy {{ms}}ms",
+        "max": "max {{ms}}ms"
+      }
+    },
+    "terminal": {
+      "emptyTitle": "L'espace de travail divisé est vide",
+      "emptyHint": "Glissez un onglet de session ici pour commencer à diviser les panneaux.",
+      "serialSubtitle": "{{port}} · {{baud}} bauds"
+    }
+  }
+}

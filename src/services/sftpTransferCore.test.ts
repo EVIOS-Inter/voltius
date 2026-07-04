@@ -1,6 +1,6 @@
 import { buildTransferTargets } from "./sftpTransferCore.ts";
 import type { FileEntry } from "@/components/filetransfer/SFTPTypes";
-import { test } from "vitest";
+import { describe, it, expect, vi, beforeEach, test } from "vitest";
 
 test("sftpTransferCore", async () => {
 function assertEqual<T>(actual: T, expected: T, msg: string): void {
@@ -24,4 +24,62 @@ const file = (name: string, isDir = false): FileEntry => ({ name, path: `/src/${
   const out = buildTransferTargets([file("x")], "/");
   assertEqual(out[0].dstPath, "/x", "root dest joins without doubling slash");
 }
+});
+
+// vi.mock factories are hoisted above imports/consts, so the mock object
+// itself must be built inside vi.hoisted() to avoid a TDZ reference error.
+const m = vi.hoisted(() => ({
+  fsCopy: vi.fn(async () => {}),
+  sftpUpload: vi.fn(async () => {}),
+  sftpUploadDir: vi.fn(async () => {}),
+  sftpUploadDirTar: vi.fn(async () => {}),
+  sftpDownload: vi.fn(async () => {}),
+  sftpDownloadDir: vi.fn(async () => {}),
+  sftpDownloadDirTar: vi.fn(async () => {}),
+  sftpTransfer: vi.fn(async () => {}),
+  sftpTransferDir: vi.fn(async () => {}),
+  sftpTransferDirTar: vi.fn(async () => {}),
+}));
+vi.mock("@/services/sftp", () => m);
+
+import { transferItem } from "./sftpTransferCore";
+
+beforeEach(() => Object.values(m).forEach((f) => f.mockClear()));
+
+describe("transferItem routing", () => {
+  const base = { srcPath: "/s", dstPath: "/d", transferId: "t", useTar: true };
+
+  it("local→local uses fsCopy", async () => {
+    await transferItem({ ...base, from: "local", to: "local", isDir: false });
+    expect(m.fsCopy).toHaveBeenCalledWith("/s", "/d", "t");
+  });
+
+  it("local→remote file uses sftpUpload", async () => {
+    await transferItem({ ...base, from: "local", to: "remote", dstSftpId: "R", isDir: false });
+    expect(m.sftpUpload).toHaveBeenCalledWith({ sftpId: "R", localPath: "/s", remotePath: "/d", transferId: "t" });
+  });
+
+  it("local→remote dir with tar uses sftpUploadDirTar", async () => {
+    await transferItem({ ...base, from: "local", to: "remote", dstSftpId: "R", isDir: true });
+    expect(m.sftpUploadDirTar).toHaveBeenCalledWith({ sftpId: "R", localPath: "/s", remotePath: "/d", transferId: "t" });
+  });
+
+  it("local→remote dir without tar uses sftpUploadDir", async () => {
+    await transferItem({ ...base, useTar: false, from: "local", to: "remote", dstSftpId: "R", isDir: true });
+    expect(m.sftpUploadDir).toHaveBeenCalledWith({ sftpId: "R", localPath: "/s", remotePath: "/d", transferId: "t" });
+  });
+
+  it("remote→local file uses sftpDownload", async () => {
+    await transferItem({ ...base, from: "remote", to: "local", srcSftpId: "R", isDir: false });
+    expect(m.sftpDownload).toHaveBeenCalledWith({ sftpId: "R", remotePath: "/s", localPath: "/d", transferId: "t" });
+  });
+
+  it("remote→remote dir with tar uses sftpTransferDirTar with both channels", async () => {
+    await transferItem({ ...base, from: "remote", to: "remote", srcSftpId: "A", dstSftpId: "B", isDir: true });
+    expect(m.sftpTransferDirTar).toHaveBeenCalledWith({ srcSftpId: "A", srcPath: "/s", dstSftpId: "B", dstPath: "/d", transferId: "t" });
+  });
+
+  it("throws when a required remote channel is missing", async () => {
+    await expect(transferItem({ ...base, from: "local", to: "remote", isDir: false })).rejects.toThrow();
+  });
 });

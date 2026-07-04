@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useHostMetrics } from "@/plugins/monitoring/useHostMetrics";
 import { Sparkline } from "@/plugins/monitoring/components/Sparkline";
@@ -37,6 +38,7 @@ function MobileMetricCard({ label, value, color, history }: {
 }
 
 export default function MobileMetricsScreen({ sessionId }: { sessionId: string }) {
+  const { t } = useTranslation();
   // `.find` returns a stable ref for unchanged sessions — safe selector (no fresh array).
   const session = useSessionStore((s) => s.sessions.find((x) => x.id === sessionId));
 
@@ -54,37 +56,37 @@ export default function MobileMetricsScreen({ sessionId }: { sessionId: string }
 
   return (
     <div className="flex flex-col h-full" style={{ background: "var(--t-bg-base)" }}>
-      <MobilePanelHeader title="Metrics" sessionName={session?.connectionName} />
+      <MobilePanelHeader title={t("mobile.panelItems.metrics")} sessionName={session?.connectionName} />
 
       {!ssh || !session ? (
         <div className="flex flex-1 items-center justify-center px-8 text-center">
           <p className="max-w-[260px] text-sm leading-5 text-(--t-text-muted)">
-            Live metrics are only available for SSH sessions. Connect to a host over SSH to see its metrics.
+            {t("mobile.metrics.sshOnly")}
           </p>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">
           <div className="px-3 py-3 space-y-3">
             <MobileMetricCard
-              label="CPU"
+              label={t("mobile.metrics.cpu")}
               value={snap ? `${snap.cpu_percent.toFixed(1)}%` : "—"}
               color="#ef4444"
               history={cpuH}
             />
             <MobileMetricCard
-              label="Memory"
+              label={t("mobile.metrics.memory")}
               value={snap ? `${fmtMem(snap.mem_used_kb)} / ${fmtMem(snap.mem_total_kb)}` : "—"}
               color="#22c55e"
               history={memH}
             />
             <MobileMetricCard
-              label="Net RX"
+              label={t("mobile.metrics.netRx")}
               value={fmtBytes(snap?.net_rx_bytes_per_sec ?? 0)}
               color="#3b82f6"
               history={rxH}
             />
             <MobileMetricCard
-              label="Net TX"
+              label={t("mobile.metrics.netTx")}
               value={fmtBytes(snap?.net_tx_bytes_per_sec ?? 0)}
               color="#f59e0b"
               history={txH}

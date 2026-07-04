@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useProcessList } from "@/plugins/process-manager/useProcessList";
 import type { ProcessEntry, SortCol } from "@/plugins/process-manager/types";
@@ -12,14 +14,17 @@ function fmtMem(kb: number): string {
   return `${(kb / 1024 / 1024).toFixed(1)}G`;
 }
 
-const SORT_CHIPS: { col: SortCol; label: string }[] = [
-  { col: "cpu", label: "CPU%" },
-  { col: "mem", label: "MEM" },
-  { col: "pid", label: "PID" },
-  { col: "name", label: "Name" },
-];
+function getSortChips(t: TFunction): { col: SortCol; label: string }[] {
+  return [
+    { col: "cpu", label: t("mobile.processes.sortCpu") },
+    { col: "mem", label: t("mobile.processes.sortMem") },
+    { col: "pid", label: t("mobile.processes.sortPid") },
+    { col: "name", label: t("mobile.processes.sortName") },
+  ];
+}
 
 export default function MobileProcessesScreen({ sessionId }: { sessionId: string }) {
+  const { t } = useTranslation();
   // `.find` returns a stable element ref (or undefined) — safe selector, no fresh array.
   const session = useSessionStore((s) => s.sessions.find((x) => x.id === sessionId));
 
@@ -39,14 +44,16 @@ export default function MobileProcessesScreen({ sessionId }: { sessionId: string
     void kill(entry.pid, force);
   };
 
+  const sortChips = getSortChips(t);
+
   return (
     <div className="absolute inset-0 z-30 flex flex-col bg-(--t-bg-base)">
-      <MobilePanelHeader title="Processes" sessionName={session?.connectionName} />
+      <MobilePanelHeader title={t("mobile.panelItems.processes")} sessionName={session?.connectionName} />
 
       {!ssh ? (
         <div className="flex flex-1 items-center justify-center px-8 text-center">
           <p className="max-w-[260px] text-sm leading-5 text-(--t-text-muted)">
-            The process list is only available for SSH sessions. Connect to a host over SSH to see its processes.
+            {t("mobile.processes.sshOnly")}
           </p>
         </div>
       ) : (
@@ -57,7 +64,7 @@ export default function MobileProcessesScreen({ sessionId }: { sessionId: string
             <input
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              placeholder="Filter processes…"
+              placeholder={t("mobile.processes.filterPlaceholder")}
               className="flex-1 bg-transparent text-sm text-(--t-text-primary) placeholder:text-(--t-text-dim) outline-hidden"
             />
             {snapshot && (
@@ -69,7 +76,7 @@ export default function MobileProcessesScreen({ sessionId }: { sessionId: string
 
           {/* Sort chips */}
           <div className="flex items-center gap-2 px-3 py-2 border-b border-(--t-border) shrink-0 overflow-x-auto">
-            {SORT_CHIPS.map(({ col, label }) => {
+            {sortChips.map(({ col, label }) => {
               const active = sortCol === col;
               return (
                 <button
@@ -104,7 +111,7 @@ export default function MobileProcessesScreen({ sessionId }: { sessionId: string
           <div className="flex-1 overflow-y-auto">
             {entries.length === 0 ? (
               <div className="flex flex-1 items-center justify-center px-8 py-10 text-center text-(--t-text-dim)">
-                <p className="text-sm">{snapshot ? "No processes found" : "Loading processes…"}</p>
+                <p className="text-sm">{snapshot ? t("mobile.processes.noProcessesFound") : t("mobile.processes.loadingProcesses")}</p>
               </div>
             ) : (
               entries.map((e) => {
@@ -166,12 +173,12 @@ export default function MobileProcessesScreen({ sessionId }: { sessionId: string
           <div className="flex flex-col">
             <SheetRow
               icon="lucide:circle-x"
-              label="Kill (SIGTERM)"
+              label={t("mobile.processes.sheetKillTerm")}
               onClick={() => setConfirm({ entry: sheetFor, force: false })}
             />
             <SheetRow
               icon="lucide:zap"
-              label="Force kill (SIGKILL)"
+              label={t("mobile.processes.sheetForceKill")}
               danger
               onClick={() => setConfirm({ entry: sheetFor, force: true })}
             />
@@ -182,12 +189,16 @@ export default function MobileProcessesScreen({ sessionId }: { sessionId: string
       {/* Confirm */}
       {confirm && (
         <BottomSheet
-          title={confirm.force ? "Force kill process?" : "Kill process?"}
+          title={confirm.force ? t("mobile.processes.forceKillConfirmTitle") : t("mobile.processes.killConfirmTitle")}
           onClose={() => setConfirm(null)}
         >
           <div className="flex flex-col gap-3 px-2 py-1">
             <p className="text-xs text-(--t-text-dim)">
-              {confirm.force ? "SIGKILL" : "SIGTERM"} will be sent to {confirm.entry.name} (pid {confirm.entry.pid}).
+              {t("mobile.processes.killConfirmBody", {
+                signal: confirm.force ? "SIGKILL" : "SIGTERM",
+                name: confirm.entry.name,
+                pid: confirm.entry.pid,
+              })}
             </p>
             <button
               data-mobile-process-kill-confirm
@@ -195,14 +206,14 @@ export default function MobileProcessesScreen({ sessionId }: { sessionId: string
               className="w-full rounded-xl py-3 text-sm font-medium"
               style={{ background: "var(--t-status-error)", color: "#fff" }}
             >
-              {confirm.force ? "Force kill" : "Kill"}
+              {confirm.force ? t("mobile.processes.confirmForceKill") : t("mobile.processes.confirmKill")}
             </button>
             <button
               onClick={() => setConfirm(null)}
               className="w-full rounded-xl py-3 text-sm text-(--t-text-primary)"
               style={{ background: "var(--t-bg-card)" }}
             >
-              Cancel
+              {t("common.action.cancel")}
             </button>
           </div>
         </BottomSheet>

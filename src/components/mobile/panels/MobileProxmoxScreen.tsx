@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useMobileNavStore } from "@/stores/mobileNavStore";
 import { useProxmox } from "@/plugins/proxmox/useProxmox";
@@ -12,16 +14,17 @@ function stateColor(status: string): string {
 }
 
 interface ActionItem { action: LxcAction; label: string; icon: string }
-function actionsFor(status: string): ActionItem[] {
+function actionsFor(status: string, t: TFunction): ActionItem[] {
   return status === "running"
     ? [
-        { action: "stop", label: "Stop", icon: "lucide:square" },
-        { action: "restart", label: "Restart", icon: "lucide:rotate-cw" },
+        { action: "stop", label: t("mobile.hostActions.stop"), icon: "lucide:square" },
+        { action: "restart", label: t("mobile.hostActions.restart"), icon: "lucide:rotate-cw" },
       ]
-    : [{ action: "start", label: "Start", icon: "lucide:play" }];
+    : [{ action: "start", label: t("mobile.hostActions.start"), icon: "lucide:play" }];
 }
 
 export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }) {
+  const { t } = useTranslation();
   const session = useSessionStore((s) => s.sessions.find((x) => x.id === sessionId));
   const setTab = useMobileNavStore((s) => s.setTab);
   const px = useProxmox(session);
@@ -46,7 +49,7 @@ export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }
     return (
       <div className="absolute inset-0 z-30 flex flex-col bg-(--t-bg-base)">
         <MobilePanelHeader
-          title={`Snapshots · ${state.selectedVmName}`}
+          title={t("mobile.proxmox.snapshotsTitle", { name: state.selectedVmName })}
           sessionName={session?.connectionName}
           onBack={() => px.closeSnapshots()}
           right={
@@ -60,13 +63,13 @@ export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }
             data-mobile-proxmox-snap-name
             value={state.snapshotInput}
             onChange={(e) => px.setSnapshotInput(e.target.value)}
-            placeholder="New snapshot name"
+            placeholder={t("mobile.proxmox.newSnapshotPlaceholder")}
             className="rounded-lg px-3 h-10 text-sm bg-(--t-bg-card) border border-(--t-border) outline-none text-(--t-text-primary)"
           />
           <input
             value={state.snapshotInputDesc}
             onChange={(e) => px.setSnapshotDesc(e.target.value)}
-            placeholder="Description (optional)"
+            placeholder={t("mobile.proxmox.descriptionPlaceholder")}
             className="rounded-lg px-3 h-10 text-sm bg-(--t-bg-card) border border-(--t-border) outline-none text-(--t-text-primary)"
           />
           <button
@@ -81,13 +84,13 @@ export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }
             className="rounded-lg py-2.5 text-sm font-medium disabled:opacity-40"
             style={{ background: "var(--t-accent)", color: "#fff" }}
           >
-            Create snapshot
+            {t("mobile.proxmox.createSnapshot")}
           </button>
         </div>
         {state.error ? (
           <div className="px-4 py-4 text-xs text-(--t-text-dim) break-all">{state.error}</div>
         ) : state.snapshots.length === 0 ? (
-          <Empty icon="devicon:proxmox-plain" title="No snapshots" />
+          <Empty icon="devicon:proxmox-plain" title={t("mobile.proxmox.noSnapshots")} />
         ) : (
           <div className="flex-1 overflow-y-auto">
             {state.snapshots.map((snap) => (
@@ -98,7 +101,7 @@ export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }
               >
                 <Icon icon="lucide:camera" width={16} className="shrink-0 text-(--t-text-dim)" />
                 <span className="flex flex-col min-w-0 flex-1">
-                  <span className="text-sm font-medium text-(--t-text-primary) truncate">{snap.name}{snap.is_current ? " (current)" : ""}</span>
+                  <span className="text-sm font-medium text-(--t-text-primary) truncate">{snap.name}{snap.is_current ? ` ${t("mobile.proxmox.current")}` : ""}</span>
                   {snap.description && <span className="text-xs text-(--t-text-dim) truncate">{snap.description}</span>}
                 </span>
                 {!snap.is_current && (
@@ -117,12 +120,12 @@ export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }
         )}
 
         {confirmSnap && (
-          <BottomSheet title={confirmSnap.mode === "rollback" ? "Roll back?" : "Delete snapshot?"} onClose={() => setConfirmSnap(null)}>
+          <BottomSheet title={confirmSnap.mode === "rollback" ? t("mobile.proxmox.rollbackConfirmTitle") : t("mobile.proxmox.deleteSnapshotConfirmTitle")} onClose={() => setConfirmSnap(null)}>
             <div className="flex flex-col gap-3 px-2 py-1">
               <p className="text-xs text-(--t-text-dim)">
                 {confirmSnap.mode === "rollback"
-                  ? `Restore ${state.selectedVmName} to snapshot "${confirmSnap.snap.name}"? Current state is lost.`
-                  : `Delete snapshot "${confirmSnap.snap.name}"? This can't be undone.`}
+                  ? t("mobile.proxmox.rollbackConfirmBody", { name: state.selectedVmName, snap: confirmSnap.snap.name })
+                  : t("mobile.proxmox.deleteSnapshotConfirmBody", { snap: confirmSnap.snap.name })}
               </p>
               <button
                 data-mobile-proxmox-snap-confirm
@@ -138,10 +141,10 @@ export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }
                 className="w-full rounded-xl py-3 text-sm font-medium"
                 style={{ background: "var(--t-status-error)", color: "#fff" }}
               >
-                {confirmSnap.mode === "rollback" ? "Roll back" : "Delete"}
+                {confirmSnap.mode === "rollback" ? t("mobile.proxmox.rollbackButton") : t("common.action.delete")}
               </button>
               <button onClick={() => setConfirmSnap(null)} className="w-full rounded-xl py-3 text-sm text-(--t-text-primary)" style={{ background: "var(--t-bg-card)" }}>
-                Cancel
+                {t("common.action.cancel")}
               </button>
             </div>
           </BottomSheet>
@@ -152,7 +155,7 @@ export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }
 
   const header = (
     <MobilePanelHeader
-      title="Proxmox"
+      title={t("mobile.panelItems.proxmox")}
       sessionName={session?.connectionName}
       right={
         <button onClick={() => void px.fetchContainers()} disabled={state.loading} className="p-2 text-(--t-text-dim) disabled:opacity-40">
@@ -164,15 +167,15 @@ export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }
 
   let body: React.ReactNode;
   if (!session || session.type !== "ssh") {
-    body = <Empty icon="devicon:proxmox-plain" title="Proxmox needs an SSH session" sub="Open Proxmox from a host connected over SSH." />;
+    body = <Empty icon="devicon:proxmox-plain" title={t("mobile.proxmox.needsSshTitle")} sub={t("mobile.proxmox.needsSshSub")} />;
   } else if (session.status !== "connected") {
-    body = <Empty icon="devicon:proxmox-plain" title="Session not connected" sub="Reconnect to manage this host." />;
+    body = <Empty icon="devicon:proxmox-plain" title={t("mobile.panelCommon.sessionNotConnected")} sub={t("mobile.proxmox.sessionNotConnectedSub")} />;
   } else if (!px.isProxmox) {
-    body = <Empty icon="devicon:proxmox-plain" title="Proxmox VE not detected" sub="This panel requires an SSH connection to a Proxmox VE host." />;
+    body = <Empty icon="devicon:proxmox-plain" title={t("mobile.proxmox.notDetectedTitle")} sub={t("mobile.proxmox.notDetectedSub")} />;
   } else if (state.error) {
     body = <div className="px-4 py-4 text-xs text-(--t-text-dim) break-all">{state.error}</div>;
   } else if (state.containers.length === 0) {
-    body = <Empty icon="lucide:box" title="No containers" />;
+    body = <Empty icon="lucide:box" title={t("mobile.panelCommon.noContainers")} />;
   } else {
     body = (
       <div className="flex-1 overflow-y-auto">
@@ -186,7 +189,7 @@ export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }
             <span className="shrink-0 w-2.5 h-2.5 rounded-full" style={{ background: stateColor(c.status) }} />
             <span className="flex flex-col min-w-0 flex-1">
               <span className="text-sm font-medium text-(--t-text-primary) truncate">{c.name}</span>
-              <span className="text-xs text-(--t-text-dim) truncate">CT {c.vmid} · {c.status}</span>
+              <span className="text-xs text-(--t-text-dim) truncate">{t("mobile.proxmox.ctSummary", { vmid: c.vmid, status: c.status })}</span>
             </span>
           </button>
         ))}
@@ -200,13 +203,13 @@ export default function MobileProxmoxScreen({ sessionId }: { sessionId: string }
       {body}
 
       {sheetFor && (
-        <BottomSheet title={`${sheetFor.name} (CT ${sheetFor.vmid})`} onClose={() => setSheetFor(null)}>
+        <BottomSheet title={t("mobile.proxmox.sheetTitleWithId", { name: sheetFor.name, vmid: sheetFor.vmid })} onClose={() => setSheetFor(null)}>
           <div className="flex flex-col">
-            {actionsFor(sheetFor.status).map((it) => (
+            {actionsFor(sheetFor.status, t).map((it) => (
               <SheetRow key={it.action} icon={it.icon} label={it.label} onClick={() => void runAction(sheetFor, it.action)} />
             ))}
-            <SheetRow icon="lucide:camera" label="Snapshots" onClick={() => { const c = sheetFor; setSheetFor(null); px.openSnapshots(c.vmid, c.name); }} />
-            <SheetRow icon="lucide:terminal" label="Open shell" onClick={() => void onShell(sheetFor)} />
+            <SheetRow icon="lucide:camera" label={t("mobile.proxmox.snapshotsAction")} onClick={() => { const c = sheetFor; setSheetFor(null); px.openSnapshots(c.vmid, c.name); }} />
+            <SheetRow icon="lucide:terminal" label={t("mobile.proxmox.openShell")} onClick={() => void onShell(sheetFor)} />
           </div>
         </BottomSheet>
       )}

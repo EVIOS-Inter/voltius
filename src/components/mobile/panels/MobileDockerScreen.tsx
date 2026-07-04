@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useMobileNavStore } from "@/stores/mobileNavStore";
 import { useDockerList } from "@/plugins/docker/useDockerList";
@@ -37,26 +39,27 @@ interface ActionItem {
 }
 
 /** Actions offered for a container depending on its state. */
-function actionsFor(state: string): ActionItem[] {
+function actionsFor(state: string, t: TFunction): ActionItem[] {
   const items: ActionItem[] = [];
   if (state === "running") {
     items.push(
-      { action: "stop", label: "Stop", icon: "lucide:square" },
-      { action: "restart", label: "Restart", icon: "lucide:rotate-cw" },
-      { action: "pause", label: "Pause", icon: "lucide:pause" },
+      { action: "stop", label: t("mobile.hostActions.stop"), icon: "lucide:square" },
+      { action: "restart", label: t("mobile.hostActions.restart"), icon: "lucide:rotate-cw" },
+      { action: "pause", label: t("mobile.hostActions.pause"), icon: "lucide:pause" },
     );
   } else if (state === "paused") {
     items.push(
-      { action: "unpause", label: "Resume", icon: "lucide:play" },
-      { action: "stop", label: "Stop", icon: "lucide:square" },
+      { action: "unpause", label: t("mobile.hostActions.resume"), icon: "lucide:play" },
+      { action: "stop", label: t("mobile.hostActions.stop"), icon: "lucide:square" },
     );
   } else {
-    items.push({ action: "start", label: "Start", icon: "lucide:play" });
+    items.push({ action: "start", label: t("mobile.hostActions.start"), icon: "lucide:play" });
   }
   return items;
 }
 
 export default function MobileDockerScreen({ sessionId }: { sessionId: string }) {
+  const { t } = useTranslation();
   // `.find` returns a stable element ref (or undefined) — safe selector, no fresh array.
   const session = useSessionStore((s) => s.sessions.find((x) => x.id === sessionId));
   const push = useMobileNavStore((s) => s.push);
@@ -86,7 +89,7 @@ export default function MobileDockerScreen({ sessionId }: { sessionId: string })
 
   const header = (
     <MobilePanelHeader
-      title="Docker"
+      title={t("mobile.panelItems.docker")}
       sessionName={session?.connectionName}
       right={
         <div className="flex items-center gap-1">
@@ -98,7 +101,7 @@ export default function MobileDockerScreen({ sessionId }: { sessionId: string })
               color: showAll ? "var(--t-text-primary)" : "var(--t-text-dim)",
             }}
           >
-            {showAll ? "All" : "Running"}
+            {showAll ? t("mobile.docker.filterAll") : t("mobile.docker.filterRunning")}
           </button>
           <button onClick={() => void refresh()} disabled={loading} className="p-2 text-(--t-text-dim) disabled:opacity-40">
             <Icon icon="lucide:refresh-cw" width={18} className={loading ? "animate-spin" : ""} />
@@ -111,13 +114,13 @@ export default function MobileDockerScreen({ sessionId }: { sessionId: string })
   let body: React.ReactNode;
   if (!session || session.type !== "ssh") {
     body = (
-      <Empty icon="mdi:docker" title="Docker needs an SSH session" sub="Open Docker from a host connected over SSH." />
+      <Empty icon="mdi:docker" title={t("mobile.docker.needsSshTitle")} sub={t("mobile.docker.needsSshSub")} />
     );
   } else if (session.status !== "connected") {
-    body = <Empty icon="mdi:docker" title="Session not connected" sub="Reconnect to manage this host's Docker." />;
+    body = <Empty icon="mdi:docker" title={t("mobile.panelCommon.sessionNotConnected")} sub={t("mobile.docker.sessionNotConnectedSub")} />;
   } else if (dockerUnreachable) {
     body = (
-      <Empty icon="mdi:docker" title="Docker is not reachable" sub="Start Docker on the host, then refresh." action={{ label: "Refresh", onClick: () => void refresh() }} />
+      <Empty icon="mdi:docker" title={t("mobile.docker.unreachableTitle")} sub={t("mobile.docker.unreachableSub")} action={{ label: t("mobile.docker.refresh"), onClick: () => void refresh() }} />
     );
   } else if (error) {
     body = (
@@ -127,8 +130,8 @@ export default function MobileDockerScreen({ sessionId }: { sessionId: string })
     body = (
       <Empty
         icon="lucide:box"
-        title={containers.length === 0 ? "No containers" : "No running containers"}
-        sub={containers.length === 0 ? undefined : "Tap Running to show all."}
+        title={containers.length === 0 ? t("mobile.panelCommon.noContainers") : t("mobile.docker.noRunningContainers")}
+        sub={containers.length === 0 ? undefined : t("mobile.docker.tapRunningToShowAll")}
       />
     );
   } else {
@@ -165,7 +168,7 @@ export default function MobileDockerScreen({ sessionId }: { sessionId: string })
       {sheetFor && (
         <BottomSheet title={containerName(sheetFor)} onClose={() => setSheetFor(null)}>
           <div className="flex flex-col">
-            {actionsFor(sheetFor.state).map((it) => (
+            {actionsFor(sheetFor.state, t).map((it) => (
               <SheetRow
                 key={it.action}
                 icon={it.icon}
@@ -175,7 +178,7 @@ export default function MobileDockerScreen({ sessionId }: { sessionId: string })
             ))}
             <SheetRow
               icon="lucide:scroll-text"
-              label="Logs"
+              label={t("mobile.docker.logs")}
               onClick={() => {
                 const c = sheetFor;
                 setSheetFor(null);
@@ -184,7 +187,7 @@ export default function MobileDockerScreen({ sessionId }: { sessionId: string })
             />
             <SheetRow
               icon="lucide:terminal"
-              label="Exec shell"
+              label={t("mobile.docker.execShell")}
               onClick={() => {
                 const c = sheetFor;
                 setSheetFor(null);
@@ -193,7 +196,7 @@ export default function MobileDockerScreen({ sessionId }: { sessionId: string })
             />
             <SheetRow
               icon="lucide:trash-2"
-              label="Remove"
+              label={t("common.action.remove")}
               danger
               onClick={() => {
                 setConfirmRemove(sheetFor);
@@ -205,10 +208,10 @@ export default function MobileDockerScreen({ sessionId }: { sessionId: string })
       )}
 
       {confirmRemove && (
-        <BottomSheet title="Remove container?" onClose={() => setConfirmRemove(null)}>
+        <BottomSheet title={t("mobile.docker.removeConfirmTitle")} onClose={() => setConfirmRemove(null)}>
           <div className="flex flex-col gap-3 px-2 py-1">
             <p className="text-xs text-(--t-text-dim)">
-              {containerName(confirmRemove)} will be removed. This can't be undone.
+              {t("mobile.docker.removeConfirmBody", { name: containerName(confirmRemove) })}
             </p>
             <button
               data-mobile-docker-remove-confirm
@@ -220,14 +223,14 @@ export default function MobileDockerScreen({ sessionId }: { sessionId: string })
               className="w-full rounded-xl py-3 text-sm font-medium"
               style={{ background: "var(--t-status-error)", color: "#fff" }}
             >
-              Remove
+              {t("common.action.remove")}
             </button>
             <button
               onClick={() => setConfirmRemove(null)}
               className="w-full rounded-xl py-3 text-sm text-(--t-text-primary)"
               style={{ background: "var(--t-bg-card)" }}
             >
-              Cancel
+              {t("common.action.cancel")}
             </button>
           </div>
         </BottomSheet>

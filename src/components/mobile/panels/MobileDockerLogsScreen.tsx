@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useSessionStore } from "@/stores/sessionStore";
 import { dockerStartLogStream, dockerStopLogStream, onDockerLog } from "@/plugins/docker/services";
 import type { DockerLogLine } from "@/plugins/docker/types";
@@ -17,6 +18,7 @@ export default function MobileDockerLogsScreen({
   containerId: string;
   containerName: string;
 }) {
+  const { t } = useTranslation();
   // `.find` is a stable element ref — safe selector, never a fresh array.
   const session = useSessionStore((s) => s.sessions.find((x) => x.id === sessionId));
   const isRemote = session?.type === "ssh";
@@ -103,7 +105,7 @@ export default function MobileDockerLogsScreen({
       <div className="flex-1 overflow-y-auto font-mono text-[11px] leading-4 px-3 py-2 select-text">
         {lines.length === 0 && (
           <p className="text-(--t-text-dim) opacity-60 mt-2">
-            {ready ? "Waiting for logs…" : "Session not connected."}
+            {ready ? t("mobile.dockerLogs.waitingForLogs") : t("mobile.dockerLogs.sessionNotConnected")}
           </p>
         )}
         {lines.map((l, i) => (

@@ -18,11 +18,10 @@ pub fn write_report_zip<W: Write + Seek>(
     let opts = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
     for entry in entries {
         zip.start_file(&entry.name, opts)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+            .map_err(std::io::Error::other)?;
         zip.write_all(&entry.bytes)?;
     }
-    zip.finish()
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+    zip.finish().map_err(std::io::Error::other)?;
     Ok(())
 }
 

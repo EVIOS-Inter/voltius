@@ -18,6 +18,8 @@ import { hitTestDropTarget, setExternalDragHover, clearExternalDragHover } from 
 import { triggerUpload } from "./osDropPipeline";
 import { tarUsable } from "./tarSupport";
 import { useTransferQueueStore } from "@/stores/transferQueueStore";
+import { useFileClipboardStore, type FileEndpoint } from "@/stores/fileClipboardStore";
+import { buildPasteDeps, executePaste } from "./pasteService";
 import { resolveConnectionCredentials, resolveJumpHosts } from "@/services/credentials";
 import { resolveKeepalive } from "@/utils/keepalive";
 import { getGlobalKeepalivePreset } from "@/stores/connectivitySettingsStore";
@@ -313,6 +315,17 @@ export default function SFTPPage() {
     });
   }, [leftPhase, rightPhase, leftHost, rightHost, setPending]);
 
+  const onPaste = useCallback((dest: FileEndpoint) => {
+    const clip = useFileClipboardStore.getState().clipboard;
+    if (!clip) return;
+    const refreshBoth = () => { setLeftRefresh((n) => n + 1); setRightRefresh((n) => n + 1); };
+    const deps = buildPasteDeps(clip, dest, {
+      runTransfer, setPending, refresh: refreshBoth,
+      clearClipboard: useFileClipboardStore.getState().clear,
+    });
+    void executePaste(clip, dest, deps);
+  }, [runTransfer, setPending]);
+
   // Tauri's drag-drop event delivers OS file paths once the user releases over
   // the webview. Position is in physical pixels; elementFromPoint wants CSS
   // pixels, so we scale by devicePixelRatio for hit-testing.
@@ -479,6 +492,7 @@ export default function SFTPPage() {
             onUpload={() => void uploadToSide("left")}
             onDownloadFiles={leftHost?.kind === "local" ? undefined : (files) => void downloadFromSide("left", files)}
             onMoveWithin={(files, targetFolder) => void moveWithin(files, targetFolder, "left")}
+            onPaste={onPaste}
           />
         </div>
 
@@ -507,6 +521,7 @@ export default function SFTPPage() {
             onUpload={() => void uploadToSide("right")}
             onDownloadFiles={rightHost?.kind === "local" ? undefined : (files) => void downloadFromSide("right", files)}
             onMoveWithin={(files, targetFolder) => void moveWithin(files, targetFolder, "right")}
+            onPaste={onPaste}
           />
         </div>
       </div>

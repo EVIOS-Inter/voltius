@@ -38,7 +38,7 @@ export function SidePane({
   host, phase, refreshTick,
   onPick, onNavigate, onSelect, onRefresh, onChangeHost, side, onDropFiles,
   onTransferToTarget, canTransferToTarget, onOpenInTerminal,
-  selected = [], onUpload, onDownloadFiles, onMoveWithin,
+  selected = [], onUpload, onDownloadFiles, onMoveWithin, onPaste,
 }: {
   host: HostChoice | null;
   phase: SidePhase;
@@ -60,6 +60,7 @@ export function SidePane({
   /** Download the given remote files to a chosen local folder (remote panes only). */
   onDownloadFiles?: (files: FileEntry[]) => void;
   onMoveWithin?: (files: FileEntry[], targetFolder: string) => void;
+  onPaste?: (dest: import("@/stores/fileClipboardStore").FileEndpoint) => void;
 }) {
   const { t } = useTranslation();
   const hostLabel =
@@ -335,6 +336,11 @@ export function SidePane({
             onPanelUpload={onUpload}
             onPanelDownload={onDownloadFiles}
             onMoveWithin={onMoveWithin}
+            onPaste={onPaste}
+            onBack={goBack}
+            onForward={goForward}
+            canBack={histState.canBack}
+            canForward={histState.canForward}
           />
         )}
       </div>

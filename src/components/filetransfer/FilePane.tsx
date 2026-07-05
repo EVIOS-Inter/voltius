@@ -20,6 +20,7 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useToggle } from "@/stores/toggleSettingsStore";
 import { startInternalDragGesture, useSemanticDragState } from "./internalDrag";
 import { resolveTypeAheadIndex, TYPE_AHEAD_RESET_MS } from "./typeAhead";
+import { useFileClipboardStore, sameHost, type FileEndpoint } from "@/stores/fileClipboardStore";
 
 // ── SelectionActionsCtx ───────────────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ export function FilePane({
   onTransferToTarget, canTransferToTarget, onChangeHost,
   filter = "", onRegisterMenuOpener, onRegisterViewMenuOpener, onOpenInTerminal,
   initialVisibleCols, onPanelDownload, onPanelUpload, onEdit,
+  onPaste, onBack, onForward,
 }: {
   sftpId: string | null;
   isLocal: boolean;
@@ -96,6 +98,11 @@ export function FilePane({
   onPanelUpload?: () => void;
   /** Optional override for Edit action (panel embedding: also opens SFTP panel). */
   onEdit?: (path: string) => void;
+  onPaste?: (dest: FileEndpoint) => void;
+  onBack?: () => void;
+  onForward?: () => void;
+  canBack?: boolean;
+  canForward?: boolean;
 }) {
   const { t } = useTranslation();
   const resolvedHostLabel = hostLabel ?? t("fileTransfer.common.remoteFallback");
@@ -247,6 +254,15 @@ export function FilePane({
 
   const selectedEntries = visibleEntries.filter((f) => selectedIdSet.has(f.path));
 
+  const thisEndpoint: FileEndpoint = { isLocal, sftpId, cwd };
+  const clipboard = useFileClipboardStore((s) => s.clipboard);
+  const setClipboard = useFileClipboardStore((s) => s.set);
+  const clearClipboard = useFileClipboardStore((s) => s.clear);
+  const cutPathSet =
+    clipboard?.mode === "cut" && sameHost(clipboard.source, thisEndpoint)
+      ? new Set(clipboard.items.map((i) => i.path))
+      : null;
+
   const handleDelete = async (files: FileEntry[]) => {
     if (files.length === 0) return;
     if (!isLocal && !sftpId) return;
@@ -290,7 +306,7 @@ export function FilePane({
       focusIndex.current = visibleEntries.length - 1;
       return;
     }
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !e.altKey) {
       e.preventDefault();
       const current = focusIndex.current;
       const next = e.key === "ArrowDown" ? Math.min(current + 1, visibleEntries.length - 1) : Math.max(current - 1, 0);
@@ -309,9 +325,47 @@ export function FilePane({
       onNavigate(selectedEntries[0].path);
       return;
     }
+    // Navigation keys (Explorer parity).
+    if (e.key === "Backspace") { e.preventDefault(); goUp(); return; }
+    if (e.altKey && e.key === "ArrowUp") { e.preventDefault(); goUp(); return; }
+    if (e.altKey && e.key === "ArrowLeft") { e.preventDefault(); onBack?.(); return; }
+    if (e.altKey && e.key === "ArrowRight") { e.preventDefault(); onForward?.(); return; }
+    if (e.key === "F5") { e.preventDefault(); onRefresh(); return; }
+    if (e.key === "Home" || e.key === "End") {
+      e.preventDefault();
+      const target = e.key === "Home" ? 0 : visibleEntries.length - 1;
+      if (target < 0) return;
+      const prev = focusIndex.current;
+      focusIndex.current = target;
+      if (e.shiftKey) {
+        const anchor = prev === -1 ? target : prev;
+        setSelection(entryIds.slice(Math.min(anchor, target), Math.max(anchor, target) + 1));
+      } else {
+        setSelection([entryIds[target]]);
+      }
+      scrollToIndexRef.current?.(target);
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      if (selectedEntries.length > 0) setSelection([]);
+      else if (clipboard?.mode === "cut") clearClipboard();
+      return;
+    }
+    // Clipboard.
+    if ((e.ctrlKey || e.metaKey) && (e.key === "c" || e.key === "x") && selectedEntries.length > 0) {
+      e.preventDefault();
+      setClipboard({ items: selectedEntries, source: thisEndpoint, mode: e.key === "x" ? "cut" : "copy" });
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === "v") {
+      e.preventDefault();
+      onPaste?.(thisEndpoint);
+      return;
+    }
     if (selectedEntries.length > 0) {
       if (e.key === "F2" && selectedEntries.length === 1) { startRename(selectedEntries[0]); return; }
-      if (e.key === "Delete" || e.key === "Backspace") { void handleDelete(selectedEntries); return; }
+      if (e.key === "Delete") { void handleDelete(selectedEntries); return; }
     }
     // Type-ahead: a single printable char (no modifiers) selects the first entry
     // whose name starts with the accumulated buffer; the same char repeated
@@ -452,6 +506,7 @@ export function FilePane({
           onCancelCreate={() => { setCreatingFolder(false); setCreatingFile(false); }}
           selectedIdSet={selectedIdSet} dropFolderPath={dropFolderPath}
           focusIndex={focusIndex} itemAreaRef={itemAreaRef} scrollToIndexRef={scrollToIndexRef}
+          cutPathSet={cutPathSet}
           side={side} isLocal={isLocal} selectedEntries={selectedEntries}
           colWidths={colWidths} visibleCols={visibleCols}
           onCommitRename={commitRename} onCancelRename={() => setRenaming(null)}
@@ -908,6 +963,7 @@ function VirtualFileList({
   onCommitCreateFolder, onCommitCreateFile, onCancelCreate,
   selectedIdSet, dropFolderPath,
   focusIndex, itemAreaRef, scrollToIndexRef,
+  cutPathSet,
   side, isLocal, selectedEntries, colWidths, visibleCols,
   onCommitRename, onCancelRename,
   onItemSelect, onNavigate, onSetSelection,
@@ -923,6 +979,7 @@ function VirtualFileList({
   selectedIdSet: Set<string>; dropFolderPath: string | null;
   focusIndex: React.MutableRefObject<number>; itemAreaRef: React.RefObject<HTMLDivElement | null>;
   scrollToIndexRef: React.MutableRefObject<((index: number) => void) | null>;
+  cutPathSet: Set<string> | null;
   side: "left" | "right" | "panel"; isLocal: boolean; selectedEntries: FileEntry[]; colWidths: ColumnWidths; visibleCols: VisibleCols;
   onCommitRename: (f: FileEntry) => void; onCancelRename: () => void;
   onItemSelect: (id: string, event: React.MouseEvent<HTMLDivElement>) => void;
@@ -1031,6 +1088,7 @@ function VirtualFileList({
               <FileRow
                 file={file}
                 isSelected={isSelected}
+                isCut={cutPathSet?.has(file.path) ?? false}
                 isDragHover={isDragHover}
                 isLocal={isLocal}
                 colWidths={colWidths}
@@ -1067,8 +1125,8 @@ function VirtualFileList({
 
 // ── FileRow ───────────────────────────────────────────────────────────────────
 
-function FileRow({ file, isSelected, isDragHover, isLocal, colWidths, visibleCols, selectableId, onClick, onDoubleClick, contextActions, onPointerDown }: {
-  file: FileEntry; isSelected: boolean; isDragHover?: boolean; isLocal: boolean; colWidths: ColumnWidths; visibleCols: VisibleCols; selectableId?: string;
+function FileRow({ file, isSelected, isCut, isDragHover, isLocal, colWidths, visibleCols, selectableId, onClick, onDoubleClick, contextActions, onPointerDown }: {
+  file: FileEntry; isSelected: boolean; isCut?: boolean; isDragHover?: boolean; isLocal: boolean; colWidths: ColumnWidths; visibleCols: VisibleCols; selectableId?: string;
   onClick: (e: React.MouseEvent) => void; onDoubleClick: () => void;
   contextActions?: ContextMenuItem[];
   onPointerDown?: (e: React.PointerEvent) => void;
@@ -1088,7 +1146,7 @@ function FileRow({ file, isSelected, isDragHover, isLocal, colWidths, visibleCol
     <div
       data-selectable-id={selectableId}
       className="flex items-center gap-2 px-2 py-1.5 my-px mr-1 ml-3 rounded-sm transition-colors cursor-default select-none relative"
-      style={{ background: bg, border }}
+      style={{ background: bg, border, opacity: isCut ? 0.5 : undefined }}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onMouseEnter={() => setHovered(true)}

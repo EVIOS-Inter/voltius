@@ -21,6 +21,8 @@ import { TransferQueue } from "@/components/filetransfer/TransferQueue";
 import { runIntraPaneMove } from "@/components/filetransfer/moveService";
 import { triggerOsDrop, triggerUpload } from "@/components/filetransfer/osDropPipeline";
 import { hitTestDropTarget, setExternalDragHover, clearExternalDragHover } from "@/components/filetransfer/internalDrag";
+import { useFileClipboardStore, type FileEndpoint } from "@/stores/fileClipboardStore";
+import { buildPasteDeps, executePaste } from "@/components/filetransfer/pasteService";
 import type { FileEntry, VisibleCols } from "@/components/filetransfer/SFTPTypes";
 
 const PANEL_VISIBLE_COLS: VisibleCols = { size: false, modified: false, permissions: false };
@@ -194,6 +196,17 @@ export default function PanelSftpSection() {
     });
   }, [panelState, setPending]);
 
+  const onPaste = useCallback((dest: FileEndpoint) => {
+    const clip = useFileClipboardStore.getState().clipboard;
+    if (!clip) return;
+    const deps = buildPasteDeps(clip, dest, {
+      runTransfer, setPending,
+      refresh: () => setRefreshTick((n) => n + 1),
+      clearClipboard: useFileClipboardStore.getState().clear,
+    });
+    void executePaste(clip, dest, deps);
+  }, [runTransfer, setPending]);
+
   // ── Editor escalation ───────────────────────────────────────────────────────
   const panelHostLabel =
     !session ? t("terminal.sftp.hostLabel.remote")
@@ -313,6 +326,7 @@ export default function PanelSftpSection() {
             onRegisterViewMenuOpener={(opener) => setViewMenuOpener(() => opener)}
             onEdit={handleEdit}
             onMoveWithin={(files, targetFolder) => void moveWithin(files, targetFolder)}
+            onPaste={onPaste}
           />
         )}
       </div>

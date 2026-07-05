@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-05
+
+### Added
+
+- Multi-language support — the entire app can now run in French, selectable
+  from a new language picker in Appearance settings (built on i18next)
+- Snippet sequences — build multi-step snippets from script, file-transfer, and
+  nested-snippet steps, run them across multiple hosts with variable prompts,
+  choose a per-target conflict policy for transfers, and see a run-summary
+  toast; includes a mobile step-list editor
+- In-app bug reporting — generate a redacted diagnostics zip from a new
+  Diagnostics settings section (or the command palette, dropdown, about page,
+  and error toasts), backed by unified logging with a verbose toggle
+- SFTP file-pane clipboard and keyboard navigation — copy/cut/paste files
+  including across hosts, Explorer-style navigation keys (Backspace to go up,
+  Alt-arrows for history, Home/End, Esc, F5 to refresh), and type-ahead search
+
 ## [0.8.1] - 2026-07-02
 
 ### Fixed

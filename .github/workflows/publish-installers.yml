@@ -54,6 +54,11 @@ jobs:
           cat out/Casks/voltius.rb
 
       - name: Audit cask
+        # brew audit --online calls the GitHub API; without a token it uses the
+        # unauthenticated 60 req/hr limit and flakes ("API rate limit exceeded")
+        # on back-to-back runs. The default token lifts this to 5000/hr.
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           brew style out/Casks/voltius.rb
           brew tap-new voltiusapp/voltius --no-git

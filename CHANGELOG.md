@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.54.0] - 2026-10-11
+
+### Added
+
+- Two-factor sign-in for cloud accounts, optional and free on every plan. Turn it on in **Settings → Account**: scan the QR code with an authenticator app, confirm a code, and save the ten recovery codes. Signing in on a new device then asks for a code after the master password; unlocking does not. Self-hosted servers offer it once updated and given a `TOTP_ENC_KEY` (#615)
+- Themes can set the colour of selected text. The theme creator has a "Selected Text" row under Terminal Base; themes that leave it unset look as before (#317)
+
+### Changed
+
+- When the server ends this device's session (password changed on another device, two-factor turned on), Voltius says so and offers to sign in again, instead of silently no longer syncing (#615)
+- Unlocking a cloud vault no longer signs in to the server again while its session is still valid (#615)
+
 ## [0.53.1] - 2026-10-11
 
 ### Changed

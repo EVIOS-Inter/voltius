@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.55.0] - 2026-10-11
+
+### Added
+
+- Passkeys as a second factor for cloud accounts, free on every plan. An account can hold an authenticator app, passkeys, or both, managed in **Settings → Account**. Voltius opens your browser to create or use a passkey (fingerprint, face, device PIN or a security key) and picks up from there. Sign-in and the master password change offer "Use a passkey" beside the code field. The master password is still required: a passkey replaces the six-digit code, not the password. Self-hosted servers offer passkeys once updated (`ghcr.io/voltiusapp/voltius-server:sha-e87034d` or newer) and given a `WEBAUTHN_RP_ID` (VoltiusApp/server#106)
+- "Pause sync on this device" in **Settings → Sync**. A paused device stops background sync with the server until you resume; "Sync now" still works. Team vaults stop updating and do not load at launch while paused (#619)
+
+### Changed
+
+- Two-factor settings list each factor separately. Adding a second factor or removing one asks for the master password and proof of a factor you already hold, and removing the last one says it turns two-factor off (VoltiusApp/server#106)
+
+### Fixed
+
+- With the server out of reach, Voltius retried every 5 seconds forever and the sync status flipped between syncing and error. It now waits longer between attempts, up to 5 minutes, and tries again at once when the network returns or the app comes back to the foreground (#619)
+
 ## [0.54.0] - 2026-10-11
 
 ### Added

@@ -10,6 +10,7 @@ import { onSshOutput, onSshClosed, onSshCwd, onSshMuxMode, sshSetOutputPaused, s
 import { createOutputFlow, type OutputFlow } from "@/components/terminal/outputFlow";
 import { suppressTerminalQueries } from "@/components/terminal/terminalQueries";
 import { createCommandTracker, type CommandRegion, type CommandTracker } from "@/components/terminal/commandMarks";
+import { attachKeywordHighlighter, eraseRange, type KeywordHighlighter } from "@/components/terminal/keywordHighlighter";
 import { currentTerminalColors } from "@/utils/terminalColors";
 import { localReady, onLocalOutput, onLocalClosed } from "@/services/local";
 import { onSerialOutput, onSerialClosed } from "@/services/serial";
@@ -171,6 +172,7 @@ type CacheEntry = CachedTerminal & {
   search: SearchState;
   minimap: MinimapState;
   commands: CommandTracker;
+  highlighter: KeywordHighlighter | null;
   sessionType: "ssh" | "local" | "serial";
   connectedRef: { current: boolean };
   /** The session's terminal encoding (undefined = UTF-8), for input and output alike. */
@@ -844,10 +846,15 @@ export function useTerminal({ sessionId, sessionType, onClosed, inputGate, encod
           frame: null,
         },
         commands: createCommandTracker({
-          mark: () => (term.buffer.active.type === "normal" ? term.registerMarker(0) ?? null : null),
+          mark: (line) => {
+            const buf = term.buffer.active;
+            if (buf.type !== "normal") return null;
+            return term.registerMarker(line === undefined ? 0 : line - buf.baseY - buf.cursorY) ?? null;
+          },
           col: () => term.buffer.active.cursorX,
           now: Date.now,
         }),
+        highlighter: null,
         sessionType,
         // Serial is live the moment its port opens (the store marks it
         // connected before the terminal mounts); ssh and local flip in the
@@ -1045,6 +1052,23 @@ export function useTerminal({ sessionId, sessionType, onClosed, inputGate, encod
         return true;
       });
 
+      entry.highlighter = attachKeywordHighlighter({
+        term,
+        spans: (top, bottom, bufferEnd) => entry.commands.outputSpans(top, bottom, bufferEnd),
+        isVisible: () => !entry.hidden,
+      });
+
+      // Erase in Display disposes the markers on the lines it wipes, so both mark holders hear of it first.
+      const eraseDispose = term.parser.registerCsiHandler({ final: "J" }, (params) => {
+        const buf = term.buffer.active;
+        if (buf.type !== "normal") return false;
+        const mode = Number(params[0] ?? 0);
+        const cursor = buf.baseY + buf.cursorY;
+        entry.commands.erased(mode === 3 ? buf.cursorY : cursor);
+        entry.highlighter?.erasing(...eraseRange(mode, buf.baseY, cursor));
+        return false;
+      });
+
       const onDataDispose = term.onData((data) => {
         if (inputGate && !inputGate.current?.()) return;
         if (!entry.connectedRef.current) return;
@@ -1142,6 +1166,7 @@ export function useTerminal({ sessionId, sessionType, onClosed, inputGate, encod
         onResizeDispose.dispose();
         oscCwdDispose.dispose();
         oscMarkDispose.dispose();
+        eraseDispose.dispose();
         searchResultsDispose.dispose();
         scrollDispose.dispose();
         bufferChangeDispose.dispose();
@@ -1151,6 +1176,7 @@ export function useTerminal({ sessionId, sessionType, onClosed, inputGate, encod
         hideLinkTooltip();
         Promise.all(unlistenPromises).then((fns) => fns.forEach((fn) => fn()));
         queryGuard?.dispose();
+        entry.highlighter?.dispose();
         term.dispose();
       };
 
@@ -1225,7 +1251,9 @@ export function useTerminal({ sessionId, sessionType, onClosed, inputGate, encod
 
   const setVisible = useCallback((visible: boolean) => {
     const entry = terminalCache.get(sessionId);
-    if (entry) setTerminalVisible(entry, visible);
+    if (!entry) return;
+    setTerminalVisible(entry, visible);
+    if (visible) entry.highlighter?.refresh();
   }, [sessionId]);
 
   return { attach, activate, fit, setVisible };

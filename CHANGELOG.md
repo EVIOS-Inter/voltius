@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.56.0] - 2026-10-12
+
+### Added
+
+- Keyword highlighting in the terminal. Words such as `error`, `warning` and `ok` are coloured in command output, in the theme's ANSI colours. It applies to output marked by shell integration. Rules are editable in **Settings → Terminal** and sync across devices (#317)
+- A server that cannot be reached shows as its own state: a grey cloud labelled "Can't reach server", with the reason in the sync menu, the tooltip and **Settings → Sync**, instead of a red sync error. Background syncs wait and run when the server is back (#619)
+- Pause and resume sync from the sync menu, next to "Sync now" (#619)
+- On Android, the header sync icon opens a sheet with each provider's status, the reason for a failure, "Sync now" and pause/resume. The icon stays visible while sync is paused, and the cloud sync row on the account page opens the same sheet (#619)
+- Removing a saved account asks for confirmation. Signing out asks when this device holds the only copy of the account's data or may be ahead of the server (#622)
+
+### Fixed
+
+- Switching accounts deleted the outgoing account's local data and relied on the sync server to bring it back, so an account with no server copy lost its hosts. Each saved account's data now stays on the device across a switch, and switching works without the server (#622)
+
 ## [0.55.0] - 2026-10-11
 
 ### Added
